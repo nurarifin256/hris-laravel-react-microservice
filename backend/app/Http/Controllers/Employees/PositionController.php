@@ -8,13 +8,33 @@ use Illuminate\Http\Request;
 
 class PositionController extends Controller
 {
-    public function getPosition()
+    public function getPosition(Request $request)
     {
-        $data = PositionModel::getPositions();
+        $positions = PositionModel::where('trashed', 0)->select(['name']);
+        $meta = [];
+
+        if ($request->has('filter')) {
+            $positions->where("name", "like", "$request->filter%");
+        }
+
+        // if ($request->has('sort_by')) {
+        //     $positions->orderBy($request->sort_by, $request->sort_dir ?? "asc");
+        // }
+
+        $perPage = $request->per_page ?? 10;
+        $positions = $positions->paginate($perPage);
+
+        $meta = [
+            'current_page' => $positions->currentPage(),
+            'last_page'    => $positions->lastPage(),
+            'per_page'     => $positions->perPage(),
+            'total'        => $positions->total()
+        ];
+
         return response()->json([
-            'status' => true,
-            'data' => $data,
-            200
+            'data' => $positions->items(),
+            'meta' => $meta,
+            'request' => $request->per_page
         ]);
     }
 }
