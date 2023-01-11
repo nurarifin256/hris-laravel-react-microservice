@@ -10,7 +10,7 @@ class PositionController extends Controller
 {
     public function getPosition(Request $request)
     {
-        $positions = PositionModel::where('trashed', 0)->select(['name']);
+        $positions = PositionModel::where('trashed', 0)->select(['name', 'id']);
         $meta = [];
 
         if ($request->has('filter')) {
@@ -36,5 +36,17 @@ class PositionController extends Controller
             'meta' => $meta,
             'request' => $request->per_page
         ]);
+    }
+
+    public function savePosition(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $positions             = new PositionModel();
+            $positions->name       = $data['name'];
+            $positions->created_by = "Agus";
+            $positions->save();
+        }
     }
 }

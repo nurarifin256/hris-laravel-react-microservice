@@ -20,4 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::get('get-position', 'PositionController@getPosition');
+    Route::post('save-position', 'PositionController@savePosition');
 });
