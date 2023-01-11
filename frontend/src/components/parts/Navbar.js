@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav className="navbar navbar-expand-lg bg-body-tertiary mb-3">
       <div className="container-fluid">
-        <a className="navbar-brand">HRIS</a>
+        <Link className="navbar-brand" to="/">
+          HRIS
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -35,17 +37,17 @@ const Navbar = () => {
               </Link>
               <ul className="dropdown-menu">
                 <li>
-                  <a className="dropdown-item">employee</a>
+                  <Link className="dropdown-item">employee</Link>
                 </li>
 
                 <li>
-                  <a className="dropdown-item">Departmen</a>
+                  <Link className="dropdown-item">Departmen</Link>
                 </li>
 
                 <li>
-                  <a className="dropdown-item" href="#">
+                  <Link className="dropdown-item" to="employee/position">
                     Position
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </li>
