@@ -76,7 +76,7 @@ const Position = () => {
           data-bs-toggle="modal"
           data-bs-target="#exampleModal"
         >
-          <i class="fa-solid fa-trash-can"></i>
+          <i className="fa-solid fa-trash-can"></i>
         </button>
       ),
       ignoreRowClick: true,
@@ -95,7 +95,7 @@ const Position = () => {
             data-bs-toggle="modal"
             data-bs-target="#modal-add"
           >
-            <i class="fa-solid fa-plus"></i> Add
+            <i className="fa-solid fa-plus"></i> Add
           </button>
         </div>
         <div className="col-md-3 offset-md-6 mb-3">
@@ -177,14 +177,14 @@ const Position = () => {
               ></button>
             </div>
             <div className="modal-body">
-              <label for="name" class="form-label">
+              <label htmlFor="name" className="form-label">
                 Name Position
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 type="text"
-                class="form-control"
+                className="form-control"
                 id="name"
                 placeholder="Enter name"
               />
