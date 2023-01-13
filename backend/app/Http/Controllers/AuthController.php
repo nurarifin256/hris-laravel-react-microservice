@@ -44,13 +44,51 @@ class AuthController extends Controller
                 'message' => 'User register succesfully',
                 201
             ]);
+        }
+    }
 
+    public function loginUser(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
 
-            // if ($request->fails()) {
-            //     return response()->json(['errors' => $request->errors()], 400);
-            // } else {
-            //     return response()->json(["ok" => "ok"]);
-            // }
+            $rules = [
+                "email"    => "required|email|",
+                "password" => "required"
+            ];
+
+            $customMesagges = [
+                'email.required' => "Email is required",
+                'email.email' => "Email not valid",
+                'password.required' => "Password is required",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $getUser = User::where('email', $data['email'])->select('id', 'name', 'email', 'password')->first();
+            if ($getUser != null) {
+                if (password_verify($data['password'], $getUser->password)) {
+
+                    return response()->json([
+                        'user'    => $getUser,
+                        'status'  => true,
+                        'message' => "User login succesfully"
+                    ], 201);
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'messagePassword' => "Password is incorrect"
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'messageEmail' => "Email not registered"
+                ], 422);
+            }
         }
     }
 }

@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // route user
 Route::post('register-user', 'App\Http\Controllers\AuthController@registerUser');
+Route::post('login-user', 'App\Http\Controllers\AuthController@loginUser');
 
 Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::get('get-position', 'PositionController@getPosition');
