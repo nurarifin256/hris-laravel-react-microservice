@@ -1,15 +1,37 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessageEmail, setErrorMessageEmail] = useState("");
+  const [errorMessagePassword, setErrorMessagePassword] = useState("");
+  const navigate = useNavigate();
 
   async function Save() {
-    if (name == "") {
-      setErrorMessage("Name is required");
+    let data = { name, email, password };
+    let result = await fetch("http://localhost:8000/api/register-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    result = await result.json();
+    if (
+      result["name"] == "Name is required" ||
+      result["email"] == "Email is required" ||
+      result["email"] == "Email is not valid" ||
+      result["email"] == "Email already exists" ||
+      result["password"] == "Password is required"
+    ) {
+      setErrorMessage(result["name"]);
+      setErrorMessageEmail(result["email"]);
+      setErrorMessagePassword(result["password"]);
     } else {
+      navigate("/login");
     }
   }
 
@@ -22,7 +44,7 @@ const Register = () => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="form-control"
+            className={`form-control ${errorMessage ? "is-invalid" : null}`}
             autoFocus
           />
           {errorMessage && (
@@ -35,8 +57,13 @@ const Register = () => {
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
+            className={`form-control ${
+              errorMessageEmail ? "is-invalid" : null
+            }`}
           />
+          {errorMessageEmail && (
+            <span className="text-danger"> {errorMessageEmail} </span>
+          )}
         </div>
         <div className="mb-3">
           <label className="form-label">Password</label>
@@ -44,8 +71,13 @@ const Register = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
+            className={`form-control ${
+              errorMessagePassword ? "is-invalid" : null
+            }`}
           />
+          {errorMessagePassword && (
+            <span className="text-danger"> {errorMessagePassword} </span>
+          )}
         </div>
         <button type="button" onClick={Save} className="btn btn-primary">
           Register
