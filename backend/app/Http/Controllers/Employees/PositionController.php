@@ -45,7 +45,7 @@ class PositionController extends Controller
 
             $positions             = new PositionModel();
             $positions->name       = $data['name'];
-            $positions->created_by = "Agus";
+            $positions->created_by = $data['created_by'];
             $positions->save();
         }
     }

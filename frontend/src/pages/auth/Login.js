@@ -18,6 +18,7 @@ const Login = () => {
       body: JSON.stringify(data),
     });
     result = await result.json();
+    // console.warn(result);
     if (
       result["email"] == "Email is required" ||
       result["email"] == "Email not valid" ||
@@ -33,6 +34,7 @@ const Login = () => {
         setErrorEmail(result["messageEmail"]);
         setErrorPassword(result["messagePassword"]);
       } else {
+        localStorage.setItem("user", JSON.stringify(result));
         navigate("/");
       }
     }
