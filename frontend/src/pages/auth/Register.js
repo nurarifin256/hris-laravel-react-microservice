@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -8,7 +10,7 @@ const Register = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorMessageEmail, setErrorMessageEmail] = useState("");
   const [errorMessagePassword, setErrorMessagePassword] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   async function Save() {
     let data = { name, email, password };
@@ -31,7 +33,17 @@ const Register = () => {
       setErrorMessageEmail(result["email"]);
       setErrorMessagePassword(result["password"]);
     } else {
-      navigate("/login");
+      // navigate("/login");
+      toast.success("Register Successfully, Please Click the Login Link", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   }
 
@@ -79,9 +91,17 @@ const Register = () => {
             <span className="text-danger"> {errorMessagePassword} </span>
           )}
         </div>
-        <button type="button" onClick={Save} className="btn btn-primary">
-          Register
-        </button>
+
+        <ToastContainer />
+
+        <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+          <label className="">
+            Already have account click <Link to="/login">login</Link>
+          </label>
+          <button type="button" onClick={Save} className="btn btn-primary ml-3">
+            Register
+          </button>
+        </div>
       </div>
     </div>
   );
