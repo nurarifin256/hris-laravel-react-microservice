@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import { ToastContainer, toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert"; // Import
 import "react-toastify/dist/ReactToastify.css";
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
 const Position = () => {
   const [positions, setPosition] = useState([]);
@@ -44,7 +46,26 @@ const Position = () => {
     setFilter(e.target.value);
   };
 
-  const handleHapus = () => {};
+  const handleHapus = (id) => {
+    confirmAlert({
+      title: "Confirm to submit",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => hapusBackend(id),
+        },
+        {
+          label: "No",
+          onClick: () => alert("Click No"),
+        },
+      ],
+    });
+  };
+
+  async function hapusBackend(id) {
+    console.log(id);
+  }
 
   async function handleSave() {
     if (name == "") {
@@ -88,13 +109,12 @@ const Position = () => {
     },
     {
       name: "Action",
-      cell: () => (
+      cell: (row, i) => (
         <div>
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
+            onClick={() => handleHapus(row.id)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -161,7 +181,7 @@ const Position = () => {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Modal title
+                Delete Data
               </h1>
               <button
                 type="button"
@@ -170,7 +190,9 @@ const Position = () => {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">...</div>
+            <div className="modal-body">
+              <label>Are you sure, want delete this data ?</label>
+            </div>
             <div className="modal-footer">
               <button
                 type="button"
@@ -179,8 +201,8 @@ const Position = () => {
               >
                 Close
               </button>
-              <button type="button" className="btn btn-primary">
-                Save changes
+              <button type="submit" className="btn btn-danger">
+                Delete
               </button>
             </div>
           </div>
