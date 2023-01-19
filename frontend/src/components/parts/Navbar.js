@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
+  useEffect(() => {}, []);
+
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary mb-3">
       <div className="container-fluid">
@@ -52,17 +54,28 @@ const Navbar = () => {
               </ul>
             </li>
 
-            <li className="nav-item">
-              <Link className="nav-link" aria-current="page" to="/login">
-                Login
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link className="nav-link" aria-current="page" to="/register">
-                Register
-              </Link>
-            </li>
+            {localStorage.getItem("user") ? (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" aria-current="page" to="/logout">
+                    Logout
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" aria-current="page" to="/login">
+                    Login
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" aria-current="page" to="/register">
+                    Register
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
