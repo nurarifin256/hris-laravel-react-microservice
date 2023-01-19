@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
 const Position = () => {
+  let user = JSON.parse(localStorage.getItem("user"));
   const [positions, setPosition] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -64,11 +65,34 @@ const Position = () => {
   };
 
   async function hapusBackend(id) {
-    console.log(id);
+    let updated_by = user.user.name;
+    let data = { id, updated_by };
+
+    let result = await fetch("http://localhost:8000/api/delete-position", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    result = await result.json();
+    if (result["message"] == "Delete data position success") {
+      fetchUser();
+      toast.success("Delete data position success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
   }
 
   async function handleSave() {
-    let user = JSON.parse(localStorage.getItem("user"));
     let created_by = user.user.name;
     let data = { name, created_by };
 
@@ -162,7 +186,7 @@ const Position = () => {
           />
         </div>
 
-        <div className="col-md-6">
+        <div className="col-md-12">
           <DataTable
             columns={columns}
             data={positions}

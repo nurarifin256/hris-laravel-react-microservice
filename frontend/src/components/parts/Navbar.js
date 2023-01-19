@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  useEffect(() => {}, []);
-
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary mb-3">
       <div className="container-fluid">

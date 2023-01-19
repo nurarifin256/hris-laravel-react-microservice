@@ -69,4 +69,22 @@ class PositionController extends Controller
             ]);
         }
     }
+
+    public function deletePosition(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $position             = PositionModel::find($data['id']);
+            $position->trashed    = 1;
+            $position->updated_by = $data['updated_by'];
+            $position->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Delete data position success',
+                201
+            ]);
+        }
+    }
 }
