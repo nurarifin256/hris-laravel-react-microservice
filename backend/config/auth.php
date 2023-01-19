@@ -35,12 +35,26 @@ return [
     |
     */
 
+    // bawaan
+    // 'guards' => [
+    //     'web' => [
+    //         'driver' => 'session',
+    //         'provider' => 'users',
+    //     ],
+    // ],
+
     'guards' => [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -59,17 +73,30 @@ return [
     |
     */
 
+    // bawaan
+    // 'providers' => [
+    //     'users' => [
+    //         'driver' => 'eloquent',
+    //         'model' => App\Models\User::class,
+    //     ],
+
+    // 'users' => [
+    //     'driver' => 'database',
+    //     'table' => 'users',
+    // ],
+    // ],
+
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'api' => [
+            'driver' => 'eloquent',
+            'model' => App\User::class,
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------

@@ -57,7 +57,7 @@ const Position = () => {
         },
         {
           label: "No",
-          onClick: () => alert("Click No"),
+          // onClick: () => onClose(),
         },
       ],
     });
@@ -68,19 +68,25 @@ const Position = () => {
   }
 
   async function handleSave() {
-    if (name == "") {
-      setErrorName("Name is required");
+    let user = JSON.parse(localStorage.getItem("user"));
+    let created_by = user.user.name;
+    let data = { name, created_by };
+
+    let result = await fetch("http://localhost:8000/api/save-position", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    result = await result.json();
+    if (
+      result["name"] == "Name is required" ||
+      result["name"] == "Name already exists"
+    ) {
+      setErrorName(result["name"]);
     } else {
-      let user = JSON.parse(localStorage.getItem("user"));
-      let created_by = user.user.name;
-      let item = { name, created_by };
-      await fetch("http://localhost:8000/api/save-position", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(item),
-      });
       const btnClose = document.querySelector(".btn-tutup");
       btnClose.click();
       fetchUser();
@@ -238,7 +244,7 @@ const Position = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   type="text"
-                  className="form-control"
+                  className={`form-control ${errorName ? "is-invalid" : null}`}
                   id="name"
                   placeholder="Enter name"
                 />
