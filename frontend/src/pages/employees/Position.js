@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import { ToastContainer, toast } from "react-toastify";
-import { confirmAlert } from "react-confirm-alert"; // Import
+import { confirmAlert } from "react-confirm-alert";
 import "react-toastify/dist/ReactToastify.css";
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import "react-confirm-alert/src/react-confirm-alert.css";
+import "./position.css";
 
 const Position = () => {
   let user = JSON.parse(localStorage.getItem("user"));
@@ -16,6 +17,8 @@ const Position = () => {
   const [filter, setFilter] = useState("");
   const [name, setName] = useState("");
   const [errorName, setErrorName] = useState("");
+  const [nameEdit, setNameEdit] = useState("");
+  const [idPosition, setIdPosition] = useState("");
 
   useEffect(() => {
     fetchUser();
@@ -47,6 +50,42 @@ const Position = () => {
     setFilter(e.target.value);
   };
 
+  const columns = [
+    {
+      name: "No",
+      selector: (row, i) => i + 1,
+    },
+    {
+      name: "Name",
+      selector: (row, i) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Action",
+      cell: (row, i) => (
+        <div>
+          <button
+            type="button"
+            className="btn btn-danger btn-sm"
+            onClick={() => handleHapus(row.id)}
+          >
+            <i className="fa-solid fa-trash-can"></i>
+          </button>
+          <button
+            type="button"
+            className="btn btn-warning btn-sm ms-2"
+            onClick={() => handleEdit(row.id)}
+          >
+            <i className="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
+  ];
+
   const handleHapus = (id) => {
     confirmAlert({
       title: "Confirm to submit",
@@ -63,6 +102,26 @@ const Position = () => {
       ],
     });
   };
+
+  async function handleEdit(id) {
+    let data = { id };
+    let result = await fetch("http://localhost:8000/api/edit-position", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    result = await result.json();
+    if (result["message"] == "success") {
+      setNameEdit(result["userData"]["name"]);
+      setIdPosition(result["userData"]["id"]);
+      const btnEdit = document.querySelector(".btn-edit");
+      btnEdit.click();
+    }
+  }
+
+  async function handleUpdate(id) {}
 
   async function hapusBackend(id) {
     let updated_by = user.user.name;
@@ -127,43 +186,6 @@ const Position = () => {
     }
   }
 
-  const columns = [
-    {
-      name: "No",
-      selector: (row, i) => i + 1,
-    },
-    {
-      name: "Name",
-      selector: (row, i) => row.name,
-      sortable: true,
-    },
-    {
-      name: "Action",
-      cell: (row, i) => (
-        <div>
-          <button
-            type="button"
-            className="btn btn-danger btn-sm"
-            onClick={() => handleHapus(row.id)}
-          >
-            <i className="fa-solid fa-trash-can"></i>
-          </button>
-          <button
-            type="button"
-            className="btn btn-warning btn-sm ms-2"
-            data-bs-toggle="modal"
-            data-bs-target="#modal-edit"
-          >
-            <i className="fa-solid fa-pen-to-square"></i>
-          </button>
-        </div>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-  ];
-
   return (
     <div className="container">
       <div className="row">
@@ -176,6 +198,13 @@ const Position = () => {
           >
             <i className="fa-solid fa-plus"></i> Add
           </button>
+
+          <button
+            type="button"
+            className="btn-edit"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-edit"
+          ></button>
         </div>
         <div className="col-md-3 offset-md-6 mb-3">
           <input
@@ -200,45 +229,7 @@ const Position = () => {
         <ToastContainer />
       </div>
 
-      <div
-        className="modal fade"
-        id="exampleModal"
-        tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Delete Data
-              </h1>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <label>Are you sure, want delete this data ?</label>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button type="submit" className="btn btn-danger">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* modal add */}
       <div>
         <div
           className="modal fade"
@@ -290,6 +281,71 @@ const Position = () => {
                   className="btn btn-primary"
                 >
                   Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* modal edit */}
+      <div>
+        <div
+          className="modal fade"
+          id="modal-edit"
+          tabIndex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title fs-5" id="exampleModalLabel">
+                  Edit Data
+                </h1>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <label htmlFor="name" className="form-label">
+                  Name Position
+                </label>
+                <input
+                  value={nameEdit}
+                  onChange={(e) => setNameEdit(e.target.value)}
+                  type="text"
+                  className={`form-control ${errorName ? "is-invalid" : null}`}
+                  id="name"
+                  placeholder="Enter name"
+                />
+                {errorName && (
+                  <span className="text-danger"> {errorName} </span>
+                )}
+
+                <input
+                  value={idPosition}
+                  onChange={(e) => setIdPosition(e.target.value)}
+                  type="hidden"
+                />
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-tutup"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUpdate}
+                  className="btn btn-primary"
+                >
+                  Update
                 </button>
               </div>
             </div>

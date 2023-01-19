@@ -87,4 +87,20 @@ class PositionController extends Controller
             ]);
         }
     }
+
+    public function editPosition(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+            $id = $data['id'];
+
+            $positions = PositionModel::where(['trashed' => 0, 'id' => $id])->select(['name', 'id'])->first();
+            return response()->json([
+                'userData' => $positions,
+                'status' => true,
+                'message' => 'success',
+                200
+            ]);
+        }
+    }
 }

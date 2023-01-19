@@ -26,4 +26,5 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::get('get-position', 'PositionController@getPosition');
     Route::post('save-position', 'PositionController@savePosition');
     Route::post('delete-position', 'PositionController@deletePosition');
+    Route::post('edit-position', 'PositionController@editPosition');
 });
