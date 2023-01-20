@@ -20,6 +20,7 @@ const Departement = () => {
         `http://localhost:8000/api/get-department?page=${currentPage}&filter=${filter}&per_page=${perPage}`
       )
       .then((response) => {
+        console.log(response.data.data);
         setDepartment(response.data.data);
         setTotalPages(response.data.meta.last_page);
       })

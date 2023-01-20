@@ -10,13 +10,17 @@ class DepartementController extends Controller
 {
     public function getDepartment(Request $request)
     {
-        $departmens =  DepartmentModel::with('positions')->where('trashed', 0);
+        $departmens =  DepartmentModel::with('positions')->where('trashed', 0)
+            ->where(function ($query) use ($request) {
+                if ($request->has('filter')) {
+                    $query->where("name", "like", "$request->filter%")
+                        ->orWhereHas('positions', function ($q) use ($request) {
+                            $q->where('name', 'like', '%' . $request->filter . '%');
+                        });
+                }
+            });
+
         $meta = [];
-
-        if ($request->has('filter')) {
-            $departmens->where("name", "like", "$request->filter%");
-        }
-
         $perPage = $request->per_page ?? 10;
         $departmens = $departmens->paginate($perPage);
 
