@@ -10,8 +10,14 @@ const Departement = () => {
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
 
+  const [name, setName] = useState("");
+  const [positionData, setPositionData] = useState("");
+  const [position, setPosition] = useState("");
+  const [errorName, setErrorName] = useState("");
+
   useEffect(() => {
     fetchDepartment();
+    // console.log(position);
   }, [currentPage, sort, filter]);
 
   const fetchDepartment = () => {
@@ -20,8 +26,8 @@ const Departement = () => {
         `http://localhost:8000/api/get-department?page=${currentPage}&filter=${filter}&per_page=${perPage}`
       )
       .then((response) => {
-        console.log(response.data.data);
         setDepartment(response.data.data);
+        setPositionData(response.data.dataPositions);
         setTotalPages(response.data.meta.last_page);
       })
       .catch((error) => {
@@ -58,6 +64,10 @@ const Departement = () => {
     },
   ];
 
+  async function handleSave() {
+    console.warn(position);
+  }
+
   return (
     <div className="container">
       <div className="row">
@@ -90,6 +100,84 @@ const Departement = () => {
             onChangePage={handlePageChange}
             onSort={handleSort}
           />
+        </div>
+      </div>
+
+      {/* modal add */}
+      <div>
+        <div
+          className="modal fade"
+          id="modal-add"
+          tabIndex="-1"
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title fs-5" id="exampleModalLabel">
+                  Add Data
+                </h1>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <label htmlFor="name" className="form-label">
+                  Name Departement
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  type="text"
+                  className={`form-control ${errorName ? "is-invalid" : null}`}
+                  id="name"
+                  placeholder="Enter name"
+                />
+                {errorName && (
+                  <span className="text-danger"> {errorName} </span>
+                )}
+
+                <label className="form-label mt-3">Position</label>
+                <select
+                  className="form-select"
+                  aria-label="Default select example"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                >
+                  <option value={1}>Choose Position</option>
+                  {positionData && positionData.length > 0
+                    ? positionData.map((pos, i) => {
+                        return (
+                          <option key={i} value={pos.id}>
+                            {pos.name}
+                          </option>
+                        );
+                      })
+                    : null}
+                </select>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-tutup"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="btn btn-primary"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

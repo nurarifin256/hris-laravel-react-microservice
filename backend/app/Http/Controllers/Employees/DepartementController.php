@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Employees;
 
 use App\Http\Controllers\Controller;
 use App\Models\DepartmentModel;
+use App\Models\PositionModel;
 use Illuminate\Http\Request;
 
 class DepartementController extends Controller
 {
     public function getDepartment(Request $request)
     {
+        $positions = PositionModel::where('trashed', 0)->select(['name', 'id'])->get();
         $departmens =  DepartmentModel::with('positions')->where('trashed', 0)
             ->where(function ($query) use ($request) {
                 if ($request->has('filter')) {
@@ -32,9 +34,10 @@ class DepartementController extends Controller
         ];
 
         return response()->json([
-            'data' => $departmens->items(),
-            'meta' => $meta,
-            'request' => $request->per_page
+            'data'          => $departmens->items(),
+            'dataPositions' => $positions,
+            'meta'          => $meta,
+            'request'       => $request->per_page
         ]);
     }
 }
