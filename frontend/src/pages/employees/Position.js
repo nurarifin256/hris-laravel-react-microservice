@@ -16,9 +16,10 @@ const Position = () => {
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
   const [name, setName] = useState("");
-  const [errorName, setErrorName] = useState("");
   const [nameEdit, setNameEdit] = useState("");
   const [idPosition, setIdPosition] = useState("");
+  const [errorName, setErrorName] = useState("");
+  const [errorNameEdit, setErrorNameEdit] = useState("");
 
   useEffect(() => {
     fetchUser();
@@ -103,6 +104,34 @@ const Position = () => {
     });
   };
 
+  async function hapusBackend(id) {
+    let updated_by = user.user.name;
+    let data = { id, updated_by };
+
+    let result = await fetch("http://localhost:8000/api/delete-position", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    result = await result.json();
+    if (result["message"] == "Delete data position success") {
+      fetchUser();
+      toast.success("Delete data position success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
+
   async function handleEdit(id) {
     let data = { id };
     let result = await fetch("http://localhost:8000/api/edit-position", {
@@ -121,24 +150,31 @@ const Position = () => {
     }
   }
 
-  async function handleUpdate(id) {}
-
-  async function hapusBackend(id) {
+  async function handleUpdate() {
     let updated_by = user.user.name;
-    let data = { id, updated_by };
+    let name = nameEdit;
+    let data = { idPosition, name, updated_by };
 
-    let result = await fetch("http://localhost:8000/api/delete-position", {
+    console.warn(data);
+
+    let result = await fetch("http://localhost:8000/api/update-position", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
-
     result = await result.json();
-    if (result["message"] == "Delete data position success") {
+    if (
+      result["name"] == "Name is required" ||
+      result["name"] == "Name already exists"
+    ) {
+      setErrorNameEdit(result["name"]);
+    } else {
+      const btnClose = document.querySelector(".btn-tutup-update");
+      btnClose.click();
       fetchUser();
-      toast.success("Delete data position success", {
+      toast.success("Update data position success", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -315,15 +351,16 @@ const Position = () => {
                   Name Position
                 </label>
                 <input
+                  type="text"
                   value={nameEdit}
                   onChange={(e) => setNameEdit(e.target.value)}
-                  type="text"
-                  className={`form-control ${errorName ? "is-invalid" : null}`}
-                  id="name"
+                  className={`form-control ${
+                    errorNameEdit ? "is-invalid" : null
+                  }`}
                   placeholder="Enter name"
                 />
-                {errorName && (
-                  <span className="text-danger"> {errorName} </span>
+                {errorNameEdit && (
+                  <span className="text-danger"> {errorNameEdit} </span>
                 )}
 
                 <input
@@ -335,7 +372,7 @@ const Position = () => {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary btn-tutup"
+                  className="btn btn-secondary btn-tutup-update"
                   data-bs-dismiss="modal"
                 >
                   Close

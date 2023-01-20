@@ -23,8 +23,11 @@ Route::post('register-user', 'App\Http\Controllers\AuthController@registerUser')
 Route::post('login-user', 'App\Http\Controllers\AuthController@loginUser');
 
 Route::namespace('App\Http\Controllers\Employees')->group(function () {
+
+    // route position
     Route::get('get-position', 'PositionController@getPosition');
     Route::post('save-position', 'PositionController@savePosition');
     Route::post('delete-position', 'PositionController@deletePosition');
     Route::post('edit-position', 'PositionController@editPosition');
+    Route::post('update-position', 'PositionController@updatePosition');
 });

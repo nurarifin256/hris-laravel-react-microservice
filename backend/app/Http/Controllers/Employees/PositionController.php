@@ -103,4 +103,36 @@ class PositionController extends Controller
             ]);
         }
     }
+
+    public function updatePosition(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "name"    => "required|unique:positions",
+            ];
+
+            $customMesagges = [
+                'name.required' => "Name is required",
+                'name.unique' => "Name already exists",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $position             = PositionModel::find($data['idPosition']);
+            $position->name       = $data['name'];
+            $position->updated_by = $data['updated_by'];
+            $position->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Update data position success',
+                201
+            ]);
+        }
+    }
 }
