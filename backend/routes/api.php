@@ -31,5 +31,7 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::post('edit-position', 'PositionController@editPosition');
     Route::post('update-position', 'PositionController@updatePosition');
 
+    // route department
     Route::get('get-department', 'DepartementController@getDepartment');
+    Route::post('save-department', 'DepartementController@saveDepartment');
 });

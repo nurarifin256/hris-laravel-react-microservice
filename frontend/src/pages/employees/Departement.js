@@ -1,8 +1,11 @@
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
-import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Departement = () => {
+  let user = JSON.parse(localStorage.getItem("user"));
   const [department, setDepartment] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -12,12 +15,12 @@ const Departement = () => {
 
   const [name, setName] = useState("");
   const [positionData, setPositionData] = useState("");
-  const [position, setPosition] = useState("");
+  const [id_position, setIdPosition] = useState("");
   const [errorName, setErrorName] = useState("");
+  const [errorPosition, setErrorPosition] = useState("");
 
   useEffect(() => {
     fetchDepartment();
-    // console.log(position);
   }, [currentPage, sort, filter]);
 
   const fetchDepartment = () => {
@@ -65,7 +68,39 @@ const Departement = () => {
   ];
 
   async function handleSave() {
-    console.warn(position);
+    let created_by = user.user.name;
+    let data = { name, id_position, created_by };
+
+    let result = await fetch("http://localhost:8000/api/save-department", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    result = await result.json();
+    if (
+      result["name"] == "Name is required" ||
+      result["id_position"] == "Position is required"
+    ) {
+      setErrorName(result["name"]);
+      setErrorPosition(result["id_position"]);
+    } else {
+      const btnClose = document.querySelector(".btn-tutup");
+      btnClose.click();
+      fetchDepartment();
+      toast.success("Save data department success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
   }
 
   return (
@@ -101,6 +136,7 @@ const Departement = () => {
             onSort={handleSort}
           />
         </div>
+        <ToastContainer />
       </div>
 
       {/* modal add */}
@@ -126,39 +162,49 @@ const Departement = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <label htmlFor="name" className="form-label">
-                  Name Departement
-                </label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  type="text"
-                  className={`form-control ${errorName ? "is-invalid" : null}`}
-                  id="name"
-                  placeholder="Enter name"
-                />
-                {errorName && (
-                  <span className="text-danger"> {errorName} </span>
-                )}
-
-                <label className="form-label mt-3">Position</label>
-                <select
-                  className="form-select"
-                  aria-label="Default select example"
-                  value={position}
-                  onChange={(e) => setPosition(e.target.value)}
-                >
-                  <option value={1}>Choose Position</option>
-                  {positionData && positionData.length > 0
-                    ? positionData.map((pos, i) => {
-                        return (
-                          <option key={i} value={pos.id}>
-                            {pos.name}
-                          </option>
-                        );
-                      })
-                    : null}
-                </select>
+                <div className="mb-3">
+                  <label htmlFor="name" className="form-label">
+                    Name Departement
+                  </label>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    type="text"
+                    className={`form-control ${
+                      errorName ? "is-invalid" : null
+                    }`}
+                    id="name"
+                    placeholder="Enter name"
+                  />
+                  {errorName && (
+                    <span className="text-danger"> {errorName} </span>
+                  )}
+                </div>
+                <div className="mb-3 mt-2">
+                  <label className="form-label">Position</label>
+                  <select
+                    className={`form-select ${
+                      errorPosition ? "is-invalid" : null
+                    }`}
+                    aria-label="Default select example"
+                    value={id_position}
+                    onChange={(e) => setIdPosition(e.target.value)}
+                  >
+                    <option value={null}>Choose Position</option>
+                    {positionData && positionData.length > 0
+                      ? positionData.map((pos, i) => {
+                          return (
+                            <option key={i} value={pos.id}>
+                              {pos.name}
+                            </option>
+                          );
+                        })
+                      : null}
+                  </select>
+                  {errorPosition && (
+                    <span className="text-danger"> {errorPosition} </span>
+                  )}
+                </div>
               </div>
               <div className="modal-footer">
                 <button

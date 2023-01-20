@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DepartmentModel;
 use App\Models\PositionModel;
 use Illuminate\Http\Request;
+use Validator;
 
 class DepartementController extends Controller
 {
@@ -39,5 +40,39 @@ class DepartementController extends Controller
             'meta'          => $meta,
             'request'       => $request->per_page
         ]);
+    }
+
+    public function saveDepartment(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "name"    => "required",
+                "id_position"    => "required",
+            ];
+
+            $customMesagges = [
+                'name.required' => "Name is required",
+                'id_position.required' => "Position is required",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $positions              = new DepartmentModel();
+            $positions->name        = $data['name'];
+            $positions->id_position = $data['id_position'];
+            $positions->created_by  = $data['created_by'];
+            $positions->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Save data department success',
+                201
+            ]);
+        }
     }
 }
