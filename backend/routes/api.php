@@ -30,4 +30,6 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::post('delete-position', 'PositionController@deletePosition');
     Route::post('edit-position', 'PositionController@editPosition');
     Route::post('update-position', 'PositionController@updatePosition');
+
+    Route::get('get-department', 'DepartementController@getDepartment');
 });

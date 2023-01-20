@@ -15,6 +15,7 @@ const Position = () => {
   const [perPage] = useState(10);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
+
   const [name, setName] = useState("");
   const [nameEdit, setNameEdit] = useState("");
   const [idPosition, setIdPosition] = useState("");

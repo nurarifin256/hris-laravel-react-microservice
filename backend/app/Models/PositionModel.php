@@ -12,6 +12,11 @@ class PositionModel extends Model
     protected $guarded = ['id'];
     protected $table   = "positions";
 
+    public function departmens()
+    {
+        return $this->hasMany(DepartmentModel::class, 'id_position');
+    }
+
     static function getPositions()
     {
         $positions = DB::table('positions')
