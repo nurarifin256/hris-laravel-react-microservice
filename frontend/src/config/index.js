@@ -1,3 +1,3 @@
 import Routess from "./Routes";
-
-export { Routess };
+import store from "./redux/store";
+export { Routess, store };

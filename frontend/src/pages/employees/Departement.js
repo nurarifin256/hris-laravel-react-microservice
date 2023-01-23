@@ -3,6 +3,7 @@ import axios from "axios";
 import DataTable from "react-data-table-component";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { postDepartmentToAPI } from "../../config/redux/action";
 
 const Departement = () => {
   let user = JSON.parse(localStorage.getItem("user"));
@@ -70,16 +71,8 @@ const Departement = () => {
   async function handleSave() {
     let created_by = user.user.name;
     let data = { name, id_position, created_by };
-
-    let result = await fetch("http://localhost:8000/api/save-department", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    result = await result.json();
+    let result = postDepartmentToAPI(data);
+    result = await result;
     if (
       result["name"] == "Name is required" ||
       result["id_position"] == "Position is required"
