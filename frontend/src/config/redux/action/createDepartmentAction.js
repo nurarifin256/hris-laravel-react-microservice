@@ -23,3 +23,16 @@ export async function deleteDepartment(data) {
   result = await result.json();
   return result;
 }
+
+export async function editDepartment(data) {
+  let result = await fetch("http://localhost:8000/api/edit-department", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  result = await result.json();
+  return result;
+}

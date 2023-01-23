@@ -156,8 +156,6 @@ const Position = () => {
     let name = nameEdit;
     let data = { idPosition, name, updated_by };
 
-    console.warn(data);
-
     let result = await fetch("http://localhost:8000/api/update-position", {
       method: "POST",
       headers: {

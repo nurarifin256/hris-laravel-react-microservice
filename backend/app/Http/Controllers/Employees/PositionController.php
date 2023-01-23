@@ -92,13 +92,13 @@ class PositionController extends Controller
     {
         if ($request->isMethod('post')) {
             $data = $request->input();
-            $id = $data['id'];
+            $id   = $data['id'];
 
             $positions = PositionModel::where(['trashed' => 0, 'id' => $id])->select(['name', 'id'])->first();
             return response()->json([
                 'userData' => $positions,
-                'status' => true,
-                'message' => 'success',
+                'status'   => true,
+                'message'  => 'success',
                 200
             ]);
         }

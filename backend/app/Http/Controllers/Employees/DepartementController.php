@@ -93,4 +93,19 @@ class DepartementController extends Controller
             ]);
         }
     }
+
+    public function editDepartment(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data      = $request->input();
+            $id        = $data['id'];
+            $departmen = DepartmentModel::where(['trashed' => 0, 'id' => $id])->first();
+
+            return response()->json([
+                'department' => $departmen,
+                'message' => 'success',
+                200
+            ]);
+        }
+    }
 }
