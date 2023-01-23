@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import { ToastContainer, toast } from "react-toastify";
+import {
+  postDepartmentToAPI,
+  deleteDepartment,
+} from "../../config/redux/action";
+import { confirmAlert } from "react-confirm-alert";
 import "react-toastify/dist/ReactToastify.css";
-import { postDepartmentToAPI } from "../../config/redux/action";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 const Departement = () => {
   let user = JSON.parse(localStorage.getItem("user"));
@@ -66,7 +71,68 @@ const Departement = () => {
       selector: (row, i) => row.positions.name,
       sortable: true,
     },
+    {
+      name: "Action",
+      cell: (row, i) => (
+        <div>
+          <button
+            type="button"
+            className="btn btn-danger btn-sm"
+            onClick={() => handleHapus(row.id)}
+          >
+            <i className="fa-solid fa-trash-can"></i>
+          </button>
+          <button
+            type="button"
+            className="btn btn-warning btn-sm ms-2"
+            // onClick={() => handleEdit(row.id)}
+          >
+            <i className="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
   ];
+
+  const handleHapus = (id) => {
+    confirmAlert({
+      title: "Confirm to submit",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => hapusBackend(id),
+        },
+        {
+          label: "No",
+          // onClick: () => onClose(),
+        },
+      ],
+    });
+  };
+
+  async function hapusBackend(id) {
+    let updated_by = user.user.name;
+    let data = { id, updated_by };
+    let result = deleteDepartment(data);
+    result = await result;
+    if (result["message"] == "Delete data department success") {
+      fetchDepartment();
+      toast.success("Delete data department success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
 
   async function handleSave() {
     let created_by = user.user.name;

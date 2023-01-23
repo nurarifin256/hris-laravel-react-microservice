@@ -75,4 +75,22 @@ class DepartementController extends Controller
             ]);
         }
     }
+
+    public function deleteDepartment(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $departmens = DepartmentModel::find($data['id']);
+            $departmens->trashed = 1;
+            $departmens->updated_by = $data['updated_by'];
+            $departmens->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Delete data department success',
+                201
+            ]);
+        }
+    }
 }
