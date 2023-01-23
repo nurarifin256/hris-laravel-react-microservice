@@ -103,8 +103,40 @@ class DepartementController extends Controller
 
             return response()->json([
                 'department' => $departmen,
-                'message' => 'success',
+                'message'    => 'success',
                 200
+            ]);
+        }
+    }
+
+    public function updateDepartment(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "nameEdit"       => "required",
+            ];
+
+            $customMesagges = [
+                'nameEdit.required' => "Name is required",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $positions              = DepartmentModel::find($data['id']);
+            $positions->name        = $data['nameEdit'];
+            $positions->id_position = $data['idPositionEdit'];
+            $positions->updated_by  = $data['updated_by'];
+            $positions->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Update data department success',
+                201
             ]);
         }
     }

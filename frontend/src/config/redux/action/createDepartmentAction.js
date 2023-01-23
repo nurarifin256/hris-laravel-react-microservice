@@ -36,3 +36,16 @@ export async function editDepartment(data) {
   result = await result.json();
   return result;
 }
+
+export async function updateDepartment(data) {
+  let result = await fetch("http://localhost:8000/api/update-department", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  result = await result.json();
+  return result;
+}

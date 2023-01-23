@@ -33,7 +33,7 @@ const Navbar = () => {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                Employes
+                Employees
               </Link>
               <ul className="dropdown-menu">
                 <li>
@@ -42,7 +42,7 @@ const Navbar = () => {
 
                 <li>
                   <Link className="dropdown-item" to="employee/department">
-                    Departmen
+                    Department
                   </Link>
                 </li>
 

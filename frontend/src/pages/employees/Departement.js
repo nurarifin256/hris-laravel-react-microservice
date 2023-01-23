@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
 import { ToastContainer, toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
 import {
   postDepartmentToAPI,
   deleteDepartment,
   editDepartment,
+  updateDepartment,
 } from "../../config/redux/action";
 import { confirmAlert } from "react-confirm-alert";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,7 +15,8 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import "./position.css";
 
 const Departement = () => {
-  let user = JSON.parse(localStorage.getItem("user"));
+  const dispatch = useDispatch();
+  const usersReducer = useSelector((state) => state.userReducer);
   const [department, setDepartment] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -29,10 +32,12 @@ const Departement = () => {
 
   const [nameEdit, setNameEdit] = useState("");
   const [idPositionEdit, setIdPositionEdit] = useState("");
-  const [id, setId] = useState();
+  const [id, setId] = useState("");
+  const [errorNameEdit, setErrorNameEdit] = useState("");
 
   useEffect(() => {
     fetchDepartment();
+    dispatch({ type: "GET_USER" });
   }, [currentPage, sort, filter]);
 
   const fetchDepartment = () => {
@@ -121,7 +126,7 @@ const Departement = () => {
   };
 
   async function hapusBackend(id) {
-    let updated_by = user.user.name;
+    let updated_by = usersReducer.user.user.name;
     let data = { id, updated_by };
     let result = deleteDepartment(data);
     result = await result;
@@ -145,7 +150,7 @@ const Departement = () => {
     let result = editDepartment(data);
     result = await result;
     if (result["message"] == "success") {
-      setId(result["department"]["name"]);
+      setId(result["department"]["id"]);
       setNameEdit(result["department"]["name"]);
       setIdPositionEdit(result["department"]["id_position"]);
       const btnEdit = document.querySelector(".btn-edit");
@@ -153,8 +158,32 @@ const Departement = () => {
     }
   }
 
+  async function handleUpdate() {
+    let updated_by = usersReducer.user.user.name;
+    let data = { id, nameEdit, idPositionEdit, updated_by };
+    let result = updateDepartment(data);
+    result = await result;
+    if (result["nameEdit"] == "Name is required") {
+      setErrorNameEdit(result["nameEdit"]);
+    } else {
+      const btnClose = document.querySelector(".btn-tutup-edit");
+      btnClose.click();
+      fetchDepartment();
+      toast.success("Update data department success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
+
   async function handleSave() {
-    let created_by = user.user.name;
+    let created_by = usersReducer.user.user.name;
     let data = { name, id_position, created_by };
     let result = postDepartmentToAPI(data);
     result = await result;
@@ -344,21 +373,19 @@ const Departement = () => {
                     onChange={(e) => setNameEdit(e.target.value)}
                     type="text"
                     className={`form-control ${
-                      errorName ? "is-invalid" : null
+                      errorNameEdit ? "is-invalid" : null
                     }`}
                     id="name"
                     placeholder="Enter name"
                   />
-                  {errorName && (
-                    <span className="text-danger"> {errorName} </span>
+                  {errorNameEdit && (
+                    <span className="text-danger"> {errorNameEdit} </span>
                   )}
                 </div>
                 <div className="mb-3 mt-2">
                   <label className="form-label">Position</label>
                   <select
-                    className={`form-select ${
-                      errorPosition ? "is-invalid" : null
-                    }`}
+                    className="form-select"
                     aria-label="Default select example"
                     value={idPositionEdit}
                     onChange={(e) => setIdPositionEdit(e.target.value)}
@@ -373,25 +400,27 @@ const Departement = () => {
                         })
                       : null}
                   </select>
-                  {errorPosition && (
-                    <span className="text-danger"> {errorPosition} </span>
-                  )}
                 </div>
+                <input
+                  type="hidden"
+                  value={id}
+                  onChange={(e) => setId(e.target.value)}
+                ></input>
               </div>
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary btn-tutup"
+                  className="btn btn-secondary btn-tutup-edit"
                   data-bs-dismiss="modal"
                 >
                   Close
                 </button>
                 <button
                   type="button"
-                  // onClick={handleSave}
+                  onClick={handleUpdate}
                   className="btn btn-primary"
                 >
-                  Save
+                  Update
                 </button>
               </div>
             </div>
