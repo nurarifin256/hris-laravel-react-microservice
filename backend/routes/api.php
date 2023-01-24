@@ -37,4 +37,7 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::post('delete-department', 'DepartementController@deleteDepartment');
     Route::post('edit-department', 'DepartementController@editDepartment');
     Route::post('update-department', 'DepartementController@updateDepartment');
+
+    // route employees
+    Route::get('get-employees', 'EmployeesController@getEmployees');
 });

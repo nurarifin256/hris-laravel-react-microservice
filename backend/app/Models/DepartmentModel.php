@@ -15,4 +15,9 @@ class DepartmentModel extends Model
     {
         return $this->belongsTo(PositionModel::class, 'id_position');
     }
+
+    public function employees()
+    {
+        return $this->hasMany(EmployeeModel::class, 'id_department');
+    }
 }
