@@ -8,6 +8,7 @@ import {
   Dashboard,
   Logout,
   Departement,
+  Employee,
 } from "../../pages";
 
 const Routess = () => {
@@ -18,6 +19,7 @@ const Routess = () => {
         <Route exact path="/" element={<Dashboard />}></Route>
         <Route exact path="/login" element={<Login />}></Route>
         <Route exact path="/employee/position" element={<Position />}></Route>
+        <Route exact path="/employee/employee" element={<Employee />}></Route>
         <Route
           exact
           path="/employee/department"

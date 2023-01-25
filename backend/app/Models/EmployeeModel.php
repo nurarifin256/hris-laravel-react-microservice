@@ -16,8 +16,8 @@ class EmployeeModel extends Model
         return $this->belongsTo(DepartmentModel::class, 'id_department');
     }
 
-    public function positions()
-    {
-        return $this->belongsToMany(PositionModel::class, 'id_position');
-    }
+    // public function positions()
+    // {
+    //     return $this->belongsToMany(PositionModel::class, 'id_position');
+    // }
 }
