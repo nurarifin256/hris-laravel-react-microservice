@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
+import Select from "react-select";
+import "./position.css";
 
 const Employee = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -8,7 +10,17 @@ const Employee = () => {
   const [perPage] = useState(10);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
+
   const [employees, setEmployees] = useState([]);
+  const [departmentData, setDepartmentData] = useState([]);
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+  const [gender, setGender] = useState("");
+  const [idDepartment, setIdDepartment] = useState("");
+  const [errorName, setErrorName] = useState("");
+  const [errorGender, setErrorGender] = useState("");
+  const [errorNumber, setErrorNumber] = useState("");
+  const [errorDepartment, setErrorDepartment] = useState("");
 
   useEffect(() => {
     fetchEmployees();
@@ -20,8 +32,8 @@ const Employee = () => {
         `http://localhost:8000/api/get-employees?page=${currentPage}&filter=${filter}&per_page=${perPage}`
       )
       .then((response) => {
-        console.log(response.data.data);
         setEmployees(response.data.data);
+        setDepartmentData(response.data.departmentData);
         setTotalPages(response.data.meta.last_page);
       })
       .catch((error) => {
@@ -52,13 +64,13 @@ const Employee = () => {
       sortable: true,
     },
     {
-      name: "Name department",
-      selector: (row, i) => row.departmens.name,
+      name: "Name position",
+      selector: (row, i) => row.departmens.positions.name,
       sortable: true,
     },
     {
-      name: "Name position",
-      selector: (row, i) => row.departmens.positions.name,
+      name: "Name department",
+      selector: (row, i) => row.departmens.name,
       sortable: true,
     },
     {
@@ -117,6 +129,22 @@ const Employee = () => {
     },
   ];
 
+  const optionGender = [
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+  ];
+
+  const optionsDepartment = departmentData.map((item) => {
+    return {
+      label: item.positions.name + " - " + item.name,
+      value: item.id,
+    };
+  });
+
+  const handleSave = () => {
+    console.log(idDepartment);
+  };
+
   return (
     <div className="container">
       <div className="row">
@@ -149,6 +177,109 @@ const Employee = () => {
             onChangePage={handlePageChange}
             onSort={handleSort}
           />
+        </div>
+      </div>
+
+      {/* modal add */}
+      <div
+        className="modal fade"
+        id="modal-add"
+        role="dialog"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">
+                Add Data
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label htmlFor="name" className="form-label">
+                  Name Employee
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  type="text"
+                  className={`form-control ${errorName ? "is-invalid" : null}`}
+                  id="name"
+                  placeholder="Enter name"
+                />
+                {errorName && (
+                  <span className="text-danger"> {errorName} </span>
+                )}
+              </div>
+              <div className="mb-3">
+                <label htmlFor="number" className="form-label">
+                  Number Phone
+                </label>
+                <input
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                  type="number"
+                  className={`form-control ${
+                    errorNumber ? "is-invalid" : null
+                  }`}
+                  id="name"
+                  placeholder="Enter number phone"
+                />
+                {errorNumber && (
+                  <span className="text-danger"> {errorNumber} </span>
+                )}
+              </div>
+
+              <div className="mb-3 mt-2">
+                <label className="form-label">Position - Department</label>
+                <Select
+                  placeholder="Choose Department"
+                  className={errorDepartment ? "is-invalid" : null}
+                  onChange={(e) => setIdDepartment(e.value)}
+                  options={optionsDepartment}
+                />
+                {errorDepartment && (
+                  <span className="text-danger"> {errorDepartment} </span>
+                )}
+              </div>
+
+              <div className="mb-3 mt-2">
+                <label className="form-label">Gender</label>
+                <Select
+                  className={errorGender ? "is-invalid" : null}
+                  onChange={(e) => setGender(e.value)}
+                  placeholder="Choose Gender"
+                  options={optionGender}
+                />
+                {errorGender && (
+                  <span className="text-danger"> {errorGender} </span>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary btn-tutup"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="btn btn-primary"
+              >
+                Save
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

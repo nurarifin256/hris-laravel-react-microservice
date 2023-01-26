@@ -17,7 +17,6 @@ const Routess = () => {
       <Navbar />
       <Routes>
         <Route exact path="/" element={<Dashboard />}></Route>
-        <Route exact path="/login" element={<Login />}></Route>
         <Route exact path="/employee/position" element={<Position />}></Route>
         <Route exact path="/employee/employee" element={<Employee />}></Route>
         <Route
@@ -25,6 +24,7 @@ const Routess = () => {
           path="/employee/department"
           element={<Departement />}
         ></Route>
+        <Route exact path="/login" element={<Login />}></Route>
         <Route exact path="/register" element={<Register />}></Route>
         <Route exact path="/logout" element={<Logout />}></Route>
       </Routes>
