@@ -1,29 +1,41 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
+import { useDispatch } from "react-redux";
 import Select from "react-select";
 import "./position.css";
 
 const Employee = () => {
+  const dispatch = useDispatch();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [perPage] = useState(10);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
+  const [image, setImage] = useState(null);
+  const [imageF, setImageF] = useState(null);
+  const [imageC, setImageC] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewF, setPreviewF] = useState(null);
+  const [previewC, setPreviewC] = useState(null);
 
   const [employees, setEmployees] = useState([]);
   const [departmentData, setDepartmentData] = useState([]);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [gender, setGender] = useState("");
+  const [address, setAddress] = useState("");
   const [idDepartment, setIdDepartment] = useState("");
   const [errorName, setErrorName] = useState("");
   const [errorGender, setErrorGender] = useState("");
   const [errorNumber, setErrorNumber] = useState("");
   const [errorDepartment, setErrorDepartment] = useState("");
+  const [errorAddress, seterrorAddress] = useState("");
 
   useEffect(() => {
     fetchEmployees();
+    dispatch({ type: "GET_USER" });
   }, [currentPage, sort, filter]);
 
   const fetchEmployees = () => {
@@ -40,6 +52,7 @@ const Employee = () => {
         console.log(error);
       });
   };
+
   const handleFilter = (e) => {
     setFilter(e.target.value);
   };
@@ -141,6 +154,30 @@ const Employee = () => {
     };
   });
 
+  const handleImageChange = (event) => {
+    const image = event.target.files[0];
+    setImage(image);
+
+    const previewUrl = URL.createObjectURL(image);
+    setPreviewUrl(previewUrl);
+  };
+
+  const handleImageChangeF = (event) => {
+    const imageF = event.target.files[0];
+    setImageF(imageF);
+
+    const previewF = URL.createObjectURL(imageF);
+    setPreviewF(previewF);
+  };
+
+  const handleImageChangeC = (event) => {
+    const imageC = event.target.files[0];
+    setImageC(imageC);
+
+    const previewC = URL.createObjectURL(imageC);
+    setPreviewC(previewC);
+  };
+
   const handleSave = () => {
     console.log(idDepartment);
   };
@@ -218,24 +255,6 @@ const Employee = () => {
                   <span className="text-danger"> {errorName} </span>
                 )}
               </div>
-              <div className="mb-3">
-                <label htmlFor="number" className="form-label">
-                  Number Phone
-                </label>
-                <input
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
-                  type="number"
-                  className={`form-control ${
-                    errorNumber ? "is-invalid" : null
-                  }`}
-                  id="name"
-                  placeholder="Enter number phone"
-                />
-                {errorNumber && (
-                  <span className="text-danger"> {errorNumber} </span>
-                )}
-              </div>
 
               <div className="mb-3 mt-2">
                 <label className="form-label">Position - Department</label>
@@ -260,6 +279,107 @@ const Employee = () => {
                 />
                 {errorGender && (
                   <span className="text-danger"> {errorGender} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="number" className="form-label">
+                  Number Phone
+                </label>
+                <input
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                  type="number"
+                  className={`form-control ${
+                    errorNumber ? "is-invalid" : null
+                  }`}
+                  id="name"
+                  placeholder="Enter number phone"
+                />
+                {errorNumber && (
+                  <span className="text-danger"> {errorNumber} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Address
+                </label>
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className={`form-control area-text ${
+                    errorAddress ? "is-invalid" : null
+                  }`}
+                  placeholder="Enter address"
+                  id="address"
+                ></textarea>
+
+                {errorAddress && (
+                  <span className="text-danger"> {errorAddress} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Identity Card
+                </label>
+                <div>
+                  {previewUrl && (
+                    <img className="gambar" src={previewUrl} alt="Preview" />
+                  )}
+                </div>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="formFile"
+                  onChange={handleImageChange}
+                />
+
+                {errorAddress && (
+                  <span className="text-danger"> {errorAddress} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Family Card
+                </label>
+                <div>
+                  {previewF && (
+                    <img className="gambar" src={previewF} alt="Preview" />
+                  )}
+                </div>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="formFile"
+                  onChange={handleImageChangeF}
+                />
+
+                {errorAddress && (
+                  <span className="text-danger"> {errorAddress} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Certifacte
+                </label>
+                <div>
+                  {previewC && (
+                    <img className="gambar" src={previewC} alt="Preview" />
+                  )}
+                </div>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="formFile"
+                  onChange={handleImageChangeC}
+                />
+
+                {errorAddress && (
+                  <span className="text-danger"> {errorAddress} </span>
                 )}
               </div>
             </div>
