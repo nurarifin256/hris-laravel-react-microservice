@@ -1,21 +1,23 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
+import { postEmployee } from "../../config/redux/action";
 import "./position.css";
 
 const Employee = () => {
   const dispatch = useDispatch();
+  const usersReducer = useSelector((state) => state.userReducer);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [perPage] = useState(10);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
-  const [image, setImage] = useState(null);
-  const [imageF, setImageF] = useState(null);
-  const [imageC, setImageC] = useState(null);
+  const [image, setImage] = useState("");
+  const [imageF, setImageF] = useState("");
+  const [imageC, setImageC] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewF, setPreviewF] = useState(null);
   const [previewC, setPreviewC] = useState(null);
@@ -178,9 +180,22 @@ const Employee = () => {
     setPreviewC(previewC);
   };
 
-  const handleSave = () => {
-    console.log(idDepartment);
-  };
+  async function handleSave() {
+    let created_by = usersReducer.user.user.name;
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("idDepartment", idDepartment);
+    formData.append("number", number);
+    formData.append("gender", gender);
+    formData.append("address", address);
+    formData.append("image", image);
+    formData.append("imageF", imageF);
+    formData.append("imageC", imageC);
+    formData.append("created_by", created_by);
+    let result = postEmployee(formData);
+    result = await result;
+    console.warn(result);
+  }
 
   return (
     <div className="container">
@@ -333,12 +348,11 @@ const Employee = () => {
                   className="form-control"
                   type="file"
                   id="formFile"
-                  onChange={handleImageChange}
+                  onChange={(e) => {
+                    handleImageChange(e);
+                    setImage(e.target.files[0]);
+                  }}
                 />
-
-                {errorAddress && (
-                  <span className="text-danger"> {errorAddress} </span>
-                )}
               </div>
 
               <div className="mb-3">
@@ -354,12 +368,11 @@ const Employee = () => {
                   className="form-control"
                   type="file"
                   id="formFile"
-                  onChange={handleImageChangeF}
+                  onChange={(e) => {
+                    setImageF(e.target.files[0]);
+                    handleImageChangeF(e);
+                  }}
                 />
-
-                {errorAddress && (
-                  <span className="text-danger"> {errorAddress} </span>
-                )}
               </div>
 
               <div className="mb-3">
@@ -375,12 +388,11 @@ const Employee = () => {
                   className="form-control"
                   type="file"
                   id="formFile"
-                  onChange={handleImageChangeC}
+                  onChange={(e) => {
+                    handleImageChangeC(e);
+                    setImageC(e.target.files);
+                  }}
                 />
-
-                {errorAddress && (
-                  <span className="text-danger"> {errorAddress} </span>
-                )}
               </div>
             </div>
             <div className="modal-footer">

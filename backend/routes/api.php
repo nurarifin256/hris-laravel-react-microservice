@@ -40,4 +40,5 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
 
     // route employees
     Route::get('get-employees', 'EmployeesController@getEmployees');
+    Route::post('save-employees', 'EmployeesController@saveEmployees');
 });

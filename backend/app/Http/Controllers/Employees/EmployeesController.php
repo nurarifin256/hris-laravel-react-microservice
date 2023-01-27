@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\DepartmentModel;
 use App\Models\EmployeeModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Validator;
 
 class EmployeesController extends Controller
 {
@@ -44,5 +46,62 @@ class EmployeesController extends Controller
             'meta'           => $meta,
             'request'        => $request->per_page
         ]);
+    }
+
+    public function saveEmployees(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "name"         => "required",
+                "idDepartment" => "required",
+                "number"       => "required|between:12,13",
+                "gender"       => "required",
+                "address"      => "required",
+                // "image"        => "image|mimes:jpg, png, jpeg, gif",
+                // "imageF"       => "image", 
+                // "imageC"       => "image",
+            ];
+
+            $customMesagges = [
+                'name.required'         => "Name is required",
+                'idDepartment.required' => "Department is required",
+                'number.required'       => "Number phone is required",
+                'number.between'        => "Number phone min 12 digits and max 13 digits",
+                'gender.required'       => "Gender is required",
+                'address.required'      => "Address phone is required",
+                // 'image.image' => "Attachment must be image",
+                // 'image.mimes' => "Image format must be jpg, png, jpeg, gif",
+                // 'imageF.image' => "Attachment must be image",
+                // 'imageC.image' => "Attachment must be image",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+            $identity    = $request->file('image')->store('identity');
+            $family      = $request->file('imageF')->store('family');
+            $certificate = $request->file('imageF')->store('certificate');
+
+            $employees                      = new EmployeeModel();
+            $employees->name                = $data['name'];
+            $employees->id_department       = $data['idDepartment'];
+            $employees->mobile_phone_number = $data['number'];
+            $employees->gender              = $data['gender'];
+            $employees->address             = $data['address'];
+            $employees->identity_card       = $identity;
+            $employees->family_card         = $family;
+            $employees->certificate         = $certificate;
+            $employees->created_by          = $data['created_by'];
+            $employees->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Save data employee success',
+                201
+            ]);
+        }
     }
 }
