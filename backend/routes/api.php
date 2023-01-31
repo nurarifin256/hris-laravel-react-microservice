@@ -18,6 +18,20 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/identity/{image}', function ($image) {
+    // http://localhost:8000/storage/certificate/ link dari echo
+
+    $url = Storage::url('images/identity/' . $image);
+    echo '<img src="' . $url . '">';
+});
+
+Route::get('/family/{image}', function ($image) {
+
+    $url = Storage::url('images/family/' . $image);
+    echo '<img src="' . $url . '">';
+});
+
+
 // route user
 Route::post('register-user', 'App\Http\Controllers\AuthController@registerUser');
 Route::post('login-user', 'App\Http\Controllers\AuthController@loginUser');
@@ -41,4 +55,52 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     // route employees
     Route::get('get-employees', 'EmployeesController@getEmployees');
     Route::post('save-employees', 'EmployeesController@saveEmployees');
+});
+
+Route::get('images/identity/{images}', function ($image) {
+    $path = storage_path('app/public/images/identity/' . $image);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('images/family/{images}', function ($image) {
+    $path = storage_path('app/public/images/family/' . $image);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('images/certificate/{images}', function ($image) {
+    $path = storage_path('app/public/images/certificate/' . $image);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
 });

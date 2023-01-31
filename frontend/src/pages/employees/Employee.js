@@ -1,14 +1,20 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import Select from "react-select";
+import { ToastContainer, toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
 import { postEmployee } from "../../config/redux/action";
+import DataTable from "react-data-table-component";
+import Select from "react-select";
+import "react-toastify/dist/ReactToastify.css";
+import "react-confirm-alert/src/react-confirm-alert.css";
 import "./position.css";
 
 const Employee = () => {
   const dispatch = useDispatch();
   const usersReducer = useSelector((state) => state.userReducer);
+  const tesImage =
+    "images/identity/dJW7xbZ2rBTCBKEPqeLqQHmZSpk3tkwy26ym6rN7.jpg";
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -105,18 +111,33 @@ const Employee = () => {
     },
     {
       name: "Identity Card",
-      selector: (row, i) => row.identity_card,
-      sortable: true,
+      cell: (row, i) => (
+        <img
+          src={"http://127.0.0.1:8000/api/" + row.identity_card}
+          alt="My-Gambar"
+          className="img-thumbnail"
+        />
+      ),
     },
     {
       name: "Family Card",
-      selector: (row, i) => row.family_card,
-      sortable: true,
+      cell: (row, i) => (
+        <img
+          src={"http://127.0.0.1:8000/api/" + row.family_card}
+          alt="My-Gambar"
+          className="img-thumbnail"
+        />
+      ),
     },
     {
       name: "Certificate",
-      selector: (row, i) => row.certificate,
-      sortable: true,
+      cell: (row, i) => (
+        <img
+          src={"http://127.0.0.1:8000/api/" + row.certificate}
+          alt="My-Gambar"
+          className="img-thumbnail"
+        />
+      ),
     },
     {
       name: "Action",
@@ -194,7 +215,34 @@ const Employee = () => {
     formData.append("created_by", created_by);
     let result = postEmployee(formData);
     result = await result;
-    console.warn(result);
+    if (
+      result["name"] == "Name is required" ||
+      result["idDepartment"] == "Department is required" ||
+      result["number"] == "Number is required" ||
+      result["number"] == "Number phone min 12 digits and max 13 digits" ||
+      result["gender"] == "Gender is required" ||
+      result["address"] == "Address is required"
+    ) {
+      setErrorName(result["name"]);
+      setErrorDepartment(result["idDepartment"]);
+      setErrorNumber(result["number"]);
+      setErrorGender(result["gender"]);
+      seterrorAddress(result["address"]);
+    } else {
+      const btnClose = document.querySelector(".btn-tutup");
+      btnClose.click();
+      fetchEmployees();
+      toast.success("Save data department success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
   }
 
   return (
@@ -210,6 +258,7 @@ const Employee = () => {
             <i className="fa-solid fa-plus"></i> Add
           </button>
         </div>
+        {/* <img src={`http://127.0.0.1:8000/api/${tesImage}`} alt="gambar" /> */}
         <div className="col-md-3 offset-md-6 mb-3">
           <input
             type="text"
@@ -230,6 +279,7 @@ const Employee = () => {
             onSort={handleSort}
           />
         </div>
+        <ToastContainer />
       </div>
 
       {/* modal add */}
@@ -352,6 +402,7 @@ const Employee = () => {
                     handleImageChange(e);
                     setImage(e.target.files[0]);
                   }}
+                  required
                 />
               </div>
 
@@ -372,6 +423,7 @@ const Employee = () => {
                     setImageF(e.target.files[0]);
                     handleImageChangeF(e);
                   }}
+                  required
                 />
               </div>
 
@@ -390,8 +442,9 @@ const Employee = () => {
                   id="formFile"
                   onChange={(e) => {
                     handleImageChangeC(e);
-                    setImageC(e.target.files);
+                    setImageC(e.target.files[0]);
                   }}
+                  required
                 />
               </div>
             </div>

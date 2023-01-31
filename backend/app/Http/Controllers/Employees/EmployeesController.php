@@ -70,7 +70,7 @@ class EmployeesController extends Controller
                 'number.required'       => "Number phone is required",
                 'number.between'        => "Number phone min 12 digits and max 13 digits",
                 'gender.required'       => "Gender is required",
-                'address.required'      => "Address phone is required",
+                'address.required'      => "Address is required",
                 // 'image.image' => "Attachment must be image",
                 // 'image.mimes' => "Image format must be jpg, png, jpeg, gif",
                 // 'imageF.image' => "Attachment must be image",
@@ -81,9 +81,9 @@ class EmployeesController extends Controller
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 422);
             }
-            $identity    = $request->file('image')->store('identity');
-            $family      = $request->file('imageF')->store('family');
-            $certificate = $request->file('imageF')->store('certificate');
+            $identity    = $request->file('image')->store('images/identity', 'public');
+            $family      = $request->file('imageF')->store('images/family', 'public');
+            $certificate = $request->file('imageC')->store('images/certificate', 'public');
 
             $employees                      = new EmployeeModel();
             $employees->name                = $data['name'];
