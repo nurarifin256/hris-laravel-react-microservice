@@ -104,4 +104,22 @@ class EmployeesController extends Controller
             ]);
         }
     }
+
+    public function deleteEmployees(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $departmens = EmployeeModel::find($data['id']);
+            $departmens->trashed = 1;
+            $departmens->updated_by = $data['updated_by'];
+            $departmens->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Delete data employee success',
+                201
+            ]);
+        }
+    }
 }

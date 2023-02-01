@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
-import { postEmployee } from "../../config/redux/action";
+import { deleteEmployee, postEmployee } from "../../config/redux/action";
 import DataTable from "react-data-table-component";
 import Select from "react-select";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,8 +13,6 @@ import "./position.css";
 const Employee = () => {
   const dispatch = useDispatch();
   const usersReducer = useSelector((state) => state.userReducer);
-  const tesImage =
-    "images/identity/dJW7xbZ2rBTCBKEPqeLqQHmZSpk3tkwy26ym6rN7.jpg";
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -146,7 +144,7 @@ const Employee = () => {
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            //   onClick={() => handleHapus(row.id)}
+            onClick={() => handleHapus(row.id)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -245,6 +243,46 @@ const Employee = () => {
     }
   }
 
+  const handleHapus = (id) => {
+    confirmAlert({
+      title: "Confirm to submit",
+      message: "Are you sure to do this",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => hapusBackend(id),
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
+  };
+
+  async function hapusBackend(id) {
+    let updated_by = usersReducer.user.user.name;
+    let data = { id, updated_by };
+    console.log(data);
+    let result = deleteEmployee(data);
+    result = await result;
+
+    console.warn(result);
+
+    if (result["message"] == "Delete data employee success") {
+      fetchEmployees();
+      toast.success("Delete data employee success", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }
+
   return (
     <div className="container">
       <div className="row">
@@ -258,7 +296,6 @@ const Employee = () => {
             <i className="fa-solid fa-plus"></i> Add
           </button>
         </div>
-        {/* <img src={`http://127.0.0.1:8000/api/${tesImage}`} alt="gambar" /> */}
         <div className="col-md-3 offset-md-6 mb-3">
           <input
             type="text"

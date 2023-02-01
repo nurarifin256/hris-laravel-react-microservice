@@ -18,20 +18,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/identity/{image}', function ($image) {
-    // http://localhost:8000/storage/certificate/ link dari echo
-
-    $url = Storage::url('images/identity/' . $image);
-    echo '<img src="' . $url . '">';
-});
-
-Route::get('/family/{image}', function ($image) {
-
-    $url = Storage::url('images/family/' . $image);
-    echo '<img src="' . $url . '">';
-});
-
-
 // route user
 Route::post('register-user', 'App\Http\Controllers\AuthController@registerUser');
 Route::post('login-user', 'App\Http\Controllers\AuthController@loginUser');
@@ -55,6 +41,7 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     // route employees
     Route::get('get-employees', 'EmployeesController@getEmployees');
     Route::post('save-employees', 'EmployeesController@saveEmployees');
+    Route::post('delete-employee', 'EmployeesController@deleteEmployees');
 });
 
 Route::get('images/identity/{images}', function ($image) {
