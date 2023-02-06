@@ -1,11 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import DataTable from "react-data-table-component";
+import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
+import { useMutation } from "react-query";
 import { ToastContainer, toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import { deleteEmployee, postEmployee } from "../../config/redux/action";
-import DataTable from "react-data-table-component";
-import Select from "react-select";
+import { getEmployeeData } from "../../config/hooks/employee/employeeHook";
 import "react-toastify/dist/ReactToastify.css";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./position.css";
@@ -38,6 +40,15 @@ const Employee = () => {
   const [errorNumber, setErrorNumber] = useState("");
   const [errorDepartment, setErrorDepartment] = useState("");
   const [errorAddress, seterrorAddress] = useState("");
+
+  const [nameEdit, setNameEdit] = useState("");
+  const [numberEdit, setNumberEdit] = useState("");
+  const [genderEdit, setGenderEdit] = useState("");
+  const [addressEdit, setAddressEdit] = useState("");
+  const [idDepartmentEdit, setIdDepartmentEdit] = useState("");
+  const [imageEdit, setImageEdit] = useState("");
+  const [imageFEdit, setImageFEdit] = useState("");
+  const [imageCEdit, setImageCEdit] = useState("");
 
   useEffect(() => {
     fetchEmployees();
@@ -139,6 +150,9 @@ const Employee = () => {
     },
     {
       name: "Action",
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
       cell: (row, i) => (
         <div>
           <button
@@ -151,15 +165,12 @@ const Employee = () => {
           <button
             type="button"
             className="btn btn-warning btn-sm ms-2"
-            //   onClick={() => handleEdit(row.id)}
+            onClick={() => handleEdit(row.id)}
           >
             <i className="fa-solid fa-pen-to-square"></i>
           </button>
         </div>
       ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
     },
   ];
 
@@ -266,8 +277,6 @@ const Employee = () => {
     let result = deleteEmployee(data);
     result = await result;
 
-    console.warn(result);
-
     if (result["message"] == "Delete data employee success") {
       fetchEmployees();
       toast.success("Delete data employee success", {
@@ -283,6 +292,36 @@ const Employee = () => {
     }
   }
 
+  const { mutate: handleEdit, data } = useMutation(
+    (id) => getEmployeeData(id),
+    {
+      onSuccess(data) {
+        console.log(data);
+        const {
+          name,
+          id_department,
+          gender,
+          mobile_phone_number,
+          identity_card,
+          family_card,
+          certificate,
+          address,
+        } = data.employee;
+        setNameEdit(name);
+        setIdDepartmentEdit(id_department);
+        setGenderEdit(gender);
+        setNumberEdit(mobile_phone_number);
+        setAddressEdit(address);
+        setImageEdit(identity_card);
+        setImageFEdit(family_card);
+        setImageCEdit(certificate);
+        const btnEdit = document.querySelector(".btn-edit");
+        btnEdit.click();
+      },
+      onError(error) {},
+    }
+  );
+
   return (
     <div className="container">
       <div className="row">
@@ -295,6 +334,13 @@ const Employee = () => {
           >
             <i className="fa-solid fa-plus"></i> Add
           </button>
+
+          <button
+            type="button"
+            className="btn-edit"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-edit"
+          ></button>
         </div>
         <div className="col-md-3 offset-md-6 mb-3">
           <input
@@ -504,6 +550,214 @@ const Employee = () => {
           </div>
         </div>
       </div>
+
+      {/* modal edit */}
+      {/* {imageEdit && ( */}
+      <div
+        className="modal fade"
+        id="modal-edit"
+        role="dialog"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">
+                Edit Data
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <label htmlFor="name" className="form-label">
+                  Name Employee
+                </label>
+                <input
+                  value={nameEdit}
+                  onChange={(e) => setNameEdit(e.target.value)}
+                  type="text"
+                  className={`form-control ${errorName ? "is-invalid" : null}`}
+                  id="name"
+                  placeholder="Enter name"
+                />
+                {errorName && (
+                  <span className="text-danger"> {errorName} </span>
+                )}
+              </div>
+
+              <div className="mb-3 mt-2">
+                <label className="form-label">Position - Department</label>
+                <Select
+                  value={idDepartmentEdit}
+                  placeholder="Choose Department"
+                  className={errorDepartment ? "is-invalid" : null}
+                  onChange={(e) => setIdDepartmentEdit(e.value)}
+                  options={optionsDepartment}
+                />
+                {errorDepartment && (
+                  <span className="text-danger"> {errorDepartment} </span>
+                )}
+              </div>
+
+              <div className="mb-3 mt-2">
+                <label className="form-label">Gender</label>
+                <Select
+                  value={genderEdit}
+                  className={errorGender ? "is-invalid" : null}
+                  onChange={(e) => setGenderEdit(e.value)}
+                  placeholder="Choose Gender"
+                  options={optionGender}
+                />
+                {errorGender && (
+                  <span className="text-danger"> {errorGender} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="number" className="form-label">
+                  Number Phone
+                </label>
+                <input
+                  value={numberEdit}
+                  onChange={(e) => setNumberEdit(e.target.value)}
+                  type="number"
+                  className={`form-control ${
+                    errorNumber ? "is-invalid" : null
+                  }`}
+                  id="name"
+                  placeholder="Enter number phone"
+                />
+                {errorNumber && (
+                  <span className="text-danger"> {errorNumber} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Address
+                </label>
+                <textarea
+                  value={addressEdit}
+                  onChange={(e) => setAddressEdit(e.target.value)}
+                  className={`form-control area-text ${
+                    errorAddress ? "is-invalid" : null
+                  }`}
+                  placeholder="Enter address"
+                  id="address"
+                ></textarea>
+
+                {errorAddress && (
+                  <span className="text-danger"> {errorAddress} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Identity Card
+                </label>
+                <div>
+                  {previewUrl ? (
+                    <img className="gambar" src={previewUrl} alt="Preview" />
+                  ) : (
+                    <img
+                      className="gambar"
+                      src={"http://127.0.0.1:8000/api/" + imageEdit}
+                      alt="Preview"
+                    />
+                  )}
+                </div>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="formFile"
+                  onChange={(e) => {
+                    handleImageChange(e);
+                    setImage(e.target.files[0]);
+                  }}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Family Card
+                </label>
+                <div>
+                  {previewF ? (
+                    <img className="gambar" src={previewF} alt="Preview" />
+                  ) : (
+                    <img
+                      className="gambar"
+                      src={"http://127.0.0.1:8000/api/" + imageFEdit}
+                      alt="Preview"
+                    />
+                  )}
+                </div>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="formFile"
+                  onChange={(e) => {
+                    setImageF(e.target.files[0]);
+                    handleImageChangeF(e);
+                  }}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="address" className="form-label">
+                  Certifacte
+                </label>
+                <div>
+                  {previewC ? (
+                    <img className="gambar" src={previewC} alt="Preview" />
+                  ) : (
+                    <img
+                      className="gambar"
+                      src={"http://127.0.0.1:8000/api/" + imageCEdit}
+                      alt="Preview"
+                    />
+                  )}
+                </div>
+                <input
+                  className="form-control"
+                  type="file"
+                  id="formFile"
+                  onChange={(e) => {
+                    handleImageChangeC(e);
+                    setImageC(e.target.files[0]);
+                  }}
+                  required
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary btn-tutup"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="btn btn-primary"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* )} */}
     </div>
   );
 };

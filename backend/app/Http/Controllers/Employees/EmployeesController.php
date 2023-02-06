@@ -122,4 +122,20 @@ class EmployeesController extends Controller
             ]);
         }
     }
+
+    public function editEmployees(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+            $id   = $data['id'];
+
+            $employee = EmployeeModel::where(['trashed' => 0, 'id' => $id])->first();
+
+            return response()->json([
+                'employee' => $employee,
+                'message'    => 'success',
+                200
+            ]);
+        }
+    }
 }
