@@ -296,7 +296,6 @@ const Employee = () => {
     (id) => getEmployeeData(id),
     {
       onSuccess(data) {
-        console.log(data);
         const {
           name,
           id_department,
@@ -594,11 +593,12 @@ const Employee = () => {
               <div className="mb-3 mt-2">
                 <label className="form-label">Position - Department</label>
                 <Select
-                  value={idDepartmentEdit}
-                  placeholder="Choose Department"
+                  options={optionsDepartment}
+                  value={optionsDepartment.filter(function (option) {
+                    return option.value === idDepartmentEdit;
+                  })}
                   className={errorDepartment ? "is-invalid" : null}
                   onChange={(e) => setIdDepartmentEdit(e.value)}
-                  options={optionsDepartment}
                 />
                 {errorDepartment && (
                   <span className="text-danger"> {errorDepartment} </span>
@@ -608,10 +608,9 @@ const Employee = () => {
               <div className="mb-3 mt-2">
                 <label className="form-label">Gender</label>
                 <Select
-                  value={genderEdit}
+                  value={{ label: genderEdit, value: genderEdit }}
                   className={errorGender ? "is-invalid" : null}
                   onChange={(e) => setGenderEdit(e.value)}
-                  placeholder="Choose Gender"
                   options={optionGender}
                 />
                 {errorGender && (
