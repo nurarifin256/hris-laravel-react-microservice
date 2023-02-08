@@ -138,4 +138,80 @@ class EmployeesController extends Controller
             ]);
         }
     }
+
+    public function updateEmployees(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data  = $request->input();
+
+            $rules = [
+                "nameEdit"         => "required",
+                "idDepartmentEdit" => "required",
+                "numberEdit"       => "required|between:12,13",
+                "genderEdit"       => "required",
+                "addressEdit"      => "required",
+                // "image"        => "image|mimes:jpg, png, jpeg, gif",
+                // "imageF"       => "image", 
+                // "imageC"       => "image",
+            ];
+
+            $customMesagges = [
+                'nameEdit.required'         => "Name is required",
+                'idDepartmentEdit.required' => "Department is required",
+                'numberEdit.required'       => "Number phone is required",
+                'numberEdit.between'        => "Number phone min 12 digits and max 13 digits",
+                'genderEdit.required'       => "Gender is required",
+                'addressEdit.required'      => "Address is required",
+                // 'image.image' => "Attachment must be image",
+                // 'image.mimes' => "Image format must be jpg, png, jpeg, gif",
+                // 'imageF.image' => "Attachment must be image",
+                // 'imageC.image' => "Attachment must be image",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+            $id = $data['id'];
+            $old_data = EmployeeModel::where(['trashed' => 0, 'id' => $id])->first();
+
+            if ($request->file('imageEdit')) {
+                unlink(public_path('storage/' . $old_data->identity_card));
+                $identity    = $request->file('imageEdit')->store('images/identity', 'public');
+            } else {
+                $identity = $data['imageEdit'];
+            }
+
+            if ($request->file('imageFEdit')) {
+                unlink(public_path('storage/' . $old_data->family_card));
+                $family    = $request->file('imageFEdit')->store('images/family', 'public');
+            } else {
+                $family = $data['imageFEdit'];
+            }
+
+            if ($request->file('imageCEdit')) {
+                unlink(public_path('storage/' . $old_data->certificate));
+                $certificate = $request->file('imageCEdit')->store('images/certificate', 'public');
+            } else {
+                $certificate = $data['imageFEdit'];
+            }
+
+            $old_data->name                = $data['nameEdit'];
+            $old_data->id_department       = $data['idDepartmentEdit'];
+            $old_data->mobile_phone_number = $data['numberEdit'];
+            $old_data->gender              = $data['genderEdit'];
+            $old_data->address             = $data['addressEdit'];
+            $old_data->identity_card       = $identity;
+            $old_data->family_card         = $family;
+            $old_data->certificate         = $certificate;
+            $old_data->updated_by          = $data['updated_by'];
+            $old_data->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Update data employee success",
+                201
+            ]);
+        }
+    }
 }

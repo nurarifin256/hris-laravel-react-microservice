@@ -1,12 +1,8 @@
-import { useQuery } from "react-query";
-import { request } from "../../../utils/axios-utils";
+// import { useQuery } from "react-query";
+// import { request } from "../../../utils/axios-utils";
 
-const fethEmployee = () => {
-  return request({ url: "/get-employees" });
-};
-
-// export const useEmployeeData = () => {
-//   return useQuery("employee", fethEmployee);
+// const fethEmployee = () => {
+//   return request({ url: "/get-employees" });
 // };
 
 export const getEmployeeData = async (id) => {
@@ -17,6 +13,15 @@ export const getEmployeeData = async (id) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+  });
+  response = await response.json();
+  return response;
+};
+
+export const updateEmployeeFN = async (formData) => {
+  let response = await fetch("http://localhost:8000/api/update-employee", {
+    method: "POST",
+    body: formData,
   });
   response = await response.json();
   return response;

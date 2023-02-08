@@ -43,6 +43,7 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::post('save-employees', 'EmployeesController@saveEmployees');
     Route::post('delete-employee', 'EmployeesController@deleteEmployees');
     Route::post('edit-employee', 'EmployeesController@editEmployees');
+    Route::post('update-employee', 'EmployeesController@updateEmployees');
 });
 
 Route::get('images/identity/{images}', function ($image) {

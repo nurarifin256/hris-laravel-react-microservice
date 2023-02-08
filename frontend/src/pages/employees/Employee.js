@@ -7,7 +7,10 @@ import { useMutation } from "react-query";
 import { ToastContainer, toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import { deleteEmployee, postEmployee } from "../../config/redux/action";
-import { getEmployeeData } from "../../config/hooks/employee/employeeHook";
+import {
+  getEmployeeData,
+  updateEmployeeFN,
+} from "../../config/hooks/employee/employeeHook";
 import "react-toastify/dist/ReactToastify.css";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./position.css";
@@ -41,6 +44,7 @@ const Employee = () => {
   const [errorDepartment, setErrorDepartment] = useState("");
   const [errorAddress, seterrorAddress] = useState("");
 
+  const [id, setId] = useState("");
   const [nameEdit, setNameEdit] = useState("");
   const [numberEdit, setNumberEdit] = useState("");
   const [genderEdit, setGenderEdit] = useState("");
@@ -49,6 +53,11 @@ const Employee = () => {
   const [imageEdit, setImageEdit] = useState("");
   const [imageFEdit, setImageFEdit] = useState("");
   const [imageCEdit, setImageCEdit] = useState("");
+  const [errorNameEdit, setErrorNameEdit] = useState("");
+  const [errorGenderEdit, setErrorGenderEdit] = useState("");
+  const [errorNumberEdit, setErrorNumberEdit] = useState("");
+  const [errorDepartmentEdit, setErrorDepartmentEdit] = useState("");
+  const [errorAddressEdit, seterrorAddressEdit] = useState("");
 
   useEffect(() => {
     fetchEmployees();
@@ -292,34 +301,91 @@ const Employee = () => {
     }
   }
 
-  const { mutate: handleEdit, data } = useMutation(
-    (id) => getEmployeeData(id),
+  const { mutate: handleEdit } = useMutation((id) => getEmployeeData(id), {
+    onSuccess(data) {
+      const {
+        id,
+        name,
+        id_department,
+        gender,
+        mobile_phone_number,
+        identity_card,
+        family_card,
+        certificate,
+        address,
+      } = data.employee;
+      setNameEdit(name);
+      setIdDepartmentEdit(id_department);
+      setGenderEdit(gender);
+      setNumberEdit(mobile_phone_number);
+      setAddressEdit(address);
+      setImageEdit(identity_card);
+      setImageFEdit(family_card);
+      setImageCEdit(certificate);
+      setId(id);
+      const btnEdit = document.querySelector(".btn-edit");
+      btnEdit.click();
+    },
+    onError(error) {},
+  });
+
+  const { mutate: updateEmployee } = useMutation(
+    (formData) => updateEmployeeFN(formData),
     {
-      onSuccess(data) {
-        const {
-          name,
-          id_department,
-          gender,
-          mobile_phone_number,
-          identity_card,
-          family_card,
-          certificate,
-          address,
-        } = data.employee;
-        setNameEdit(name);
-        setIdDepartmentEdit(id_department);
-        setGenderEdit(gender);
-        setNumberEdit(mobile_phone_number);
-        setAddressEdit(address);
-        setImageEdit(identity_card);
-        setImageFEdit(family_card);
-        setImageCEdit(certificate);
-        const btnEdit = document.querySelector(".btn-edit");
-        btnEdit.click();
+      onSuccess: (data) => {
+        console.log(data);
+        let result = data;
+        if (
+          result["nameEdit"] == "Name is required" ||
+          result["idDepartmentEdit"] == "Department is required" ||
+          result["numberEdit"] == "Number is required" ||
+          result["numberEdit"] ==
+            "Number phone min 12 digits and max 13 digits" ||
+          result["genderEdit"] == "Gender is required" ||
+          result["addressEdit"] == "Address is required"
+        ) {
+          setErrorNameEdit(result["nameEdit"]);
+          setErrorDepartmentEdit(result["idDepartmentEdit"]);
+          setErrorNumberEdit(result["numberEdit"]);
+          setErrorGenderEdit(result["genderEdit"]);
+          seterrorAddressEdit(result["addressEdit"]);
+        } else {
+          const btnClose = document.querySelector(".btn-tutup-edit");
+          btnClose.click();
+          fetchEmployees();
+          toast.success("Update data employee success", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       },
-      onError(error) {},
+      onError: (error) => {
+        console.log(error);
+      },
     }
   );
+
+  async function handleUpdate(id) {
+    let updated_by = usersReducer.user.user.name;
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("nameEdit", nameEdit);
+    formData.append("idDepartmentEdit", idDepartmentEdit);
+    formData.append("numberEdit", numberEdit);
+    formData.append("genderEdit", genderEdit);
+    formData.append("addressEdit", addressEdit);
+    formData.append("imageEdit", imageEdit);
+    formData.append("imageFEdit", imageFEdit);
+    formData.append("imageCEdit", imageCEdit);
+    formData.append("updated_by", updated_by);
+    updateEmployee(formData);
+  }
 
   return (
     <div className="container">
@@ -581,12 +647,14 @@ const Employee = () => {
                   value={nameEdit}
                   onChange={(e) => setNameEdit(e.target.value)}
                   type="text"
-                  className={`form-control ${errorName ? "is-invalid" : null}`}
+                  className={`form-control ${
+                    errorNameEdit ? "is-invalid" : null
+                  }`}
                   id="name"
                   placeholder="Enter name"
                 />
-                {errorName && (
-                  <span className="text-danger"> {errorName} </span>
+                {errorNameEdit && (
+                  <span className="text-danger"> {errorNameEdit} </span>
                 )}
               </div>
 
@@ -597,11 +665,11 @@ const Employee = () => {
                   value={optionsDepartment.filter(function (option) {
                     return option.value === idDepartmentEdit;
                   })}
-                  className={errorDepartment ? "is-invalid" : null}
+                  className={errorDepartmentEdit ? "is-invalid" : null}
                   onChange={(e) => setIdDepartmentEdit(e.value)}
                 />
-                {errorDepartment && (
-                  <span className="text-danger"> {errorDepartment} </span>
+                {errorDepartmentEdit && (
+                  <span className="text-danger"> {errorDepartmentEdit} </span>
                 )}
               </div>
 
@@ -609,12 +677,12 @@ const Employee = () => {
                 <label className="form-label">Gender</label>
                 <Select
                   value={{ label: genderEdit, value: genderEdit }}
-                  className={errorGender ? "is-invalid" : null}
+                  className={errorGenderEdit ? "is-invalid" : null}
                   onChange={(e) => setGenderEdit(e.value)}
                   options={optionGender}
                 />
-                {errorGender && (
-                  <span className="text-danger"> {errorGender} </span>
+                {errorGenderEdit && (
+                  <span className="text-danger"> {errorGenderEdit} </span>
                 )}
               </div>
 
@@ -627,13 +695,13 @@ const Employee = () => {
                   onChange={(e) => setNumberEdit(e.target.value)}
                   type="number"
                   className={`form-control ${
-                    errorNumber ? "is-invalid" : null
+                    errorNumberEdit ? "is-invalid" : null
                   }`}
                   id="name"
                   placeholder="Enter number phone"
                 />
-                {errorNumber && (
-                  <span className="text-danger"> {errorNumber} </span>
+                {errorNumberEdit && (
+                  <span className="text-danger"> {errorNumberEdit} </span>
                 )}
               </div>
 
@@ -645,14 +713,14 @@ const Employee = () => {
                   value={addressEdit}
                   onChange={(e) => setAddressEdit(e.target.value)}
                   className={`form-control area-text ${
-                    errorAddress ? "is-invalid" : null
+                    errorAddressEdit ? "is-invalid" : null
                   }`}
                   placeholder="Enter address"
                   id="address"
                 ></textarea>
 
-                {errorAddress && (
-                  <span className="text-danger"> {errorAddress} </span>
+                {errorAddressEdit && (
+                  <span className="text-danger"> {errorAddressEdit} </span>
                 )}
               </div>
 
@@ -677,7 +745,7 @@ const Employee = () => {
                   id="formFile"
                   onChange={(e) => {
                     handleImageChange(e);
-                    setImage(e.target.files[0]);
+                    setImageEdit(e.target.files[0]);
                   }}
                   required
                 />
@@ -703,7 +771,7 @@ const Employee = () => {
                   type="file"
                   id="formFile"
                   onChange={(e) => {
-                    setImageF(e.target.files[0]);
+                    setImageFEdit(e.target.files[0]);
                     handleImageChangeF(e);
                   }}
                   required
@@ -731,7 +799,7 @@ const Employee = () => {
                   id="formFile"
                   onChange={(e) => {
                     handleImageChangeC(e);
-                    setImageC(e.target.files[0]);
+                    setImageCEdit(e.target.files[0]);
                   }}
                   required
                 />
@@ -740,17 +808,17 @@ const Employee = () => {
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary btn-tutup"
+                className="btn btn-secondary btn-tutup-edit"
                 data-bs-dismiss="modal"
               >
                 Close
               </button>
               <button
                 type="button"
-                onClick={handleSave}
+                onClick={() => handleUpdate(id)}
                 className="btn btn-primary"
               >
-                Save
+                Update
               </button>
             </div>
           </div>
