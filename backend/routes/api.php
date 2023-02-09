@@ -46,6 +46,12 @@ Route::namespace('App\Http\Controllers\Employees')->group(function () {
     Route::post('update-employee', 'EmployeesController@updateEmployees');
 });
 
+Route::namespace('App\Http\Controllers\Accounting')->group(function () {
+
+    // route coa
+    Route::get('get-coas', 'CoaController@getCoa');
+});
+
 Route::get('images/identity/{images}', function ($image) {
     $path = storage_path('app/public/images/identity/' . $image);
 
