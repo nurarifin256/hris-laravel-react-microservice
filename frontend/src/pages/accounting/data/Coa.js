@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { useQuery } from "react-query";
-import { ToastContainer } from "react-toastify";
-import { getCoasData } from "../../../config/hooks/accounting/coaHook";
+import { useMutation, useQuery } from "react-query";
+import { toast, ToastContainer } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
+import {
+  getCoasData,
+  deleteCoaData,
+} from "../../../config/hooks/accounting/coaHook";
 import DataTable from "react-data-table-component";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -13,11 +17,16 @@ const Coa = () => {
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
 
-  useQuery(["coas", currentPage, filter, perPage], getCoasData, {
-    onSuccess: (data) => {
-      setCoa(data.data);
-    },
-  });
+  const { refetch } = useQuery(
+    ["coas", currentPage, filter, perPage],
+    getCoasData,
+    {
+      onSuccess: (data) => {
+        setCoa(data.data);
+        setTotalPages(data.meta.last_page);
+      },
+    }
+  );
 
   const handleFilter = (e) => {
     setFilter(e.target.value);
@@ -57,7 +66,7 @@ const Coa = () => {
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            // onClick={() => handleHapus(row.id)}
+            onClick={() => handleHapus(row.id)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -72,6 +81,41 @@ const Coa = () => {
       ),
     },
   ];
+
+  const handleHapus = (id) => {
+    confirmAlert({
+      title: "Confirm to submit",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => hapusBackend(id),
+        },
+        {
+          label: "No",
+          // onClick: () => onClose(),
+        },
+      ],
+    });
+  };
+
+  const { mutate: hapusBackend } = useMutation((id) => deleteCoaData(id), {
+    onSuccess(data) {
+      if (data.message == "Delete data coa success") {
+        refetch();
+        toast.success("Delete data coa success", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    },
+  });
 
   return (
     <div className="container">
