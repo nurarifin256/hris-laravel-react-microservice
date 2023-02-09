@@ -1,8 +1,19 @@
+import { useState } from "react";
 import { useQuery } from "react-query";
-import { useCoasData } from "../../../config/hooks/accounting/coaHook";
+import { getCoasData } from "../../../config/hooks/accounting/coaHook";
 
 const Coa = () => {
-  const { data, isSuccess } = useQuery("coas", useCoasData);
+  const [coa, setCoa] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [perPage] = useState(10);
+  const [sort, setSort] = useState({ column: "", direction: "" });
+  const [filter, setFilter] = useState("");
+
+  const { data, isSuccess } = useQuery(
+    ["coas", currentPage, filter, perPage],
+    getCoasData
+  );
 
   if (isSuccess) {
     console.log(data);
