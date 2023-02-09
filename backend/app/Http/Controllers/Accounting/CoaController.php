@@ -14,8 +14,8 @@ class CoaController extends Controller
         $meta = [];
 
         if ($request->has('filter')) {
-            $coas->where('account_number', "like", "$request->filter")
-                ->orWhere('account_name', "like", "$request->filter");
+            $coas->where("account_number", "like", "%$request->filter%")
+                ->orWhere("account_name", "like", "%$request->filter%");
         }
 
         $perPage = $request->per_page ?? 10;
