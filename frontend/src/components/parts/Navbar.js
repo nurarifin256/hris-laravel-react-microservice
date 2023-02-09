@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./navbar.css";
 
 const Navbar = () => {
   return (
@@ -26,6 +27,7 @@ const Navbar = () => {
                 Home
               </Link>
             </li>
+
             <li className="nav-item dropdown">
               <Link
                 className="nav-link dropdown-toggle"
@@ -52,6 +54,55 @@ const Navbar = () => {
                   <Link className="dropdown-item" to="employee/position">
                     Position
                   </Link>
+                </li>
+              </ul>
+            </li>
+
+            <li className="nav-item dropdown">
+              <Link
+                className="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Accounting
+              </Link>
+
+              <ul className="dropdown-menu">
+                <li>
+                  <div className="dropdown-item dropend">
+                    <Link
+                      className="nav-link dropdown-toggle"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      Data
+                    </Link>
+
+                    <ul className="dropdown-menu dropdown-menu-sub">
+                      <Link className="dropdown-item" to="acounting/coa">
+                        Chart of Account
+                      </Link>
+                    </ul>
+                  </div>
+
+                  <div className="dropdown-item dropend">
+                    <Link
+                      className="nav-link dropdown-toggle"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      Petty Cash
+                    </Link>
+
+                    <ul className="dropdown-menu dropdown-menu-sub">
+                      <Link className="dropdown-item" to="employee/position">
+                        Journal Entry
+                      </Link>
+                    </ul>
+                  </div>
                 </li>
               </ul>
             </li>

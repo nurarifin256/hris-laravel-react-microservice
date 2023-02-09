@@ -3,6 +3,8 @@ import Departement from "./employees/Departement";
 import Employee from "./employees/Employee";
 import RQPosition from "./employees/RQPosition";
 
+import Coa from "./accounting/data/Coa";
+
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import Logout from "./auth/Logout";
@@ -18,4 +20,5 @@ export {
   Departement,
   Employee,
   RQPosition,
+  Coa,
 };

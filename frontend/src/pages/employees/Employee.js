@@ -734,7 +734,11 @@ const Employee = () => {
                   ) : (
                     <img
                       className="gambar"
-                      src={"http://127.0.0.1:8000/api/" + imageEdit}
+                      src={
+                        imageEdit
+                          ? "http://127.0.0.1:8000/api/" + imageEdit
+                          : null
+                      }
                       alt="Preview"
                     />
                   )}
@@ -761,7 +765,11 @@ const Employee = () => {
                   ) : (
                     <img
                       className="gambar"
-                      src={"http://127.0.0.1:8000/api/" + imageFEdit}
+                      src={
+                        imageFEdit
+                          ? "http://127.0.0.1:8000/api/" + imageFEdit
+                          : null
+                      }
                       alt="Preview"
                     />
                   )}
@@ -788,7 +796,11 @@ const Employee = () => {
                   ) : (
                     <img
                       className="gambar"
-                      src={"http://127.0.0.1:8000/api/" + imageCEdit}
+                      src={
+                        imageCEdit
+                          ? "http://127.0.0.1:8000/api/" + imageCEdit
+                          : null
+                      }
                       alt="Preview"
                     />
                   )}
