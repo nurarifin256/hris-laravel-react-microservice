@@ -27,3 +27,15 @@ export const deleteCoaData = async (id) => {
   response = await response.json();
   return response;
 };
+
+export const postCoa = async (dataCoa) => {
+  let response = await fetch("http://localhost:8000/api/save-coa", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataCoa),
+  });
+  response = await response.json();
+  return response;
+};

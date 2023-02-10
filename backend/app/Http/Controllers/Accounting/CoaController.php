@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Accounting;
 use App\Http\Controllers\Controller;
 use App\Models\CoaModel;
 use Illuminate\Http\Request;
+use Validator;
 
 class CoaController extends Controller
 {
@@ -33,6 +34,41 @@ class CoaController extends Controller
             'meta' => $meta,
             'request' => $request->per_page,
         ]);
+    }
+
+    public function saveCoa(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "account_number" => "required|unique:coas",
+                "account_name"   => "required",
+            ];
+
+            $customMesagges = [
+                'account_number.required' => "Account number is required",
+                'account_number.unique'   => "Account number already exists",
+                'account_name.required'   => "Account name is required",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $coas                 = new CoaModel();
+            $coas->account_number = $data['account_number'];
+            $coas->account_name   = $data['account_name'];
+            $coas->created_by     = $data['created_by'];
+            $coas->save();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Save data coa success',
+                201
+            ]);
+        }
     }
 
     public function deleteCoa(Request $request)

@@ -50,6 +50,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
 
     // route coa
     Route::get('get-coas', 'CoaController@getCoa');
+    Route::post('save-coa', 'CoaController@saveCoa');
     Route::post('delete-coa', 'CoaController@deleteCoa');
 });
 
