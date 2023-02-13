@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import { getCoaData } from "../../../../config/hooks/accounting/coaHook";
+import { toast } from "react-toastify";
 
-const CoaEditModal = ({ id, refetch }) => {
+const CoaEditModal = ({ id, refetch, getCoaData, updateCoa, onClose }) => {
+  let user = JSON.parse(localStorage.getItem("user"));
   const [accountNumberEdit, setAccountNumberEdit] = useState("");
   const [accountNameEdit, setAccountNameEdit] = useState("");
   const [errorNumberEdit, setErrorNumberEdit] = useState("");
@@ -17,6 +18,41 @@ const CoaEditModal = ({ id, refetch }) => {
       }
     },
   });
+
+  const { mutate: editCoa } = useMutation((dataCoa) => updateCoa(dataCoa), {
+    onSuccess: (data) => {
+      let result = data;
+      console.log(result);
+      if (
+        result["accountNameEdit"] == "Account name is required" ||
+        result["accountNumberEdit"] == "Account number is required"
+      ) {
+        setErrorNumberEdit(result["accountNumberEdit"]);
+        setErrorNameEdit(result["accountNameEdit"]);
+      } else {
+        const btnClose = document.querySelector(".btn-tutup-edit");
+        btnClose.click();
+        onClose();
+        refetch();
+        toast.success(result["message"], {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
+    },
+  });
+
+  const handleUpdate = () => {
+    let updated_by = user.user.name;
+    const dataCoa = { id, accountNumberEdit, accountNameEdit, updated_by };
+    editCoa(dataCoa);
+  };
 
   return (
     <div
@@ -80,17 +116,17 @@ const CoaEditModal = ({ id, refetch }) => {
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary btn-tutup"
+              className="btn btn-secondary btn-tutup-edit"
               data-bs-dismiss="modal"
             >
               Close
             </button>
             <button
               type="button"
-              // onClick={() => handleSave()}
+              onClick={() => handleUpdate()}
               className="btn btn-primary"
             >
-              Save
+              Update
             </button>
           </div>
         </div>

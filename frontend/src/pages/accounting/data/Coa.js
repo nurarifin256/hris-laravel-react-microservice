@@ -6,6 +6,8 @@ import {
   getCoasData,
   deleteCoaData,
   postCoa,
+  getCoaData,
+  updateCoa,
 } from "../../../config/hooks/accounting/coaHook";
 import DataTable from "react-data-table-component";
 import CoaPostModal from "./modals/CoaPostModal";
@@ -181,7 +183,13 @@ const Coa = () => {
       {/* modal add */}
       <CoaPostModal refetch={refetch} postCoa={postCoa} />
       {/* modal edit */}
-      <CoaEditModal id={idEdit} refetch={refetch} />
+      <CoaEditModal
+        id={idEdit}
+        refetch={refetch}
+        getCoaData={getCoaData}
+        updateCoa={updateCoa}
+        onClose={() => setShowModal(false)}
+      />
     </div>
   );
 };

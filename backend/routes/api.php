@@ -53,6 +53,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
     Route::post('save-coa', 'CoaController@saveCoa');
     Route::post('delete-coa', 'CoaController@deleteCoa');
     Route::get('edit-coa/{id}', 'CoaController@editCoa');
+    Route::patch('update-coa', 'CoaController@updateCoa');
 });
 
 Route::get('images/identity/{images}', function ($image) {

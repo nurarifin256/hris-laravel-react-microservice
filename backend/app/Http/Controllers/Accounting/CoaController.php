@@ -101,4 +101,38 @@ class CoaController extends Controller
             ]);
         }
     }
+
+    public function updateCoa(Request $request)
+    {
+        if ($request->isMethod('patch')) {
+            $data = $request->input();
+
+            $rules = [
+                "accountNumberEdit" => "required",
+                "accountNameEdit"   => "required",
+            ];
+
+            $customMesagges = [
+                'accountNumberEdit.required' => "Account number is required",
+                'accountNameEdit.required'   => "Account name is required",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $coa                 = CoaModel::find($data['id']);
+            $coa->account_number = $data['accountNumberEdit'];
+            $coa->account_name   = $data['accountNameEdit'];
+            $coa->updated_by     = $data['updated_by'];
+            $coa->save();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Update data coa success',
+                201
+            ]);
+        }
+    }
 }

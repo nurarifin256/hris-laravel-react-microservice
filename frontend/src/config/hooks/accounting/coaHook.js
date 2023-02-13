@@ -24,6 +24,18 @@ export const getCoaData = async ({ queryKey }) => {
   return response;
 };
 
+export const updateCoa = async (dataCoa) => {
+  let response = await fetch("http://localhost:8000/api/update-coa", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataCoa),
+  });
+  response = await response.json();
+  return response;
+};
+
 export const deleteCoaData = async (id) => {
   let updated_by = user.user.name;
   let data = { id, updated_by };
