@@ -20,4 +20,9 @@ class DepartmentModel extends Model
     {
         return $this->hasMany(EmployeeModel::class, 'id_department');
     }
+
+    public function petty_cash()
+    {
+        return $this->hasMany(PettyCashModel::class, 'id_department');
+    }
 }

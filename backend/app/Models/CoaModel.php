@@ -10,4 +10,9 @@ class CoaModel extends Model
     use HasFactory;
     protected $guarded = ['id'];
     protected $table   = "coas";
+
+    public function petty_cash_coa()
+    {
+        return $this->hasMany(PettyCashModel::class, 'id_coa');
+    }
 }

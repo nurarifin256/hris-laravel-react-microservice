@@ -22,7 +22,6 @@ const CoaEditModal = ({ id, refetch, getCoaData, updateCoa, onClose }) => {
   const { mutate: editCoa } = useMutation((dataCoa) => updateCoa(dataCoa), {
     onSuccess: (data) => {
       let result = data;
-      console.log(result);
       if (
         result["accountNameEdit"] == "Account name is required" ||
         result["accountNumberEdit"] == "Account number is required"

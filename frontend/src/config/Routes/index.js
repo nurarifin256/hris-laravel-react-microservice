@@ -11,6 +11,7 @@ import {
   Employee,
   RQPosition,
   Coa,
+  Refill,
 } from "../../pages";
 
 const Routess = () => {
@@ -32,6 +33,7 @@ const Routess = () => {
           element={<Departement />}
         ></Route>
         <Route exact path="/acounting/coa" element={<Coa />}></Route>
+        <Route exact path="/acounting/refill" element={<Refill />}></Route>
         <Route exact path="/login" element={<Login />}></Route>
         <Route exact path="/register" element={<Register />}></Route>
         <Route exact path="/logout" element={<Logout />}></Route>

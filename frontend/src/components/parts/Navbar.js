@@ -98,7 +98,7 @@ const Navbar = () => {
                     </Link>
 
                     <ul className="dropdown-menu dropdown-menu-sub">
-                      <Link className="dropdown-item" to="employee/position">
+                      <Link className="dropdown-item" to="acounting/refill">
                         Journal Entry
                       </Link>
                     </ul>
