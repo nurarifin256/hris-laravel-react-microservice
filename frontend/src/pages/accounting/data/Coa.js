@@ -9,7 +9,7 @@ import {
 } from "../../../config/hooks/accounting/coaHook";
 import DataTable from "react-data-table-component";
 import CoaPostModal from "./modals/CoaPostModal";
-// import CoaDeleteModal from "./modals/CoaDeleteModal";
+import CoaEditModal from "./modals/CoaEditModal";
 import "react-toastify/dist/ReactToastify.css";
 
 const Coa = () => {
@@ -20,7 +20,8 @@ const Coa = () => {
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
 
-  // const [modalDelete, setModalaDelete] = useState(false);
+  const [idEdit, setIdEdit] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
   const { refetch } = useQuery(
     ["coas", currentPage, filter, perPage],
@@ -78,7 +79,10 @@ const Coa = () => {
           <button
             type="button"
             className="btn btn-warning btn-sm ms-2"
-            // onClick={() => handleEdit(row.id)}
+            onClick={() => {
+              setShowModal(true);
+              setIdEdit(row.id);
+            }}
           >
             <i className="fa-solid fa-pen-to-square"></i>
           </button>
@@ -122,6 +126,11 @@ const Coa = () => {
     });
   };
 
+  if (showModal) {
+    const btnEdit = document.querySelector(".btn-edit");
+    btnEdit.click();
+  }
+
   return (
     <div className="container">
       <div className="row">
@@ -137,10 +146,12 @@ const Coa = () => {
 
           <button
             type="button"
-            className="btn-edit"
+            className="btn btn-primary btn-edit"
             data-bs-toggle="modal"
             data-bs-target="#modal-edit"
-          ></button>
+          >
+            tes
+          </button>
         </div>
         <div className="col-md-3 offset-md-6 mb-3">
           <input
@@ -150,7 +161,9 @@ const Coa = () => {
             onChange={handleFilter}
           />
         </div>
+      </div>
 
+      <div className="row">
         <div className="col-md-12">
           <DataTable
             columns={columns}
@@ -165,18 +178,10 @@ const Coa = () => {
         <ToastContainer />
       </div>
 
-      {/* modal delete */}
-      {/* {modalDelete && (
-        <CoaDeleteModal
-          // id={id}
-          refetch={refetch}
-          deleteCoaData={deleteCoaData}
-          onClose={() => setModalaDelete(false)}
-        />
-      )} */}
-
       {/* modal add */}
       <CoaPostModal refetch={refetch} postCoa={postCoa} />
+      {/* modal edit */}
+      <CoaEditModal id={idEdit} refetch={refetch} />
     </div>
   );
 };

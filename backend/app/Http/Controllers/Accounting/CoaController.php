@@ -88,4 +88,17 @@ class CoaController extends Controller
             ]);
         }
     }
+
+    public function editCoa(Request $request, $id)
+    {
+        if ($request->isMethod('get')) {
+            $coas = CoaModel::where('id', $id)->select('id', 'account_number', 'account_name')->first();
+
+            return response()->json([
+                'status'  => true,
+                'data' => $coas,
+                200
+            ]);
+        }
+    }
 }
