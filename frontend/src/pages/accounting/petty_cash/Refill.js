@@ -2,7 +2,12 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import { useQuery } from "react-query";
 import { ToastContainer } from "react-toastify";
-import { getPettyCashData } from "../../../config/hooks/accounting/pettyCashHook";
+import {
+  getPettyCashData,
+  postRefill,
+} from "../../../config/hooks/accounting/pettyCashHook";
+import "./style.css";
+import RefillPostModal from "./modals/RefillPostModal";
 
 const Refill = () => {
   const [coa, setCoa] = useState([]);
@@ -14,12 +19,20 @@ const Refill = () => {
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
 
+  const numberFormat = (value) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(value);
+
   const { refetch } = useQuery(
     ["pettyCash", currentPage, filter, perPage],
     getPettyCashData,
     {
       onSuccess: (data) => {
         setPettyCash(data.data);
+        setCoa(data.coasData);
+        setDepartment(data.departmentData);
         setTotalPages(data.meta.last_page);
       },
     }
@@ -57,8 +70,38 @@ const Refill = () => {
       sortable: true,
     },
     {
+      name: "Account Number",
+      selector: (row, i) => row.coas.account_number,
+      sortable: true,
+    },
+    {
+      name: "Account Number",
+      selector: (row, i) => row.coas.account_name,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: "Departments",
+      selector: (row, i) =>
+        row.departmens.name + " - " + row.departmens.positions.name,
+      sortable: true,
+      wrap: true,
+    },
+
+    {
       name: "Description",
       selector: (row, i) => row.description,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: "Debit",
+      selector: (row, i) => numberFormat(row.debit),
+      sortable: true,
+    },
+    {
+      name: "Credit",
+      selector: (row, i) => numberFormat(row.credit),
       sortable: true,
     },
     {
@@ -124,21 +167,28 @@ const Refill = () => {
 
       <div className="row">
         <div className="col-md-12">
-          <DataTable
-            columns={columns}
-            data={pettyCash}
-            pagination
-            paginationServer
-            paginationTotalRows={totalPages * perPage}
-            onChangePage={handlePageChange}
-            onSort={handleSort}
-          />
+          <div className="table-responsive">
+            <DataTable
+              columns={columns}
+              data={pettyCash}
+              pagination
+              paginationServer
+              paginationTotalRows={totalPages * perPage}
+              onChangePage={handlePageChange}
+              onSort={handleSort}
+            />
+          </div>
         </div>
         <ToastContainer />
       </div>
 
       {/* modal add */}
-      {/* <CoaPostModal refetch={refetch} postCoa={postCoa} /> */}
+      <RefillPostModal
+        coas={coa}
+        department={department}
+        refetch={refetch}
+        postRefill={postRefill}
+      />
       {/* modal edit */}
       {/* <CoaEditModal
         id={idEdit}

@@ -13,3 +13,15 @@ export const getPettyCashData = async ({ queryKey }) => {
   response = await response.json();
   return response;
 };
+
+export const postRefill = async (dataRefill) => {
+  let response = await fetch("http://localhost:8000/api/save-refill", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataRefill),
+  });
+  response = await response.json();
+  return response;
+};

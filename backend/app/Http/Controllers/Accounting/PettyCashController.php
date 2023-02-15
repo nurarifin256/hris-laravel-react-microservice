@@ -7,6 +7,7 @@ use App\Models\CoaModel;
 use App\Models\DepartmentModel;
 use App\Models\PettyCashModel;
 use Illuminate\Http\Request;
+use Validator;
 
 class PettyCashController extends Controller
 {
@@ -34,5 +35,35 @@ class PettyCashController extends Controller
             'meta'           => $meta,
             'request'        => $request->per_page
         ]);
+    }
+
+    public function savePettyCash(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "idCoa"        => "required",
+                "idDepartment" => "required",
+                "description"  => "required",
+                "debit"        => "required|same:credit",
+                "credit"       => "required|same:debit",
+            ];
+
+            $customMesagges = [
+                'idCoa.required'        => "COA is required",
+                'idDepartment.required' => "Department is required",
+                'description.required'  => "Description is required",
+                'debit.required'        => "Debit is required",
+                'debit.same'            => "Debit must be balance credit",
+                'credit.required'       => "Credit is required",
+                'credit.same'           => "Credit must be balance debit",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+        }
     }
 }
