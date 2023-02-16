@@ -89,13 +89,12 @@ class PettyCashController extends Controller
             $number     = $set_number . $number_final;
             $created_by = $data['created_by'];
 
-            // return response()->json([
-            //     'status'  => true,
-            //     'message' => $number, $created_by, $data['descriptionC'],
-            //     201
-            // ]);
-
-            // die;
+            // save data debit
+            $idCoa        = $data['idCoa'];
+            $idDepartment = $data['idDepartment'];
+            $description  = $data['description'];
+            $debit        = $debit_str;
+            PettyCashModel::save_debit($idDepartment, $idCoa, $number, $description, $debit, $created_by);
 
             // save data credit
             $idCoaC        = $data['idCoaC'];
@@ -103,13 +102,6 @@ class PettyCashController extends Controller
             $descriptionC  = $data['descriptionC'];
             $credit        = $credit_str;
             PettyCashModel::save_credit($idDepartmentC, $idCoaC, $number, $descriptionC, $credit, $created_by);
-
-            // save data debit
-            $idCoa        = $data['idCoa'];
-            $idDepartment = $data['idDepartment'];
-            $description  = $data['description'];
-            $debit        = $debit_str;
-            PettyCashModel::save_debit($idDepartment, $idCoa, $number, $description, $debit, $created_by);
 
             return response()->json([
                 'status'  => true,

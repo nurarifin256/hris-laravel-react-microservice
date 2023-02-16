@@ -176,6 +176,7 @@ const Refill = () => {
               paginationTotalRows={totalPages * perPage}
               onChangePage={handlePageChange}
               onSort={handleSort}
+              defaultSortAsc={true}
             />
           </div>
         </div>

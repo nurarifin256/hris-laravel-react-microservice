@@ -2,8 +2,9 @@ import { useState } from "react";
 import Select from "react-select";
 import CurrencyFormat from "react-currency-format";
 import { useMutation } from "react-query";
+import { toast } from "react-toastify";
 
-const RefillPostModal = ({ coas, department, postRefill }) => {
+const RefillPostModal = ({ coas, department, postRefill, refetch }) => {
   let user = JSON.parse(localStorage.getItem("user"));
 
   const [idCoa, setIdCoa] = useState("");
@@ -44,10 +45,42 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
     (dataRefill) => postRefill(dataRefill),
     {
       onSuccess: (data) => {
-        console.log(data);
-      },
-      onError: (error) => {
-        console.log(error);
+        let result = data;
+        if (
+          result["idCoa"] == "COA is required" ||
+          result["idCoaC"] == "COA is required" ||
+          result["idDepartment"] == "Department is required" ||
+          result["idDepartmentC"] == "Department is required" ||
+          result["description"] == "Description is required" ||
+          result["descriptionC"] == "Description is required" ||
+          result["debit"] == "Debit is required" ||
+          result["debit"] == "Debit must be balance credit" ||
+          result["credit"] == "Credit is required" ||
+          result["credit"] == "Credit must be balance debit"
+        ) {
+          setErrorCoa(result["idCoa"]);
+          setErrorCoaC(result["idCoaC"]);
+          setErrorDepartment(result["idDepartment"]);
+          setErrorDepartmentC(result["idDepartmentC"]);
+          setErrorDescription(result["description"]);
+          setErrorDescriptionC(result["descriptionC"]);
+          setErrorCredit(result["credit"]);
+          setErrorDebit(result["debit"]);
+        } else {
+          const btnClose = document.querySelector(".btn-tutup");
+          btnClose.click();
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       },
     }
   );
