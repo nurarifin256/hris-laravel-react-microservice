@@ -1,10 +1,12 @@
 import { useState } from "react";
 import DataTable from "react-data-table-component";
-import { useQuery } from "react-query";
-import { ToastContainer } from "react-toastify";
+import { useMutation, useQuery } from "react-query";
+import { toast, ToastContainer } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
 import {
   getPettyCashData,
   postRefill,
+  deleteRefill,
 } from "../../../config/hooks/accounting/pettyCashHook";
 import "./style.css";
 import RefillPostModal from "./modals/RefillPostModal";
@@ -114,7 +116,7 @@ const Refill = () => {
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            // onClick={() => handleHapus(row.id)}
+            onClick={() => handleHapus(row.number)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -132,6 +134,45 @@ const Refill = () => {
       ),
     },
   ];
+
+  const { mutate: hapusBackend } = useMutation(
+    (number) => deleteRefill(number),
+    {
+      onSuccess(data) {
+        console.log(data);
+        if (data.message == "Delete data refill success") {
+          refetch();
+          toast.success(data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const handleHapus = (number) => {
+    confirmAlert({
+      title: "Confirm to submit",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => hapusBackend(number),
+        },
+        {
+          label: "No",
+          // onClick: () => onClose(),
+        },
+      ],
+    });
+  };
 
   return (
     <div className="container">

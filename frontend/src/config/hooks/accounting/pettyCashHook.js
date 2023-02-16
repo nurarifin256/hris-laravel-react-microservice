@@ -25,3 +25,17 @@ export const postRefill = async (dataRefill) => {
   response = await response.json();
   return response;
 };
+
+export const deleteRefill = async (number) => {
+  const updated_by = user.user.name;
+  let data = { number, updated_by };
+  let response = await fetch("http://localhost:8000/api/delete-refill", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  response = await response.json();
+  return response;
+};

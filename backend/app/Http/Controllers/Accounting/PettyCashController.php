@@ -15,6 +15,7 @@ class PettyCashController extends Controller
     {
         $departmentData = DepartmentModel::with('positions')->where('trashed', 0)->get();
         $coasData       = CoaModel::where('trashed', 0)->get();
+
         $pettyCash      = PettyCashModel::with('coas', 'departmens.positions')->where('trashed', 0)->orderBy('id', 'asc');
 
         $meta      = [];
@@ -106,6 +107,24 @@ class PettyCashController extends Controller
             return response()->json([
                 'status'  => true,
                 'message' => 'Save data refill success',
+                201
+            ]);
+        }
+    }
+
+    public function deletePettyCash(Request $request)
+    {
+        if ($request->isMethod('patch')) {
+            $data = $request->input();
+
+            $number     = $data["number"];
+            $updated_by = $data["updated_by"];
+
+            PettyCashModel::delete_refill($updated_by, $number);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Delete data refill success',
                 201
             ]);
         }

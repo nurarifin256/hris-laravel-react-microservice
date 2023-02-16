@@ -167,6 +167,9 @@ const RefillPostModal = ({ coas, department, postRefill, refetch }) => {
                   placeholder="Enter Debit"
                   onChange={(e) => setDebit(e.target.value)}
                 />
+                {errorDebit && (
+                  <span className="text-danger"> {errorDebit} </span>
+                )}
               </div>
 
               <hr />

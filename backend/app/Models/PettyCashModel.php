@@ -43,4 +43,9 @@ class PettyCashModel extends Model
     {
         DB::select("CALL post_refill($idDepartment, $idCoa, '$number', '$description', 0, $debit, '$created_by')");
     }
+
+    static function delete_refill($updated_by, $number)
+    {
+        DB::select("CALL delete_refill('$updated_by', '$number')");
+    }
 }
