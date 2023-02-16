@@ -8,15 +8,23 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
 
   const [idCoa, setIdCoa] = useState("");
   const [idDepartment, setIdDepartment] = useState("");
-  const [debit, setDebit] = useState("");
-  const [credit, setCredit] = useState("");
   const [description, setDescription] = useState("");
+  const [debit, setDebit] = useState("");
+
+  const [idCoaC, setIdCoaC] = useState("");
+  const [idDepartmentC, setIdDepartmentC] = useState("");
+  const [descriptionC, setDescriptionC] = useState("");
+  const [credit, setCredit] = useState("");
 
   const [errorCoa, setErrorCoa] = useState("");
   const [errorDepartment, setErrorDepartment] = useState("");
   const [errorDescription, setErrorDescription] = useState("");
-  const [errorCredit, setErrorCredit] = useState("");
   const [errorDebit, setErrorDebit] = useState("");
+
+  const [errorCoaC, setErrorCoaC] = useState("");
+  const [errorDepartmentC, setErrorDepartmentC] = useState("");
+  const [errorDescriptionC, setErrorDescriptionC] = useState("");
+  const [errorCredit, setErrorCredit] = useState("");
 
   const optionsCoa = coas.map((item) => {
     return {
@@ -48,8 +56,11 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
     let created_by = user.user.name;
     const dataRefill = {
       idCoa,
+      idCoaC,
       idDepartment,
+      idDepartmentC,
       description,
+      descriptionC,
       debit,
       credit,
       created_by,
@@ -103,6 +114,7 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
                   <span className="text-danger"> {errorDepartment} </span>
                 )}
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Description</label>
                 <textarea
@@ -113,6 +125,7 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
                   onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Debit</label>
                 <CurrencyFormat
@@ -121,6 +134,47 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
                   placeholder="Enter Debit"
                   onChange={(e) => setDebit(e.target.value)}
                 />
+              </div>
+
+              <hr />
+
+              <div className="mb-3 mt-3">
+                <label className="form-label">Account number - name</label>
+                <Select
+                  placeholder="Choose COA"
+                  className={errorCoaC ? "is-invalid" : null}
+                  onChange={(e) => setIdCoaC(e.value)}
+                  options={optionsCoa}
+                />
+                {errorCoaC && (
+                  <span className="text-danger"> {errorCoaC} </span>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Position - Department</label>
+                <Select
+                  placeholder="Choose Department"
+                  className={errorDepartmentC ? "is-invalid" : null}
+                  onChange={(e) => setIdDepartmentC(e.value)}
+                  options={optionsDepartment}
+                />
+                {errorDepartmentC && (
+                  <span className="text-danger"> {errorDepartmentC} </span>
+                )}
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Description</label>
+                <textarea
+                  className={`form-control ${
+                    errorDescriptionC ? "is-invalid" : null
+                  }`}
+                  placeholder="Enter description"
+                  onChange={(e) => setDescriptionC(e.target.value)}
+                ></textarea>
+                {errorDescriptionC && (
+                  <span className="text-danger"> {errorDescriptionC} </span>
+                )}
               </div>
               <div className="mb-3">
                 <label className="form-label">Credit</label>
@@ -132,6 +186,9 @@ const RefillPostModal = ({ coas, department, postRefill }) => {
                   placeholder="Enter Credit"
                   onChange={(e) => setCredit(e.target.value)}
                 />
+                {errorCredit && (
+                  <span className="text-danger"> {errorCredit} </span>
+                )}
               </div>
             </div>
             <div className="modal-footer">
