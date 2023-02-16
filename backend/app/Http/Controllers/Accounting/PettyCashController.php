@@ -129,4 +129,17 @@ class PettyCashController extends Controller
             ]);
         }
     }
+
+    public function editPettyCash(Request $request, $number)
+    {
+        if ($request->isMethod('get')) {
+            $refill = PettyCashModel::get_refill($number);
+
+            return response()->json([
+                'status'  => true,
+                'data' => $refill,
+                200
+            ]);
+        }
+    }
 }

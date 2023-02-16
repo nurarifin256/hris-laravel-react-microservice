@@ -39,3 +39,16 @@ export const deleteRefill = async (number) => {
   response = await response.json();
   return response;
 };
+
+export const getRefill = async ({ queryKey }) => {
+  let number = queryKey[1];
+
+  let response = await fetch(
+    `http://localhost:8000/api/edit-refill/${number}`,
+    {
+      method: "get",
+    }
+  );
+  response = await response.json();
+  return response;
+};

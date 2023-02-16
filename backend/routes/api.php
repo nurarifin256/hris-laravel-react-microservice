@@ -59,6 +59,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
     Route::get('get-refill', 'PettyCashController@getPettyCash');
     Route::post('save-refill', 'PettyCashController@savePettyCash');
     Route::patch('delete-refill', 'PettyCashController@deletePettyCash');
+    Route::get('edit-refill/{number}', 'PettyCashController@editPettyCash');
 });
 
 Route::get('images/identity/{images}', function ($image) {

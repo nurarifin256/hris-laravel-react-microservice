@@ -7,9 +7,11 @@ import {
   getPettyCashData,
   postRefill,
   deleteRefill,
+  getRefill,
 } from "../../../config/hooks/accounting/pettyCashHook";
 import "./style.css";
 import RefillPostModal from "./modals/RefillPostModal";
+import RefillEditModal from "./modals/RefillEditModal";
 
 const Refill = () => {
   const [coa, setCoa] = useState([]);
@@ -20,6 +22,8 @@ const Refill = () => {
   const [perPage] = useState(10);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
+
+  const [number, setNumber] = useState("0");
 
   const numberFormat = (value) =>
     new Intl.NumberFormat("id-ID", {
@@ -123,10 +127,9 @@ const Refill = () => {
           <button
             type="button"
             className="btn btn-warning btn-sm ms-2"
-            onClick={() => {
-              //   setShowModal(true);
-              //   setIdEdit(row.id);
-            }}
+            data-bs-toggle="modal"
+            data-bs-target="#modal-edit"
+            onClick={() => setNumber(row.number)}
           >
             <i className="fa-solid fa-pen-to-square"></i>
           </button>
@@ -139,7 +142,6 @@ const Refill = () => {
     (number) => deleteRefill(number),
     {
       onSuccess(data) {
-        console.log(data);
         if (data.message == "Delete data refill success") {
           refetch();
           toast.success(data.message, {
@@ -231,14 +233,15 @@ const Refill = () => {
         refetch={refetch}
         postRefill={postRefill}
       />
+
       {/* modal edit */}
-      {/* <CoaEditModal
-        id={idEdit}
+      <RefillEditModal
+        coas={coa}
+        department={department}
         refetch={refetch}
-        getCoaData={getCoaData}
-        updateCoa={updateCoa}
-        onClose={() => setShowModal(false)}
-      /> */}
+        getRefill={getRefill}
+        number={number}
+      />
     </div>
   );
 };
