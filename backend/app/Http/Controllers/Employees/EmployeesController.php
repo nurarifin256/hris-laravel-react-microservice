@@ -21,9 +21,11 @@ class EmployeesController extends Controller
                         ->orWhere("mobile_phone_number", "like", "$request->filter%")
                         ->orWhere("gender", "like", "$request->filter%")
                         ->orWhere("address", "like", "$request->filter%")
+
                         ->orWhereHas('departmens', function ($q) use ($request) {
                             $q->where('name', 'like', '%' . $request->filter . '%');
                         })
+
                         ->orWhereHas('departmens.positions', function ($q) use ($request) {
                             $q->where('name', 'like', '%' . $request->filter . '%');
                         });

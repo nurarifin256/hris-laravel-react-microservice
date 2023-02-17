@@ -16,7 +16,24 @@ class PettyCashController extends Controller
         $departmentData = DepartmentModel::with('positions')->where('trashed', 0)->get();
         $coasData       = CoaModel::where('trashed', 0)->get();
 
-        $pettyCash      = PettyCashModel::with('coas', 'departmens.positions')->where('trashed', 0)->orderBy('id', 'asc');
+        $pettyCash      = PettyCashModel::with('coas', 'departmens.positions')->where('trashed', 0)
+            ->where(function ($query) use ($request) {
+                if ($request->has('filter')) {
+                    $query->where("number", "like", "%$request->filter%")
+                        ->orWhere("description", "like", "%$request->filter%")
+                        ->orWhere("credit", "like", "%$request->filter%")
+                        ->orWhere("debit", "like", "%$request->filter%")
+
+                        ->orWhereHas('coas', function ($q) use ($request) {
+                            $q->where("account_number", "like", "%$request->filter%")
+                                ->orWhere("account_name", "like", "%$request->filter%");
+                        })
+
+                        ->orWhereHas('departmens.positions', function ($q) use ($request) {
+                            $q->where("name", "like", "%$request->filter%");
+                        });
+                }
+            });
 
         $meta      = [];
         $perPage   = $request->per_page ?? 10;
