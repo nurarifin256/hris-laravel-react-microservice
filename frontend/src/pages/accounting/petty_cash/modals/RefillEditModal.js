@@ -4,34 +4,51 @@ import CurrencyFormat from "react-currency-format";
 import { useMutation, useQuery } from "react-query";
 import { toast } from "react-toastify";
 
-const RefillEditModal = ({ coas, department, refetch, getRefill, number }) => {
+const RefillEditModal = ({
+  coas,
+  department,
+  refetch,
+  getRefill,
+  number,
+  updateRefill,
+}) => {
   let user = JSON.parse(localStorage.getItem("user"));
 
-  const [idCoa, setIdCoa] = useState("");
-  const [idDepartment, setIdDepartment] = useState("");
-  const [description, setDescription] = useState("");
-  const [debit, setDebit] = useState("");
+  const [idR, setIdR] = useState("");
+  const [idCoaE, setIdCoaE] = useState("");
+  const [idDepartmentE, setIdDepartmentE] = useState("");
+  const [descriptionE, setDescriptionE] = useState("");
+  const [debitE, setDebitE] = useState("");
 
-  const [idCoaC, setIdCoaC] = useState("");
-  const [idDepartmentC, setIdDepartmentC] = useState("");
-  const [descriptionC, setDescriptionC] = useState("");
-  const [credit, setCredit] = useState("");
+  const [idRC, setIdRC] = useState("");
+  const [idCoaCE, setIdCoaCE] = useState("");
+  const [idDepartmentCE, setIdDepartmentCE] = useState("");
+  const [descriptionCE, setDescriptionCE] = useState("");
+  const [creditE, setCreditE] = useState("");
 
-  const [errorCoa, setErrorCoa] = useState("");
-  const [errorDepartment, setErrorDepartment] = useState("");
-  const [errorDescription, setErrorDescription] = useState("");
-  const [errorDebit, setErrorDebit] = useState("");
+  const [errorDescriptionE, setErrorDescriptionE] = useState("");
+  const [errorDebitE, setErrorDebitE] = useState("");
 
-  const [errorCoaC, setErrorCoaC] = useState("");
-  const [errorDepartmentC, setErrorDepartmentC] = useState("");
-  const [errorDescriptionC, setErrorDescriptionC] = useState("");
-  const [errorCredit, setErrorCredit] = useState("");
+  const [errorDescriptionCE, setErrorDescriptionCE] = useState("");
+  const [errorCreditE, setErrorCreditE] = useState("");
 
   useQuery(["refill", number], getRefill, {
     onSuccess(data) {
       if (data.data) {
-        console.log("debit", data.data[0]);
-        console.log("credit", data.data[1]);
+        // data debit
+        const { id, id_department, id_coa, description, debit } = data.data[0];
+        setIdR(id);
+        setIdCoaE(id_coa);
+        setIdDepartmentE(id_department);
+        setDescriptionE(description);
+        setDebitE(debit);
+
+        // data credit
+        setIdRC(data.data[1].id);
+        setIdDepartmentCE(data.data[1].id_department);
+        setIdCoaCE(data.data[1].id_coa);
+        setDescriptionCE(data.data[1].description);
+        setCreditE(data.data[1].credit);
       }
     },
   });
@@ -49,6 +66,60 @@ const RefillEditModal = ({ coas, department, refetch, getRefill, number }) => {
       value: item.id,
     };
   });
+
+  const { mutate: editRefill } = useMutation(
+    (dataReffil) => updateRefill(dataReffil),
+    {
+      onSuccess(data) {
+        let result = data;
+        if (
+          result["descriptionE"] == "Description is required" ||
+          result["descriptionCE"] == "Description is required" ||
+          result["debitE"] == "Debit is required" ||
+          result["creditE"] == "Credit is required" ||
+          result["debitE"] == "Debit must be balance credit" ||
+          result["creditE"] == "Credit must be balance credit"
+        ) {
+          setErrorDescriptionE(result["descriptionE"]);
+          setErrorDescriptionCE(result["descriptionCE"]);
+          setErrorDebitE(result["debitE"]);
+          setErrorCreditE(result["creditE"]);
+        } else {
+          const btnClose = document.querySelector(".btn-tutup-edit");
+          btnClose.click();
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const handleUpdate = () => {
+    let updated_by = user.user.name;
+    const dataReffil = {
+      idR,
+      idCoaE,
+      idDepartmentE,
+      descriptionE,
+      debitE,
+      idRC,
+      idCoaCE,
+      idDepartmentCE,
+      descriptionCE,
+      creditE,
+      updated_by,
+    };
+    editRefill(dataReffil);
+  };
   return (
     <div
       className="modal fade"
@@ -74,48 +145,49 @@ const RefillEditModal = ({ coas, department, refetch, getRefill, number }) => {
             <div className="mb-3">
               <label className="form-label">Account number - name</label>
               <Select
-                placeholder="Choose COA"
-                className={errorCoa ? "is-invalid" : null}
-                onChange={(e) => setIdCoa(e.value)}
+                value={optionsCoa.filter(function (option) {
+                  return option.value === idCoaE;
+                })}
+                onChange={(e) => setIdCoaE(e.value)}
                 options={optionsCoa}
               />
-              {errorCoa && <span className="text-danger"> {errorCoa} </span>}
             </div>
 
             <div className="mb-3">
               <label className="form-label">Position - Department</label>
               <Select
-                placeholder="Choose Department"
-                className={errorDepartment ? "is-invalid" : null}
-                onChange={(e) => setIdDepartment(e.value)}
+                value={optionsDepartment.filter(function (option) {
+                  return option.value === idDepartmentE;
+                })}
+                onChange={(e) => setIdDepartmentE(e.value)}
                 options={optionsDepartment}
               />
-              {errorDepartment && (
-                <span className="text-danger"> {errorDepartment} </span>
-              )}
             </div>
 
             <div className="mb-3">
               <label className="form-label">Description</label>
               <textarea
                 className={`form-control ${
-                  errorDescription ? "is-invalid" : null
+                  errorDescriptionE ? "is-invalid" : null
                 }`}
-                placeholder="Enter description"
-                onChange={(e) => setDescription(e.target.value)}
+                value={descriptionE}
+                onChange={(e) => setDescriptionE(e.target.value)}
               ></textarea>
+              {errorDescriptionE && (
+                <span className="text-danger"> {errorDescriptionE} </span>
+              )}
             </div>
 
             <div className="mb-3">
               <label className="form-label">Debit</label>
               <CurrencyFormat
-                className={`form-control ${errorDebit ? "is-invalid" : null}`}
+                className={`form-control ${errorDebitE ? "is-invalid" : null}`}
                 thousandSeparator={true}
-                placeholder="Enter Debit"
-                onChange={(e) => setDebit(e.target.value)}
+                value={debitE}
+                onChange={(e) => setDebitE(e.target.value)}
               />
-              {errorDebit && (
-                <span className="text-danger"> {errorDebit} </span>
+              {errorDebitE && (
+                <span className="text-danger"> {errorDebitE} </span>
               )}
             </div>
 
@@ -124,66 +196,64 @@ const RefillEditModal = ({ coas, department, refetch, getRefill, number }) => {
             <div className="mb-3 mt-3">
               <label className="form-label">Account number - name</label>
               <Select
-                placeholder="Choose COA"
-                className={errorCoaC ? "is-invalid" : null}
-                onChange={(e) => setIdCoaC(e.value)}
+                value={optionsCoa.filter(function (option) {
+                  return option.value === idCoaCE;
+                })}
+                onChange={(e) => setIdCoaCE(e.value)}
                 options={optionsCoa}
               />
-              {errorCoaC && <span className="text-danger"> {errorCoaC} </span>}
             </div>
 
             <div className="mb-3">
               <label className="form-label">Position - Department</label>
               <Select
-                placeholder="Choose Department"
-                className={errorDepartmentC ? "is-invalid" : null}
-                onChange={(e) => setIdDepartmentC(e.value)}
+                value={optionsDepartment.filter(function (option) {
+                  return option.value === idDepartmentCE;
+                })}
+                onChange={(e) => setIdDepartmentCE(e.value)}
                 options={optionsDepartment}
               />
-              {errorDepartmentC && (
-                <span className="text-danger"> {errorDepartmentC} </span>
-              )}
             </div>
             <div className="mb-3">
               <label className="form-label">Description</label>
               <textarea
                 className={`form-control ${
-                  errorDescriptionC ? "is-invalid" : null
+                  errorDescriptionCE ? "is-invalid" : null
                 }`}
-                placeholder="Enter description"
-                onChange={(e) => setDescriptionC(e.target.value)}
+                value={descriptionCE}
+                onChange={(e) => setDescriptionCE(e.target.value)}
               ></textarea>
-              {errorDescriptionC && (
-                <span className="text-danger"> {errorDescriptionC} </span>
+              {errorDescriptionCE && (
+                <span className="text-danger"> {errorDescriptionCE} </span>
               )}
             </div>
             <div className="mb-3">
               <label className="form-label">Credit</label>
               <CurrencyFormat
-                className={`form-control ${errorCredit ? "is-invalid" : null}`}
+                className={`form-control ${errorCreditE ? "is-invalid" : null}`}
                 thousandSeparator={true}
-                placeholder="Enter Credit"
-                onChange={(e) => setCredit(e.target.value)}
+                value={creditE}
+                onChange={(e) => setCreditE(e.target.value)}
               />
-              {errorCredit && (
-                <span className="text-danger"> {errorCredit} </span>
+              {errorCreditE && (
+                <span className="text-danger"> {errorCreditE} </span>
               )}
             </div>
           </div>
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary btn-tutup"
+              className="btn btn-secondary btn-tutup-edit"
               data-bs-dismiss="modal"
             >
               Close
             </button>
             <button
               type="button"
-              // onClick={() => handleSave()}
+              onClick={() => handleUpdate()}
               className="btn btn-primary"
             >
-              Save
+              Update
             </button>
           </div>
         </div>

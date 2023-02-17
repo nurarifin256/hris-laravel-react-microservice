@@ -44,6 +44,16 @@ class PettyCashModel extends Model
         DB::select("CALL post_refill($idDepartment, $idCoa, '$number', '$description', 0, $debit, '$created_by')");
     }
 
+    static function update_debit($idD, $idDepartment, $idCoa, $description, $debit, $updated_by)
+    {
+        DB::select("CALL update_refill($idD, $idDepartment, $idCoa, '$description', 0, $debit, '$updated_by')");
+    }
+
+    static function update_credit($idC, $idDepartmentC, $idCoaC, $descriptionC, $credit, $updated_by)
+    {
+        DB::select("CALL update_refill($idC, $idDepartmentC, $idCoaC, '$descriptionC', $credit, 0, '$updated_by')");
+    }
+
     static function delete_refill($updated_by, $number)
     {
         DB::select("CALL delete_refill('$updated_by', '$number')");

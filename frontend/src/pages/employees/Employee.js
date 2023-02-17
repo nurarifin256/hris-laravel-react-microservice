@@ -333,7 +333,6 @@ const Employee = () => {
     (formData) => updateEmployeeFN(formData),
     {
       onSuccess: (data) => {
-        console.log(data);
         let result = data;
         if (
           result["nameEdit"] == "Name is required" ||

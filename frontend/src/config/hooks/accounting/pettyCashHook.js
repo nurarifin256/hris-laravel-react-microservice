@@ -40,6 +40,18 @@ export const deleteRefill = async (number) => {
   return response;
 };
 
+export const updateRefill = async (dataReffil) => {
+  let response = await fetch("http://localhost:8000/api/update-refill", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataReffil),
+  });
+  response = await response.json();
+  return response;
+};
+
 export const getRefill = async ({ queryKey }) => {
   let number = queryKey[1];
 

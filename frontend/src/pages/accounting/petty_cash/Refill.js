@@ -8,6 +8,7 @@ import {
   postRefill,
   deleteRefill,
   getRefill,
+  updateRefill,
 } from "../../../config/hooks/accounting/pettyCashHook";
 import "./style.css";
 import RefillPostModal from "./modals/RefillPostModal";
@@ -241,6 +242,7 @@ const Refill = () => {
         refetch={refetch}
         getRefill={getRefill}
         number={number}
+        updateRefill={updateRefill}
       />
     </div>
   );

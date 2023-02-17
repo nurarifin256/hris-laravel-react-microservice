@@ -154,8 +154,62 @@ class PettyCashController extends Controller
 
             return response()->json([
                 'status'  => true,
-                'data' => $refill,
+                'data' => $refill ? $refill : NULL,
                 200
+            ]);
+        }
+    }
+
+    public function updatePettyCash(Request $request)
+    {
+        if ($request->isMethod('patch')) {
+            $data = $request->input();
+
+            $rules = [
+                "descriptionE"   => "required",
+                "descriptionCE"  => "required",
+                "debitE"         => "required|same:creditE",
+                "creditE"        => "required|same:debitE",
+            ];
+
+            $customMesagges = [
+                'descriptionE.required'   => "Description is required",
+                'descriptionCE.required'  => "Description is required",
+                'debitE.required'         => "Debit is required",
+                'debitE.same'             => "Debit must be balance credit",
+                'creditE.required'        => "Credit is required",
+                'creditE.same'            => "Credit must be balance debit",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            $debit_str  = str_replace(',', '', $data['debitE']);
+            $credit_str = str_replace(',', '', $data['creditE']);
+            $updated_by = $data['updated_by'];
+
+            // save data debit
+            $idD = $data['idR'];
+            $idDepartment = $data['idDepartmentE'];
+            $idCoa        = $data['idCoaE'];
+            $description  = $data['descriptionE'];
+            $debit        = $debit_str;
+            PettyCashModel::update_debit($idD, $idDepartment, $idCoa, $description, $debit, $updated_by);
+
+            // save data credit
+            $idC = $data['idRC'];
+            $idDepartmentC = $data['idDepartmentCE'];
+            $idCoaC        = $data['idCoaCE'];
+            $descriptionC  = $data['descriptionCE'];
+            $credit        = $credit_str;
+            PettyCashModel::update_credit($idC, $idDepartmentC, $idCoaC, $descriptionC, $credit, $updated_by);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Update data refill success',
+                201
             ]);
         }
     }
