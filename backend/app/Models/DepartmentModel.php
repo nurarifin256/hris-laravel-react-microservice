@@ -25,4 +25,9 @@ class DepartmentModel extends Model
     {
         return $this->hasMany(PettyCashModel::class, 'id_department');
     }
+
+    public function petty_cash_details()
+    {
+        return $this->hasMany(PettyCashDetailModel::class, 'id_department');
+    }
 }

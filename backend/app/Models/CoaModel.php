@@ -15,4 +15,9 @@ class CoaModel extends Model
     {
         return $this->hasMany(PettyCashModel::class, 'id_coa');
     }
+
+    public function petty_cash_details_coa()
+    {
+        return $this->hasMany(PettyCashDetailModel::class, 'id_coa');
+    }
 }

@@ -1,32 +1,23 @@
 import { useState } from "react";
+import { useQuery } from "react-query";
+import { useParams } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { getPettyDetail } from "../../../config/hooks/accounting/pettCashDetailHook";
 import DataTable from "react-data-table-component";
-import { useMutation, useQuery } from "react-query";
-import { toast, ToastContainer } from "react-toastify";
-import { confirmAlert } from "react-confirm-alert";
-import {
-  getPettyCashData,
-  postRefill,
-  deleteRefill,
-  getRefill,
-  updateRefill,
-} from "../../../config/hooks/accounting/pettyCashHook";
-import "./style.css";
-import RefillPostModal from "./modals/RefillPostModal";
-import RefillEditModal from "./modals/RefillEditModal";
-import { Link } from "react-router-dom";
 import moment from "moment";
+import PettyCashPostModal from "./modals/PettyCashPostModal";
 
-const Refill = () => {
-  const [coa, setCoa] = useState([]);
-  const [department, setDepartment] = useState([]);
-  const [pettyCash, setPettyCash] = useState([]);
+const PettyCash = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [perPage] = useState(10);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
 
-  const [number, setNumber] = useState("0");
+  const { number } = useParams();
+  const [pettyCash, setPettyCash] = useState([]);
+  const [coa, setCoa] = useState([]);
+  const [department, setDepartment] = useState([]);
 
   const numberFormat = (value) =>
     new Intl.NumberFormat("id-ID", {
@@ -35,14 +26,15 @@ const Refill = () => {
     }).format(value);
 
   const { refetch } = useQuery(
-    ["pettyCash", currentPage, filter, perPage],
-    getPettyCashData,
+    ["pettyCash", currentPage, filter, perPage, number],
+    getPettyDetail,
     {
       onSuccess: (data) => {
         setPettyCash(data.data);
         setCoa(data.coasData);
         setDepartment(data.departmentData);
         setTotalPages(data.meta.last_page);
+        console.log(data);
       },
     }
   );
@@ -81,9 +73,7 @@ const Refill = () => {
     },
     {
       name: "Journal Number",
-      cell: (row, i) => (
-        <Link to={`/acounting/petty-cash/${row.number}`}>{row.number}</Link>
-      ),
+      selector: (row, i) => row.number_journal,
       sortable: true,
     },
     {
@@ -92,7 +82,7 @@ const Refill = () => {
       sortable: true,
     },
     {
-      name: "Account Number",
+      name: "Account Name",
       selector: (row, i) => row.coas.account_name,
       sortable: true,
       wrap: true,
@@ -122,6 +112,11 @@ const Refill = () => {
       sortable: true,
     },
     {
+      name: "Balance",
+      selector: (row, i) => numberFormat(row.balance),
+      sortable: true,
+    },
+    {
       name: "Action",
       ignoreRowClick: true,
       allowOverflow: true,
@@ -131,7 +126,7 @@ const Refill = () => {
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            onClick={() => handleHapus(row.number)}
+            // onClick={() => handleHapus(row.number)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -140,7 +135,7 @@ const Refill = () => {
             className="btn btn-warning btn-sm ms-2"
             data-bs-toggle="modal"
             data-bs-target="#modal-edit"
-            onClick={() => setNumber(row.number)}
+            // onClick={() => setNumber(row.number)}
           >
             <i className="fa-solid fa-pen-to-square"></i>
           </button>
@@ -148,44 +143,6 @@ const Refill = () => {
       ),
     },
   ];
-
-  const { mutate: hapusBackend } = useMutation(
-    (number) => deleteRefill(number),
-    {
-      onSuccess(data) {
-        if (data.message == "Delete data refill success") {
-          refetch();
-          toast.success(data.message, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }
-      },
-    }
-  );
-
-  const handleHapus = (number) => {
-    confirmAlert({
-      title: "Confirm to submit",
-      message: "Are you sure to do this.",
-      buttons: [
-        {
-          label: "Yes",
-          onClick: () => hapusBackend(number),
-        },
-        {
-          label: "No",
-          // onClick: () => onClose(),
-        },
-      ],
-    });
-  };
 
   return (
     <div className="container">
@@ -238,24 +195,24 @@ const Refill = () => {
       </div>
 
       {/* modal add */}
-      <RefillPostModal
+      <PettyCashPostModal
         coas={coa}
         department={department}
         refetch={refetch}
-        postRefill={postRefill}
+        // postRefill={postRefill}
       />
 
       {/* modal edit */}
-      <RefillEditModal
+      {/* <RefillEditModal
         coas={coa}
         department={department}
         refetch={refetch}
         getRefill={getRefill}
         number={number}
         updateRefill={updateRefill}
-      />
+      /> */}
     </div>
   );
 };
 
-export default Refill;
+export default PettyCash;

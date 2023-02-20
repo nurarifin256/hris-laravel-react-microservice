@@ -1,3 +1,20 @@
 textarea {
   height: 150px;
 }
+
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 5px;
+}
+
+.row-collumn::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+/* .gambar {
+  width: 75px;
+  height: 75px;
+  margin-bottom: 10px;
+} */

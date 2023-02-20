@@ -34,14 +34,14 @@ class PettyCashModel extends Model
         return $get_number;
     }
 
-    static function save_credit($idDepartmentC, $idCoaC, $number, $descriptionC, $credit, $created_by)
+    static function save_credit($idDepartmentC, $idCoaC, $number, $descriptionC, $credit, $datetime, $created_by)
     {
-        DB::select("CALL post_refill($idDepartmentC, $idCoaC, '$number', '$descriptionC', $credit, 0, '$created_by')");
+        DB::select("CALL post_refill($idDepartmentC, $idCoaC, '$number', '$descriptionC', $credit, 0, '$created_by', '$datetime')");
     }
 
-    static function save_debit($idDepartment, $idCoa, $number, $description, $debit, $created_by)
+    static function save_debit($idDepartment, $idCoa, $number, $description, $debit, $datetime, $created_by)
     {
-        DB::select("CALL post_refill($idDepartment, $idCoa, '$number', '$description', 0, $debit, '$created_by')");
+        DB::select("CALL post_refill($idDepartment, $idCoa, '$number', '$description', 0, $debit, '$created_by', '$datetime')");
     }
 
     static function update_debit($idD, $idDepartment, $idCoa, $description, $debit, $updated_by)

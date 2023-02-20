@@ -46,12 +46,14 @@ class PettyCashController extends Controller
             'total'        => $pettyCash->total()
         ];
 
+
+
         return response()->json([
             'data'           => $pettyCash->items(),
             'departmentData' => $departmentData,
             'coasData'       => $coasData,
             'meta'           => $meta,
-            'request'        => $request->per_page
+            'request'        => $request->per_page,
         ]);
     }
 
@@ -92,6 +94,7 @@ class PettyCashController extends Controller
             $month      = date("ym");
             $set_number = "JPC" . $month;
             $get_number = PettyCashModel::get_number($set_number);
+            $datetime = date("Y-m-d H:i:s");
 
             if ($get_number) {
                 $number_n     = $get_number->number;
@@ -112,14 +115,14 @@ class PettyCashController extends Controller
             $idDepartment = $data['idDepartment'];
             $description  = $data['description'];
             $debit        = $debit_str;
-            PettyCashModel::save_debit($idDepartment, $idCoa, $number, $description, $debit, $created_by);
+            PettyCashModel::save_debit($idDepartment, $idCoa, $number, $description, $debit, $datetime, $created_by);
 
             // save data credit
             $idCoaC        = $data['idCoaC'];
             $idDepartmentC = $data['idDepartmentC'];
             $descriptionC  = $data['descriptionC'];
             $credit        = $credit_str;
-            PettyCashModel::save_credit($idDepartmentC, $idCoaC, $number, $descriptionC, $credit, $created_by);
+            PettyCashModel::save_credit($idDepartmentC, $idCoaC, $number, $descriptionC, $credit, $datetime, $created_by);
 
             return response()->json([
                 'status'  => true,
