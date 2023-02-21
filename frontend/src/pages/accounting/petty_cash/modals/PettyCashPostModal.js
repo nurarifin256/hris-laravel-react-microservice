@@ -2,30 +2,20 @@ import { useState } from "react";
 import Select from "react-select";
 import CurrencyFormat from "react-currency-format";
 import "../style.css";
+import { useMutation } from "react-query";
 
-const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
+const PettyCashPostModal = ({
+  coas,
+  department,
+  postPettyDetail,
+  refetch,
+  number,
+}) => {
+  let user = JSON.parse(localStorage.getItem("user"));
   const [numberInvoice, setNumberInvoice] = useState("");
   const [errorInvoice, setErrorInvoice] = useState("");
-
-  const [idCoa, setIdCoa] = useState("");
-  const [idDepartment, setIdDepartment] = useState("");
-  const [description, setDescription] = useState("");
-  const [debit, setDebit] = useState([
-    {
-      number: "",
-      error: null,
-    },
-  ]);
-
-  const [idCoaC, setIdCoaC] = useState("");
-  const [idDepartmentC, setIdDepartmentC] = useState("");
-  const [descriptionC, setDescriptionC] = useState("");
-  const [credit, setCredit] = useState([
-    {
-      number: "",
-      error: null,
-    },
-  ]);
+  const [images, setImages] = useState([]);
+  const [imagesUpload, setImagesUpload] = useState([]);
 
   const [errorCoa, setErrorCoa] = useState("");
   const [errorDepartment, setErrorDepartment] = useState("");
@@ -37,12 +27,19 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
   const [errorDescriptionC, setErrorDescriptionC] = useState("");
   const [errorCredit, setErrorCredit] = useState("");
 
-  const [images, setImages] = useState([]);
-
   const optionsCoa = coas.map((item) => {
     return {
       label: item.account_number + " - " + item.account_name,
       value: item.id,
+      name: "idCoa",
+    };
+  });
+
+  const optionsCoaC = coas.map((item) => {
+    return {
+      label: item.account_number + " - " + item.account_name,
+      value: item.id,
+      name: "idCoaC",
     };
   });
 
@@ -50,8 +47,35 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
     return {
       label: item.name + " - " + item.positions.name,
       value: item.id,
+      name: "idDepartment",
     };
   });
+
+  const optionsDepartmentC = department.map((item) => {
+    return {
+      label: item.name + " - " + item.positions.name,
+      value: item.id,
+      name: "idDepartmentC",
+    };
+  });
+
+  const [inputFields, setInputFields] = useState([
+    {
+      idCoa: null,
+      idDepartment: null,
+      description: "",
+      debit: "",
+    },
+  ]);
+
+  const [inputFieldsC, setInputFieldsC] = useState([
+    {
+      idCoaC: null,
+      idDepartmentC: null,
+      descriptionC: "",
+      credit: "",
+    },
+  ]);
 
   const handleImageChange = (event) => {
     const selectedFIles = [];
@@ -61,40 +85,100 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
       return selectedFIles.push(URL.createObjectURL(file));
     });
     setImages(selectedFIles);
+    setImagesUpload(targetFiles);
   };
 
-  const addDebit = () => {
-    const newDebit = [...debit, { number: "", error: null }];
-    setDebit(newDebit);
+  // const [errors, setErrors] = useState([
+  //   { idCoa: null, idDepartment: null, description: null, debit: null },
+  // ]);
+
+  const handleAddFields = () => {
+    const values = [...inputFields];
+    values.push({
+      idCoa: null,
+      idDepartment: null,
+      description: "",
+      debit: "",
+    });
+    setInputFields(values);
   };
 
-  const deleteDebit = () => {
-    const newDebit = [...debit];
-    newDebit.pop();
-    setDebit(newDebit);
+  const handleAddFieldsC = () => {
+    const values = [...inputFieldsC];
+    values.push({
+      idCoaC: null,
+      idDepartmentC: null,
+      descriptionC: "",
+      credit: "",
+    });
+    setInputFieldsC(values);
   };
 
-  const handleDebitChange = (e, index) => {
-    const newDebit = [...debit];
-    newDebit[index].number = e.target.value;
-    setDebit(newDebit);
+  const handleRemoveFields = () => {
+    const newInputFields = [...inputFields];
+    newInputFields.pop();
+    setInputFields(newInputFields);
   };
 
-  const addCredit = () => {
-    const newCredit = [...credit, { number: "", error: null }];
-    setCredit(newCredit);
+  const handleRemoveFieldsC = () => {
+    const newInputFields = [...inputFieldsC];
+    newInputFields.pop();
+    setInputFieldsC(newInputFields);
   };
 
-  const deleteCredit = () => {
-    const newCredit = [...credit];
-    newCredit.pop();
-    setCredit(newCredit);
+  const handleSelectChange = (index, event) => {
+    const { name, value } = event;
+    const values = [...inputFields];
+    values[index][name] = value;
+    setInputFields(values);
   };
 
-  const handleCreditChange = (e, index) => {
-    const newCredit = [...credit];
-    newCredit[index].number = e.target.value;
-    setCredit(newCredit);
+  const handleSelectChangeC = (index, event) => {
+    const { name, value } = event;
+    const values = [...inputFieldsC];
+    values[index][name] = value;
+    setInputFieldsC(values);
+  };
+
+  const handleInputChange = (index, event) => {
+    const { name, value } = event.target;
+    const list = [...inputFields];
+    list[index][name] = value;
+    setInputFields(list);
+  };
+
+  const handleInputChangeC = (index, event) => {
+    const { name, value } = event.target;
+    const list = [...inputFieldsC];
+    list[index][name] = value;
+    setInputFieldsC(list);
+  };
+
+  const { mutate: addDetailPetty } = useMutation(
+    (dataDetail) => postPettyDetail(dataDetail),
+    {
+      onSuccess: (data) => {
+        console.log(data);
+      },
+    }
+  );
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    let created_by = user.user.name;
+    const dataDetail = {
+      // imagesUpload,
+      numberInvoice,
+      inputFields,
+      inputFieldsC,
+      created_by,
+      number,
+    };
+    addDetailPetty(dataDetail);
+
+    // console.log("inputFields", inputFields);
+    // console.log("inputFieldsC", inputFieldsC);
+    // console.log("image", imagesUpload);
   };
 
   return (
@@ -121,7 +205,7 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
             </div>
             <div className="modal-body">
               <div className="mb-3">
-                <label htmlFor="address" className="form-label">
+                <label htmlFor="gambar" className="form-label">
                   Attachment
                 </label>
 
@@ -148,17 +232,16 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="name" className="form-label">
+                <label htmlFor="invoice" className="form-label">
                   Invoice Number
                 </label>
                 <input
-                  value={numberInvoice}
                   onChange={(e) => setNumberInvoice(e.target.value)}
                   type="text"
                   className={`form-control ${
                     errorInvoice ? "is-invalid" : null
                   }`}
-                  id="name"
+                  id="invoice"
                   placeholder="Enter invoice number"
                 />
                 {errorInvoice && (
@@ -168,7 +251,7 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
 
               <hr />
 
-              {debit.map((debit, index) => (
+              {inputFields.map((inputField, index) => (
                 <div key={index}>
                   <div className="mb-3">
                     <label className="form-label">
@@ -176,9 +259,13 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                     </label>
                     <Select
                       placeholder="Choose COA"
+                      name="idCoa"
                       className={errorCoa ? "is-invalid" : null}
-                      onChange={(e) => setIdCoa(e.value)}
+                      onChange={(event) => handleSelectChange(index, event)}
                       options={optionsCoa}
+                      value={optionsCoa.find(
+                        (option) => option.value === inputField.idCoa
+                      )}
                     />
                     {errorCoa && (
                       <span className="text-danger"> {errorCoa} </span>
@@ -191,9 +278,13 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                     </label>
                     <Select
                       placeholder="Choose Department"
+                      name="idDepartment"
                       className={errorDepartment ? "is-invalid" : null}
-                      onChange={(e) => setIdDepartment(e.value)}
+                      onChange={(event) => handleSelectChange(index, event)}
                       options={optionsDepartment}
+                      value={optionsDepartment.find(
+                        (option) => option.value === inputField.idDepartment
+                      )}
                     />
                     {errorDepartment && (
                       <span className="text-danger"> {errorDepartment} </span>
@@ -209,8 +300,13 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                         errorDescription ? "is-invalid" : null
                       }`}
                       placeholder="Enter description"
-                      onChange={(e) => setDescription(e.target.value)}
+                      name="description"
+                      onChange={(event) => handleInputChange(index, event)}
+                      value={inputField.description}
                     ></textarea>
+                    {errorDescription && (
+                      <span className="text-danger">{errorDescription}</span>
+                    )}
                   </div>
 
                   <div className="mb-3">
@@ -221,7 +317,9 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                       }`}
                       thousandSeparator={true}
                       placeholder="Enter Debit"
-                      onChange={(e) => handleDebitChange(e, index)}
+                      name="debit"
+                      onChange={(event) => handleInputChange(index, event)}
+                      value={inputField.debit}
                     />
                     {errorDebit && (
                       <span className="text-danger"> {errorDebit} </span>
@@ -230,18 +328,23 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                 </div>
               ))}
 
+              {inputFields.length > 1 ? (
+                <i
+                  className="fa-solid fa-minus btn btn-danger btn-sm"
+                  onClick={() => handleRemoveFields()}
+                ></i>
+              ) : (
+                ""
+              )}
+
               <i
-                className="bi bi-dash btn btn-danger btn-sm"
-                onClick={() => deleteDebit()}
-              ></i>
-              <i
-                className="bi bi-plus btn btn-primary btn-sm ms-2"
-                onClick={() => addDebit()}
+                className="fa-solid fa-plus btn btn-primary btn-sm ms-2"
+                onClick={() => handleAddFields()}
               ></i>
 
               <hr />
 
-              {credit.map((credit, index) => (
+              {inputFieldsC.map((ifC, index) => (
                 <div key={index}>
                   <div className="mb-3 mt-3">
                     <label className="form-label">
@@ -250,8 +353,12 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                     <Select
                       placeholder="Choose COA"
                       className={errorCoaC ? "is-invalid" : null}
-                      onChange={(e) => setIdCoaC(e.value)}
-                      options={optionsCoa}
+                      onChange={(event) => handleSelectChangeC(index, event)}
+                      options={optionsCoaC}
+                      name="idCoaC"
+                      value={optionsCoaC.find(
+                        (option) => option.value === ifC.idCoaC
+                      )}
                     />
                     {errorCoaC && (
                       <span className="text-danger"> {errorCoaC} </span>
@@ -265,13 +372,18 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                     <Select
                       placeholder="Choose Department"
                       className={errorDepartmentC ? "is-invalid" : null}
-                      onChange={(e) => setIdDepartmentC(e.value)}
-                      options={optionsDepartment}
+                      onChange={(event) => handleSelectChangeC(index, event)}
+                      name="idDepartmentC"
+                      options={optionsDepartmentC}
+                      value={optionsDepartmentC.find(
+                        (option) => option.value === ifC.idDepartmentC
+                      )}
                     />
                     {errorDepartmentC && (
                       <span className="text-danger"> {errorDepartmentC} </span>
                     )}
                   </div>
+
                   <div className="mb-3">
                     <label className="form-label">
                       Description {index + 1}
@@ -281,7 +393,9 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                         errorDescriptionC ? "is-invalid" : null
                       }`}
                       placeholder="Enter description"
-                      onChange={(e) => setDescriptionC(e.target.value)}
+                      name="descriptionC"
+                      onChange={(event) => handleInputChangeC(index, event)}
+                      value={ifC.descriptionC}
                     ></textarea>
                     {errorDescriptionC && (
                       <span className="text-danger"> {errorDescriptionC} </span>
@@ -295,7 +409,9 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                       }`}
                       thousandSeparator={true}
                       placeholder="Enter Credit"
-                      onChange={(e) => handleCreditChange(e, index)}
+                      name="credit"
+                      onChange={(event) => handleInputChangeC(index, event)}
+                      value={ifC.credit}
                     />
                     {errorCredit && (
                       <span className="text-danger"> {errorCredit} </span>
@@ -304,13 +420,16 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
                 </div>
               ))}
 
+              {inputFieldsC.length > 1 ? (
+                <i
+                  className="fa-solid fa-minus btn btn-danger btn-sm"
+                  onClick={() => handleRemoveFieldsC()}
+                ></i>
+              ) : null}
+
               <i
-                className="bi bi-dash btn btn-danger btn-sm"
-                onClick={() => deleteCredit()}
-              ></i>
-              <i
-                className="bi bi-plus btn btn-primary btn-sm ms-2"
-                onClick={() => addCredit()}
+                className="fa-solid fa-plus btn btn-primary btn-sm ms-2"
+                onClick={() => handleAddFieldsC()}
               ></i>
             </div>
             <div className="modal-footer">
@@ -323,7 +442,7 @@ const PettyCashPostModal = ({ coas, department, postRefill, refetch }) => {
               </button>
               <button
                 type="button"
-                // onClick={() => handleSave()}
+                onClick={(e) => handleSave(e)}
                 className="btn btn-primary"
               >
                 Save

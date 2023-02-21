@@ -55,4 +55,56 @@ class PettyCashDetailController extends Controller
             'request'        => $request->per_page,
         ]);
     }
+
+    public function savePettyCashDetail(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data           = $request->input();
+            $number_invoice = $data["numberInvoice"];
+            $number_refill  = $data["number"];
+            $created_by     = $data['created_by'];
+            $data_debit     = $data['inputFields'];
+            $data_credit    = $data['inputFieldsC'];
+
+
+            foreach ($data_debit as $key => $value) {
+                $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
+                $data = [
+                    [
+                        'number_refill'  => $number_refill,
+                        'id_department'  => $data_debit[$key]['idDepartment'],
+                        'id_coa'         => $data_debit[$key]['idCoa'],
+                        'invoice_number' => $number_invoice,
+                        'description'    => $data_debit[$key]['description'],
+                        'debit'          => $debit_str,
+                        'created_by'     => $created_by,
+                        'created_at'     => date("y-m-d H:i:s"),
+                    ]
+                ];
+                PettyCashDetailModel::insert($data);
+            }
+
+            foreach ($data_credit as $key => $value) {
+                $credit_str = str_replace(',', '', $data_credit[$key]['credit']);
+                $datas = [
+                    [
+                        'number_refill'  => $number_refill,
+                        'id_department'  => $data_credit[$key]['idDepartmentC'],
+                        'id_coa'         => $data_credit[$key]['idCoaC'],
+                        'invoice_number' => $number_invoice,
+                        'description'    => $data_credit[$key]['descriptionC'],
+                        'credit'         => $credit_str,
+                        'created_by'     => $created_by,
+                        'created_at'     => date("y-m-d H:i:s"),
+                    ]
+                ];
+                PettyCashDetailModel::insert($datas);
+            }
+            return response()->json([
+                'status' => true,
+                'message' => $data,
+                201
+            ]);
+        }
+    }
 }

@@ -64,6 +64,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
 
     // route petty cash
     Route::get('get-petty-cash/{number}', 'PettyCashDetailController@getPettyCashDetail');
+    Route::post('save-petty-cash', 'PettyCashDetailController@savePettyCashDetail');
 });
 
 Route::get('images/identity/{images}', function ($image) {

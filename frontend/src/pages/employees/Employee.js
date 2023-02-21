@@ -231,7 +231,9 @@ const Employee = () => {
     formData.append("imageF", imageF);
     formData.append("imageC", imageC);
     formData.append("created_by", created_by);
+
     let result = postEmployee(formData);
+
     result = await result;
     if (
       result["name"] == "Name is required" ||

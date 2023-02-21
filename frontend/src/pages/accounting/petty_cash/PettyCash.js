@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { getPettyDetail } from "../../../config/hooks/accounting/pettCashDetailHook";
+import {
+  getPettyDetail,
+  postPettyDetail,
+} from "../../../config/hooks/accounting/pettCashDetailHook";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import PettyCashPostModal from "./modals/PettyCashPostModal";
@@ -34,7 +37,7 @@ const PettyCash = () => {
         setCoa(data.coasData);
         setDepartment(data.departmentData);
         setTotalPages(data.meta.last_page);
-        console.log(data);
+        // console.log(data);
       },
     }
   );
@@ -199,7 +202,8 @@ const PettyCash = () => {
         coas={coa}
         department={department}
         refetch={refetch}
-        // postRefill={postRefill}
+        postPettyDetail={postPettyDetail}
+        number={number}
       />
 
       {/* modal edit */}
