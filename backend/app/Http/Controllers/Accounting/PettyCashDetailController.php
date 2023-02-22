@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Accounting;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttachPettyModel;
 use App\Models\CoaModel;
 use App\Models\DepartmentModel;
 use App\Models\PettyCashDetailModel;
+use App\Models\PettyCashModel;
 use Illuminate\Http\Request;
 
 class PettyCashDetailController extends Controller
@@ -59,41 +61,83 @@ class PettyCashDetailController extends Controller
     public function savePettyCashDetail(Request $request)
     {
         if ($request->isMethod('post')) {
-            $data           = $request->input();
+            $data   = $request->input();
+            $images = $request->file('attachPetty');
+
             $number_invoice = $data["numberInvoice"];
             $number_refill  = $data["number"];
             $created_by     = $data['created_by'];
             $data_debit     = $data['inputFields'];
             $data_credit    = $data['inputFieldsC'];
 
+            $month      = date("ym");
+            $set_number = "JPD" . $month;
+            $get_number = PettyCashDetailModel::get_number($set_number);
+            if ($get_number) {
+                $number_n     = $get_number->number_journal;
+                $number_n2    = substr($number_n, -2);
+                $number_n3    = $number_n2 + 01;
+                $number_final = sprintf("%02d", $number_n3);
+            } else {
+                $number_final = sprintf("%02d", 1);
+            }
+
+
+            foreach ($images as $image) {
+                $attach    = $image->store('images/attach_petty', 'public');
+
+                $attach_petty                        = new AttachPettyModel();
+                $attach_petty->number_journal_attach = $set_number . $number_final;
+                $attach_petty->file_attach           = $attach;
+                $attach_petty->created_by            = $created_by;
+                $attach_petty->save();
+            }
+
+            $get_value_refill = PettyCashModel::where('number', $number_refill)->select('debit')->first();
 
             foreach ($data_debit as $key => $value) {
                 $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
+
+                $get_balance = PettyCashDetailModel::get_ballance($number_refill, $set_number);
+                if ($get_balance) {
+                    $balance = $get_balance->balance - $debit_str;
+                } else {
+                    $balance = $get_value_refill->debit;
+                }
+
                 $data = [
-                    [
-                        'number_refill'  => $number_refill,
-                        'id_department'  => $data_debit[$key]['idDepartment'],
-                        'id_coa'         => $data_debit[$key]['idCoa'],
-                        'invoice_number' => $number_invoice,
-                        'description'    => $data_debit[$key]['description'],
-                        'debit'          => $debit_str,
-                        'created_by'     => $created_by,
-                        'created_at'     => date("y-m-d H:i:s"),
-                    ]
+                    'number_refill'  => $number_refill,
+                    'number_journal' => $set_number . $number_final,
+                    'id_department'  => $data_debit[$key]['idDepartment'],
+                    'id_coa'         => $data_debit[$key]['idCoa'],
+                    'invoice_number' => $number_invoice,
+                    'description'    => $data_debit[$key]['description'],
+                    'debit'          => $debit_str,
+                    'balance'        => $balance,
+                    'created_by'     => $created_by,
+                    'created_at'     => date("y-m-d H:i:s"),
                 ];
                 PettyCashDetailModel::insert($data);
             }
 
             foreach ($data_credit as $key => $value) {
-                $credit_str = str_replace(',', '', $data_credit[$key]['credit']);
+                $credit_str  = str_replace(',', '', $data_credit[$key]['credit']);
+                $get_balance = PettyCashDetailModel::get_ballance($number_refill, $set_number);
+                if ($get_balance) {
+                    $balance = $get_balance->balance - $get_balance->debit;
+                } else {
+                    $balance = $get_value_refill->debit - $credit_str;
+                }
                 $datas = [
                     [
                         'number_refill'  => $number_refill,
+                        'number_journal' => $set_number . $number_final,
                         'id_department'  => $data_credit[$key]['idDepartmentC'],
                         'id_coa'         => $data_credit[$key]['idCoaC'],
                         'invoice_number' => $number_invoice,
                         'description'    => $data_credit[$key]['descriptionC'],
                         'credit'         => $credit_str,
+                        'balance'        => $balance,
                         'created_by'     => $created_by,
                         'created_at'     => date("y-m-d H:i:s"),
                     ]
@@ -101,8 +145,8 @@ class PettyCashDetailController extends Controller
                 PettyCashDetailModel::insert($datas);
             }
             return response()->json([
-                'status' => true,
-                'message' => $data,
+                'status'  => true,
+                'message' => 'Save data petty cash success',
                 201
             ]);
         }

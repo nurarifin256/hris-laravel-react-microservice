@@ -16,11 +16,7 @@ export const getPettyDetail = async ({ queryKey }) => {
 export const postPettyDetail = async (dataDetail) => {
   let result = await fetch("http://localhost:8000/api/save-petty-cash", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(dataDetail),
-    // body: dataDetail,
+    body: dataDetail,
   });
 
   result = await result.json();

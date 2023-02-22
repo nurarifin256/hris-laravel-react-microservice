@@ -25,10 +25,23 @@ class PettyCashDetailModel extends Model
     static function get_number($number)
     {
         $get_number = DB::table('petty_cash_journal_details')
-            ->orWhere('number_journal', 'like', '%' . $number . '%')
+            ->where('number_journal', 'like', '%' . $number . '%')
             ->orderBy('id', 'desc')
             ->limit(1)
-            ->select('number')
+            ->select('number_journal')
+            ->first();
+
+        return $get_number;
+    }
+
+    static function get_ballance($number_refill, $set_number)
+    {
+        $get_number = DB::table('petty_cash_journal_details')
+            ->where('number_refill', $number_refill)
+            ->where('number_journal', 'like', '%' . $set_number . '%')
+            ->orderBy('id', 'desc')
+            ->limit(1)
+            ->select('balance', 'debit')
             ->first();
 
         return $get_number;

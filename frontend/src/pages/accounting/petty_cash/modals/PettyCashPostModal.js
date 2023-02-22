@@ -3,6 +3,7 @@ import Select from "react-select";
 import CurrencyFormat from "react-currency-format";
 import "../style.css";
 import { useMutation } from "react-query";
+import { toast } from "react-toastify";
 
 const PettyCashPostModal = ({
   coas,
@@ -159,6 +160,22 @@ const PettyCashPostModal = ({
     {
       onSuccess: (data) => {
         console.log(data);
+        let result = data;
+        if (result["message"] == "Save data petty cash success") {
+          const btnClose = document.querySelector(".btn-tutup");
+          btnClose.click();
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       },
     }
   );
@@ -166,19 +183,40 @@ const PettyCashPostModal = ({
   const handleSave = (e) => {
     e.preventDefault();
     let created_by = user.user.name;
-    const dataDetail = {
-      // imagesUpload,
-      numberInvoice,
-      inputFields,
-      inputFieldsC,
-      created_by,
-      number,
-    };
-    addDetailPetty(dataDetail);
+    const formData = new FormData();
 
-    // console.log("inputFields", inputFields);
-    // console.log("inputFieldsC", inputFieldsC);
-    // console.log("image", imagesUpload);
+    formData.append("numberInvoice", numberInvoice);
+    formData.append("created_by", created_by);
+    formData.append("number", number);
+
+    inputFields.forEach((field, index) => {
+      formData.append(`inputFields[${index}][idCoa]`, field.idCoa);
+      formData.append(
+        `inputFields[${index}][idDepartment]`,
+        field.idDepartment
+      );
+      formData.append(`inputFields[${index}][description]`, field.description);
+      formData.append(`inputFields[${index}][debit]`, field.debit);
+    });
+
+    inputFieldsC.forEach((field, index) => {
+      formData.append(`inputFieldsC[${index}][idCoaC]`, field.idCoaC);
+      formData.append(
+        `inputFieldsC[${index}][idDepartmentC]`,
+        field.idDepartmentC
+      );
+      formData.append(
+        `inputFieldsC[${index}][descriptionC]`,
+        field.descriptionC
+      );
+      formData.append(`inputFieldsC[${index}][credit]`, field.credit);
+    });
+
+    for (let i = 0; i < imagesUpload.length; i++) {
+      formData.append(`attachPetty[${i}]`, imagesUpload[i]);
+    }
+
+    addDetailPetty(formData);
   };
 
   return (

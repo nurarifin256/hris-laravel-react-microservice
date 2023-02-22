@@ -9,6 +9,7 @@ import {
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import PettyCashPostModal from "./modals/PettyCashPostModal";
+// import "react-data-table-component/dist/react-data-table-component.css";
 
 const PettyCash = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,12 +68,14 @@ const PettyCash = () => {
           ></input>
         </div>
       ),
+      width: "25px",
     },
     {
       name: "Date",
       selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY"),
       sortable: true,
       wrap: true,
+      width: "100px",
     },
     {
       name: "Journal Number",
@@ -89,6 +92,7 @@ const PettyCash = () => {
       selector: (row, i) => row.coas.account_name,
       sortable: true,
       wrap: true,
+      width: "200px",
     },
     {
       name: "Departments",
@@ -96,6 +100,7 @@ const PettyCash = () => {
         row.departmens.name + " - " + row.departmens.positions.name,
       sortable: true,
       wrap: true,
+      width: "180px",
     },
 
     {
@@ -103,21 +108,28 @@ const PettyCash = () => {
       selector: (row, i) => row.description,
       sortable: true,
       wrap: true,
+      width: "300px",
     },
     {
       name: "Debit",
-      selector: (row, i) => numberFormat(row.debit),
+      // selector: (row, i) => numberFormat(row.debit),
+      width: "150px",
       sortable: true,
+      cell: (row) => (
+        <div style={{ textAlign: "end" }}>{numberFormat(row.debit)}</div>
+      ),
     },
     {
       name: "Credit",
       selector: (row, i) => numberFormat(row.credit),
       sortable: true,
+      width: "150px",
     },
     {
       name: "Balance",
       selector: (row, i) => numberFormat(row.balance),
       sortable: true,
+      width: "150px",
     },
     {
       name: "Action",
@@ -144,6 +156,16 @@ const PettyCash = () => {
           </button>
         </div>
       ),
+    },
+  ];
+
+  const conditionalRowStyles = [
+    {
+      when: (row) => row.debit < 1.0,
+      style: {
+        backgroundColor: "green",
+        color: "white",
+      },
     },
   ];
 
@@ -190,7 +212,7 @@ const PettyCash = () => {
               paginationTotalRows={totalPages * perPage}
               onChangePage={handlePageChange}
               onSort={handleSort}
-              defaultSortAsc={true}
+              conditionalRowStyles={conditionalRowStyles}
             />
           </div>
         </div>
