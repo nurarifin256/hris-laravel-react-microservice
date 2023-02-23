@@ -13,6 +13,19 @@ export const getPettyDetail = async ({ queryKey }) => {
   return response;
 };
 
+export const getAttachment = async ({ queryKey }) => {
+  const numberJournal = queryKey[1];
+  let response = await fetch("http://localhost:8000/api/get-attachment-petty", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(numberJournal),
+  });
+  response = await response.json();
+  return response;
+};
+
 export const postPettyDetail = async (dataDetail) => {
   let result = await fetch("http://localhost:8000/api/save-petty-cash", {
     method: "POST",

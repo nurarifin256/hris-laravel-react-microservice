@@ -151,4 +151,18 @@ class PettyCashDetailController extends Controller
             ]);
         }
     }
+
+    public function getAttachment(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $attach = AttachPettyModel::where("number_journal_attach", $data)->select('id', 'file_attach')->get();
+            return response()->json([
+                'status'  => true,
+                'data' => $attach,
+                200
+            ]);
+        }
+    }
 }

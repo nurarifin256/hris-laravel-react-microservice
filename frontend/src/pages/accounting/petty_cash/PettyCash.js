@@ -3,12 +3,14 @@ import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import {
+  getAttachment,
   getPettyDetail,
   postPettyDetail,
 } from "../../../config/hooks/accounting/pettCashDetailHook";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import PettyCashPostModal from "./modals/PettyCashPostModal";
+import PettyCashAttachModal from "./modals/PettyCashAttachModal";
 // import "react-data-table-component/dist/react-data-table-component.css";
 
 const PettyCash = () => {
@@ -22,6 +24,7 @@ const PettyCash = () => {
   const [pettyCash, setPettyCash] = useState([]);
   const [coa, setCoa] = useState([]);
   const [department, setDepartment] = useState([]);
+  const [numberJpd, setNumberJpd] = useState("");
 
   const numberFormat = (value) =>
     new Intl.NumberFormat("id-ID", {
@@ -109,6 +112,24 @@ const PettyCash = () => {
       sortable: true,
       wrap: true,
       width: "300px",
+    },
+    {
+      name: "Attachment",
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      cell: (row, i) => (
+        <button
+          className="btn badge text-bg-primary"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#modal-attach"
+          onClick={() => setNumberJpd(row.number_journal)}
+        >
+          View
+        </button>
+      ),
+      sortable: true,
     },
     {
       name: "Debit",
@@ -218,6 +239,9 @@ const PettyCash = () => {
         </div>
         <ToastContainer />
       </div>
+
+      {/* modal attachment */}
+      <PettyCashAttachModal number={numberJpd} getAttachment={getAttachment} />
 
       {/* modal add */}
       <PettyCashPostModal

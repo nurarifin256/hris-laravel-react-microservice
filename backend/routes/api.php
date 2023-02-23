@@ -63,6 +63,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
     Route::patch('update-refill', 'PettyCashController@updatePettyCash');
 
     // route petty cash
+    Route::post('get-attachment-petty', 'PettyCashDetailController@getAttachment');
     Route::get('get-petty-cash/{number}', 'PettyCashDetailController@getPettyCashDetail');
     Route::post('save-petty-cash', 'PettyCashDetailController@savePettyCashDetail');
 });
@@ -101,6 +102,22 @@ Route::get('images/family/{images}', function ($image) {
 
 Route::get('images/certificate/{images}', function ($image) {
     $path = storage_path('app/public/images/certificate/' . $image);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('images/attach_petty/{images}', function ($image) {
+    $path = storage_path('app/public/images/attach_petty/' . $image);
 
     if (!File::exists($path)) {
         abort(404);

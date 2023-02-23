@@ -72,12 +72,14 @@ const Refill = () => {
           ></input>
         </div>
       ),
+      width: "25px",
     },
     {
       name: "Date",
       selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY"),
       sortable: true,
       wrap: true,
+      width: "100px",
     },
     {
       name: "Journal Number",
@@ -92,10 +94,11 @@ const Refill = () => {
       sortable: true,
     },
     {
-      name: "Account Number",
+      name: "Account Name",
       selector: (row, i) => row.coas.account_name,
       sortable: true,
       wrap: true,
+      width: "200px",
     },
     {
       name: "Departments",
@@ -103,6 +106,7 @@ const Refill = () => {
         row.departmens.name + " - " + row.departmens.positions.name,
       sortable: true,
       wrap: true,
+      width: "180px",
     },
 
     {
@@ -110,16 +114,19 @@ const Refill = () => {
       selector: (row, i) => row.description,
       sortable: true,
       wrap: true,
+      width: "200px",
     },
     {
       name: "Debit",
       selector: (row, i) => numberFormat(row.debit),
       sortable: true,
+      width: "150px",
     },
     {
       name: "Credit",
       selector: (row, i) => numberFormat(row.credit),
       sortable: true,
+      width: "150px",
     },
     {
       name: "Action",
@@ -146,6 +153,16 @@ const Refill = () => {
           </button>
         </div>
       ),
+    },
+  ];
+
+  const conditionalRowStyles = [
+    {
+      when: (row) => row.debit < 1.0,
+      style: {
+        backgroundColor: "green",
+        color: "white",
+      },
     },
   ];
 
@@ -230,7 +247,7 @@ const Refill = () => {
               paginationTotalRows={totalPages * perPage}
               onChangePage={handlePageChange}
               onSort={handleSort}
-              defaultSortAsc={true}
+              conditionalRowStyles={conditionalRowStyles}
             />
           </div>
         </div>
