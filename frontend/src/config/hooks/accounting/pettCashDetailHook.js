@@ -26,6 +26,21 @@ export const getAttachment = async ({ queryKey }) => {
   return response;
 };
 
+export const deleteAttach = async (dataAttach) => {
+  let response = await fetch(
+    "http://localhost:8000/api/delete-attachment-petty",
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataAttach),
+    }
+  );
+  response = await response.json();
+  return response;
+};
+
 export const postPettyDetail = async (dataDetail) => {
   let result = await fetch("http://localhost:8000/api/save-petty-cash", {
     method: "POST",

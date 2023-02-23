@@ -1,9 +1,55 @@
-import { useState } from "react";
-import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
+import { confirmAlert } from "react-confirm-alert";
+import { useMutation, useQuery } from "react-query";
+import { toast } from "react-toastify";
 
-const PettyCashAttachModal = ({ number, getAttachment }) => {
+const PettyCashAttachModal = ({
+  number,
+  getAttachment,
+  deleteAttach,
+  refetch,
+}) => {
   const { data } = useQuery(["attachment", number], getAttachment);
+  const { mutate: hapusBackendAttach } = useMutation(
+    (dataAttach) => deleteAttach(dataAttach),
+    {
+      onSuccess(datas) {
+        let result = datas;
+        if (result["message"] == "Delete attachment success") {
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const handleDeleteAttach = (id, file_attach) => {
+    const dataAttach = { id, file_attach };
+    const btnClose = document.querySelector(".btn-tutup-attach");
+    btnClose.click();
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => hapusBackendAttach(dataAttach),
+        },
+        {
+          label: "No",
+          //   onClick: () => hapusBackendAttach(id),
+        },
+      ],
+    });
+  };
 
   return (
     <div
@@ -36,13 +82,16 @@ const PettyCashAttachModal = ({ number, getAttachment }) => {
                     rel="noreferrer"
                   >
                     <span>Attachment {i + 1}</span>
+                  </a>
+                  {data.data.length > 1 ? (
                     <button
                       className="btn btn-danger btn-sm ms-2"
                       type="button"
+                      onClick={() => handleDeleteAttach(d.id, d.file_attach)}
                     >
                       <i className="fa-solid fa-trash-can"></i>
                     </button>
-                  </a>
+                  ) : null}
                 </div>
               );
             })}
@@ -50,7 +99,7 @@ const PettyCashAttachModal = ({ number, getAttachment }) => {
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary btn-tutup-edit"
+              className="btn btn-secondary btn-tutup-attach"
               data-bs-dismiss="modal"
             >
               Close

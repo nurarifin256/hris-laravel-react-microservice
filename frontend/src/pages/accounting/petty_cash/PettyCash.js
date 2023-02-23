@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import {
   getAttachment,
+  deleteAttach,
   getPettyDetail,
   postPettyDetail,
 } from "../../../config/hooks/accounting/pettCashDetailHook";
@@ -241,7 +242,12 @@ const PettyCash = () => {
       </div>
 
       {/* modal attachment */}
-      <PettyCashAttachModal number={numberJpd} getAttachment={getAttachment} />
+      <PettyCashAttachModal
+        number={numberJpd}
+        getAttachment={getAttachment}
+        deleteAttach={deleteAttach}
+        refetch={refetch}
+      />
 
       {/* modal add */}
       <PettyCashPostModal

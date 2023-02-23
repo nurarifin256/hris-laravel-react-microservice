@@ -165,4 +165,20 @@ class PettyCashDetailController extends Controller
             ]);
         }
     }
+
+    public function deleteAttachment(Request $request)
+    {
+        if ($request->isMethod('delete')) {
+            $data = $request->input();
+
+            AttachPettyModel::where("id", $data["id"])->delete();
+            unlink(public_path('storage/' . $data["file_attach"]));
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Delete attachment success',
+                200
+            ]);
+        }
+    }
 }
