@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import {
   getAttachment,
   deleteAttach,
+  addPettyAttach,
   getPettyDetail,
   postPettyDetail,
 } from "../../../config/hooks/accounting/pettCashDetailHook";
@@ -247,6 +248,7 @@ const PettyCash = () => {
         getAttachment={getAttachment}
         deleteAttach={deleteAttach}
         refetch={refetch}
+        addPettyAttach={addPettyAttach}
       />
 
       {/* modal add */}

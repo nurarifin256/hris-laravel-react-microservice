@@ -50,3 +50,13 @@ export const postPettyDetail = async (dataDetail) => {
   result = await result.json();
   return result;
 };
+
+export const addPettyAttach = async (attach) => {
+  let result = await fetch("http://localhost:8000/api/add-attachment-petty", {
+    method: "POST",
+    body: attach,
+  });
+
+  result = await result.json();
+  return result;
+};

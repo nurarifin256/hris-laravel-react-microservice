@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { confirmAlert } from "react-confirm-alert";
 import { useMutation, useQuery } from "react-query";
 import { toast } from "react-toastify";
@@ -7,7 +8,11 @@ const PettyCashAttachModal = ({
   getAttachment,
   deleteAttach,
   refetch,
+  addPettyAttach,
 }) => {
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [imagesUploadE, setImagesUploadE] = useState([]);
+
   const { data } = useQuery(["attachment", number], getAttachment);
   const { mutate: hapusBackendAttach } = useMutation(
     (dataAttach) => deleteAttach(dataAttach),
@@ -49,6 +54,54 @@ const PettyCashAttachModal = ({
         },
       ],
     });
+  };
+
+  const handleImageChangeE = (event) => {
+    const selectedFIles = [];
+    const targetFiles = event.target.files;
+    const targetFilesObject = [...targetFiles];
+    targetFilesObject.map((file) => {
+      return selectedFIles.push(URL.createObjectURL(file));
+    });
+    setImagePreviews(selectedFIles);
+    setImagesUploadE(targetFiles);
+  };
+
+  const { mutate: addAttachlPetty } = useMutation(
+    (formData) => addPettyAttach(formData),
+    {
+      onSuccess: (dataAtt) => {
+        let result = dataAtt;
+        if (result["message"] == "Add attachment petty cash success") {
+          refetch();
+          const btnClose = document.querySelector(".btn-tutup-attach");
+          btnClose.click();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const handleAddAttach = (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+    formData.append("number", number);
+
+    for (let i = 0; i < imagesUploadE.length; i++) {
+      formData.append(`attachPetty[${i}]`, imagesUploadE[i]);
+    }
+    addAttachlPetty(formData);
   };
 
   return (
@@ -95,6 +148,33 @@ const PettyCashAttachModal = ({
                 </div>
               );
             })}
+
+            <div className="mt-3">
+              <label htmlFor="gambar" className="form-label">
+                Attachment
+              </label>
+
+              <div>
+                {imagePreviews.map((url, i) => {
+                  return (
+                    <div key={i} className="row-collumn">
+                      <div className="collumn">
+                        <img className="gambar" src={url} alt="Preview" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <input
+                className="form-control"
+                type="file"
+                multiple
+                id="formFile"
+                onChange={(e) => handleImageChangeE(e)}
+                required
+              />
+            </div>
           </div>
           <div className="modal-footer">
             <button
@@ -103,6 +183,13 @@ const PettyCashAttachModal = ({
               data-bs-dismiss="modal"
             >
               Close
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleAddAttach(e)}
+              className="btn btn-primary"
+            >
+              Add Attachment
             </button>
           </div>
         </div>

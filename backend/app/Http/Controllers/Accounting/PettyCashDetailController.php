@@ -181,4 +181,27 @@ class PettyCashDetailController extends Controller
             ]);
         }
     }
+
+    public function addAttachment(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data   = $request->input();
+            $images = $request->file('attachPetty');
+
+            foreach ($images as $image) {
+                $attach    = $image->store('images/attach_petty', 'public');
+
+                $attach_petty                        = new AttachPettyModel();
+                $attach_petty->number_journal_attach = $data['number'];
+                $attach_petty->file_attach           = $attach;
+                $attach_petty->save();
+            }
+
+            return response()->json([
+                'status'  => true,
+                'message' => "Add attachment petty cash success",
+                201
+            ]);
+        }
+    }
 }
