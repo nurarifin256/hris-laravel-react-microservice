@@ -104,6 +104,15 @@ const PettyCashPostModal = ({
     setInputFields(values);
   };
 
+  const reset = () => {
+    const values = [inputFields];
+
+    const values2 = [inputFieldsC];
+
+    setInputFields(values);
+    setInputFieldsC(values2);
+  };
+
   const handleAddFieldsC = () => {
     const values = [...inputFieldsC];
     values.push({
@@ -164,6 +173,7 @@ const PettyCashPostModal = ({
           const btnClose = document.querySelector(".btn-tutup");
           btnClose.click();
           refetch();
+          reset();
           toast.success(result["message"], {
             position: "top-right",
             autoClose: 5000,

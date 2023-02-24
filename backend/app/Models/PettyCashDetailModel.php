@@ -41,7 +41,7 @@ class PettyCashDetailModel extends Model
             ->where('number_journal', 'like', '%' . $set_number . '%')
             ->orderBy('id', 'desc')
             ->limit(1)
-            ->select('balance', 'debit')
+            ->select('balance', 'debit', 'credit')
             ->first();
 
         return $get_number;

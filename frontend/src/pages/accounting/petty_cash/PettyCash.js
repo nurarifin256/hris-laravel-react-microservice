@@ -150,7 +150,8 @@ const PettyCash = () => {
     },
     {
       name: "Balance",
-      selector: (row, i) => numberFormat(row.balance),
+      selector: (row, i) =>
+        row.debit < 1.0 || i === 0 ? numberFormat(row.balance) : "",
       sortable: true,
       width: "150px",
     },
