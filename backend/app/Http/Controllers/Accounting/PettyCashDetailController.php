@@ -70,17 +70,6 @@ class PettyCashDetailController extends Controller
             $data_debit     = $data['inputFields'];
             $data_credit    = $data['inputFieldsC'];
 
-            // $rrval = $this->input->post('rrval');
-            // $rrval_set = str_replace(',', '', $rrval);
-            // $total = 0;
-            // $total = ($total > 0) ? ($total) : 0;
-            // foreach ($rrval_set as $key => $value) {
-            //     $total_set = str_replace(',', '', $rrval_set[$key]);
-            //     $total += $total_set;
-            // }
-            // $data["total"] = $total;
-            // $data["total_tampil"] = number_format($total, 2);
-            // echo json_encode($data);
             $total_d = 0;
             foreach ($data_debit as $key => $value) {
                 $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
@@ -103,8 +92,6 @@ class PettyCashDetailController extends Controller
                     422
                 ]);
             }
-
-            die;
 
             $month      = date("ym");
             $set_number = "JPD" . $month;

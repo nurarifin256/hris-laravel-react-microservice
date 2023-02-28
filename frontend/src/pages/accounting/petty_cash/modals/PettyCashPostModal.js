@@ -11,6 +11,7 @@ const PettyCashPostModal = ({
   postPettyDetail,
   refetch,
   number,
+  lastBallance,
 }) => {
   let user = JSON.parse(localStorage.getItem("user"));
   const [numberInvoice, setNumberInvoice] = useState("");
@@ -27,6 +28,8 @@ const PettyCashPostModal = ({
   const [errorDepartmentC, setErrorDepartmentC] = useState("");
   const [errorDescriptionC, setErrorDescriptionC] = useState("");
   const [errorCredit, setErrorCredit] = useState("");
+
+  const [errorImage, setErrorImage] = useState("");
 
   const optionsCoa = coas.map((item) => {
     return {
@@ -83,7 +86,13 @@ const PettyCashPostModal = ({
     const targetFiles = event.target.files;
     const targetFilesObject = [...targetFiles];
     targetFilesObject.map((file) => {
-      return selectedFIles.push(URL.createObjectURL(file));
+      if (!file.name.match(/\.(jpg|jpeg|png|gif)$/)) {
+        setErrorImage("Image type must be jpg/jpeg/png/gif");
+        return false;
+      } else {
+        setErrorImage(null);
+        return selectedFIles.push(URL.createObjectURL(file));
+      }
     });
     setImages(selectedFIles);
     setImagesUpload(targetFiles);
@@ -92,6 +101,27 @@ const PettyCashPostModal = ({
   // const [errors, setErrors] = useState([
   //   { idCoa: null, idDepartment: null, description: null, debit: null },
   // ]);
+
+  const reset = () => {
+    setImages([]);
+    setInputFields([
+      {
+        idCoa: null,
+        idDepartment: null,
+        description: "",
+        debit: "",
+      },
+    ]);
+
+    setInputFieldsC([
+      {
+        idCoaC: null,
+        idDepartmentC: null,
+        descriptionC: "",
+        credit: "",
+      },
+    ]);
+  };
 
   const handleAddFields = () => {
     const values = [...inputFields];
@@ -102,15 +132,6 @@ const PettyCashPostModal = ({
       debit: "",
     });
     setInputFields(values);
-  };
-
-  const reset = () => {
-    const values = [inputFields];
-
-    const values2 = [inputFieldsC];
-
-    setInputFields(values);
-    setInputFieldsC(values2);
   };
 
   const handleAddFieldsC = () => {
@@ -232,6 +253,20 @@ const PettyCashPostModal = ({
     addDetailPetty(formData);
   };
 
+  const balanced = () => {
+    let totalDebit = 0.0;
+    inputFields.forEach((field) => {
+      let Vdebit = field.debit.replace(/,/g, "");
+      totalDebit += parseFloat(Vdebit);
+    });
+
+    if (totalDebit > lastBallance.balance) {
+      setErrorDebit("Balance not enough");
+    } else {
+      setErrorDebit(null);
+    }
+  };
+
   return (
     <div>
       <div
@@ -273,13 +308,16 @@ const PettyCashPostModal = ({
                 </div>
 
                 <input
-                  className="form-control"
+                  className={`form-control ${errorImage ? "is-invalid" : null}`}
                   type="file"
                   multiple
                   id="formFile"
                   onChange={(e) => handleImageChange(e)}
                   required
                 />
+                {errorImage && (
+                  <span className="text-danger"> {errorImage} </span>
+                )}
               </div>
 
               <div className="mb-3">
@@ -369,7 +407,10 @@ const PettyCashPostModal = ({
                       thousandSeparator={true}
                       placeholder="Enter Debit"
                       name="debit"
-                      onChange={(event) => handleInputChange(index, event)}
+                      onChange={(event) => {
+                        handleInputChange(index, event);
+                        balanced();
+                      }}
                       value={inputField.debit}
                     />
                     {errorDebit && (

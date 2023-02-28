@@ -45,7 +45,6 @@ const PettyCash = () => {
         setCoa(data.coasData);
         setDepartment(data.departmentData);
         setTotalPages(data.meta.last_page);
-        // console.log(data);
       },
     }
   );
@@ -223,6 +222,11 @@ const PettyCash = () => {
     },
   ];
 
+  const ballance = pettyCash;
+  const lastBallance = ballance[ballance.length - 1];
+  // const ballanceSend = lastBallance.balance;
+  // console.log(lastBallance);
+
   return (
     <div className="container">
       <div className="row">
@@ -280,6 +284,7 @@ const PettyCash = () => {
         refetch={refetch}
         postPettyDetail={postPettyDetail}
         number={number}
+        lastBallance={lastBallance}
       />
 
       {/* modal edit */}
