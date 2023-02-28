@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import {
@@ -8,17 +8,19 @@ import {
   addPettyAttach,
   getPettyDetail,
   postPettyDetail,
+  deletePettyDetail,
 } from "../../../config/hooks/accounting/pettCashDetailHook";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import PettyCashPostModal from "./modals/PettyCashPostModal";
 import PettyCashAttachModal from "./modals/PettyCashAttachModal";
+import { confirmAlert } from "react-confirm-alert";
 // import "react-data-table-component/dist/react-data-table-component.css";
 
 const PettyCash = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [perPage] = useState(10);
+  const [perPage] = useState(15);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
 
@@ -58,6 +60,31 @@ const PettyCash = () => {
 
   const handleSort = (column) => {
     setSort({ column: column.path, direction: column.direction });
+  };
+
+  const { mutate: deleteBackend } = useMutation(
+    (numberJournal) => deletePettyDetail(numberJournal),
+    {
+      onSuccess(data) {
+        console.log(data);
+      },
+    }
+  );
+
+  const handleDelete = (numberJournal) => {
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => deleteBackend(numberJournal),
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
   };
 
   const columns = [
@@ -120,17 +147,20 @@ const PettyCash = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      cell: (row, i) => (
-        <button
-          className="btn badge text-bg-primary"
-          type="button"
-          data-bs-toggle="modal"
-          data-bs-target="#modal-attach"
-          onClick={() => setNumberJpd(row.number_journal)}
-        >
-          View
-        </button>
-      ),
+      cell: (row, i) =>
+        row.number_journal !== "-" ? (
+          <button
+            className="btn badge text-bg-primary"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-attach"
+            onClick={() => setNumberJpd(row.number_journal)}
+          >
+            View
+          </button>
+        ) : (
+          "No File"
+        ),
       sortable: true,
     },
     {
@@ -165,7 +195,7 @@ const PettyCash = () => {
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            // onClick={() => handleHapus(row.number)}
+            onClick={() => handleDelete(row.number_journal)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -204,15 +234,6 @@ const PettyCash = () => {
             data-bs-target="#modal-add"
           >
             <i className="fa-solid fa-plus"></i> Add
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-primary btn-edit"
-            data-bs-toggle="modal"
-            data-bs-target="#modal-edit"
-          >
-            tes
           </button>
         </div>
         <div className="col-md-3 offset-md-6 mb-3">

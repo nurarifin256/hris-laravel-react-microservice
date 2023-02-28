@@ -13,6 +13,26 @@ export const getPettyDetail = async ({ queryKey }) => {
   return response;
 };
 
+export const deletePettyDetail = async (numberJournal) => {
+  let result = await fetch("http://localhost:8000/api/delete-petty-cash", {
+    method: "POST",
+    body: numberJournal,
+  });
+
+  result = await result.json();
+  return result;
+};
+
+export const postPettyDetail = async (dataDetail) => {
+  let result = await fetch("http://localhost:8000/api/save-petty-cash", {
+    method: "POST",
+    body: dataDetail,
+  });
+
+  result = await result.json();
+  return result;
+};
+
 export const getAttachment = async ({ queryKey }) => {
   const numberJournal = queryKey[1];
   let response = await fetch("http://localhost:8000/api/get-attachment-petty", {
@@ -39,16 +59,6 @@ export const deleteAttach = async (dataAttach) => {
   );
   response = await response.json();
   return response;
-};
-
-export const postPettyDetail = async (dataDetail) => {
-  let result = await fetch("http://localhost:8000/api/save-petty-cash", {
-    method: "POST",
-    body: dataDetail,
-  });
-
-  result = await result.json();
-  return result;
 };
 
 export const addPettyAttach = async (attach) => {

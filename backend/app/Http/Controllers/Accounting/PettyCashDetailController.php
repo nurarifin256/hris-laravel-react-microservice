@@ -37,7 +37,7 @@ class PettyCashDetailController extends Controller
             });
 
         $meta      = [];
-        $perPage   = $request->per_page ?? 10;
+        $perPage   = $request->per_page ?? 15;
         $pettyCash = $pettyCash->paginate($perPage);
 
         $meta = [
@@ -70,6 +70,42 @@ class PettyCashDetailController extends Controller
             $data_debit     = $data['inputFields'];
             $data_credit    = $data['inputFieldsC'];
 
+            // $rrval = $this->input->post('rrval');
+            // $rrval_set = str_replace(',', '', $rrval);
+            // $total = 0;
+            // $total = ($total > 0) ? ($total) : 0;
+            // foreach ($rrval_set as $key => $value) {
+            //     $total_set = str_replace(',', '', $rrval_set[$key]);
+            //     $total += $total_set;
+            // }
+            // $data["total"] = $total;
+            // $data["total_tampil"] = number_format($total, 2);
+            // echo json_encode($data);
+            $total_d = 0;
+            foreach ($data_debit as $key => $value) {
+                $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
+                $total_d += $debit_str;
+            }
+
+            $total_c = 0;
+            foreach ($data_credit as $key => $value) {
+                $credit_str = str_replace(',', '', $data_credit[$key]['credit']);
+                $total_c += $credit_str;
+            }
+
+            $total_debit = $total_d;
+            $total_credit = $total_c;
+
+            if ($total_debit != $total_credit) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Debit and Credit must be Ballance",
+                    422
+                ]);
+            }
+
+            die;
+
             $month      = date("ym");
             $set_number = "JPD" . $month;
             $get_number = PettyCashDetailModel::get_number($set_number);
@@ -86,7 +122,7 @@ class PettyCashDetailController extends Controller
                 $get_value_refill = PettyCashModel::where('number', $number_refill)->select('debit')->first();
                 $data = [
                     'number_refill'  => $number_refill,
-                    'number_journal' => $set_number . $number_final,
+                    'number_journal' => "-",
                     'id_department'  => 9,
                     'id_coa'         => 0,
                     'invoice_number' => "-",
@@ -108,9 +144,10 @@ class PettyCashDetailController extends Controller
                 $attach_petty->save();
             }
 
+
+
             foreach ($data_debit as $key => $value) {
                 $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
-
                 $get_balance = PettyCashDetailModel::get_ballance($number_refill, $set_number);
                 $balance = $get_balance->balance - $debit_str;
 
@@ -153,6 +190,20 @@ class PettyCashDetailController extends Controller
                 'status'  => true,
                 'message' => 'Save data petty cash success',
                 201
+            ]);
+        }
+    }
+
+    public function deletePettyCashDetail(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            return response()->json([
+                'status'  => true,
+                'message' => $data,
+                // 'message' => 'Delete attachment success',
+                200
             ]);
         }
     }

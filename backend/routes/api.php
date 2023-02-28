@@ -68,6 +68,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
     Route::delete('delete-attachment-petty', 'PettyCashDetailController@deleteAttachment');
     Route::get('get-petty-cash/{number}', 'PettyCashDetailController@getPettyCashDetail');
     Route::post('save-petty-cash', 'PettyCashDetailController@savePettyCashDetail');
+    Route::post('delete-petty-cash', 'PettyCashDetailController@deletePettyCashDetail');
 });
 
 Route::get('images/identity/{images}', function ($image) {

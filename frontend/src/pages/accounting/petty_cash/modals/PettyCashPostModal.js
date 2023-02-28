@@ -168,6 +168,7 @@ const PettyCashPostModal = ({
     (dataDetail) => postPettyDetail(dataDetail),
     {
       onSuccess: (data) => {
+        console.log(data);
         let result = data;
         if (result["message"] == "Save data petty cash success") {
           const btnClose = document.querySelector(".btn-tutup");
@@ -184,6 +185,9 @@ const PettyCashPostModal = ({
             progress: undefined,
             theme: "light",
           });
+        } else if (result["message"] == "Debit and Credit must be Ballance") {
+          setErrorDebit(result["message"]);
+          setErrorCredit(result["message"]);
         }
       },
     }
