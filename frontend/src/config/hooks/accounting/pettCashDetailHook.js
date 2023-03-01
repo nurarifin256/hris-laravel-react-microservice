@@ -13,10 +13,13 @@ export const getPettyDetail = async ({ queryKey }) => {
   return response;
 };
 
-export const deletePettyDetail = async (numberJournal) => {
+export const deletePettyDetail = async (dataDelete) => {
   let result = await fetch("http://localhost:8000/api/delete-petty-cash", {
     method: "POST",
-    body: numberJournal,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataDelete),
   });
 
   result = await result.json();

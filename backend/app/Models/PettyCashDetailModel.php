@@ -39,6 +39,7 @@ class PettyCashDetailModel extends Model
         $get_number = DB::table('petty_cash_journal_details')
             ->where('number_refill', $number_refill)
             ->where('number_journal', 'like', '%' . $set_number . '%')
+            ->where('trashed', 0)
             ->orderBy('id', 'desc')
             ->limit(1)
             ->select('balance', 'debit', 'credit')

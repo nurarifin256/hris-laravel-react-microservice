@@ -12,8 +12,10 @@ const PettyCashPostModal = ({
   refetch,
   number,
   lastBallance,
+  user,
 }) => {
-  let user = JSON.parse(localStorage.getItem("user"));
+  const [btnPost, setBtnPost] = useState(true);
+
   const [numberInvoice, setNumberInvoice] = useState("");
   const [errorInvoice, setErrorInvoice] = useState("");
   const [images, setImages] = useState([]);
@@ -189,7 +191,6 @@ const PettyCashPostModal = ({
     (dataDetail) => postPettyDetail(dataDetail),
     {
       onSuccess: (data) => {
-        console.log(data);
         let result = data;
         if (result["message"] == "Save data petty cash success") {
           const btnClose = document.querySelector(".btn-tutup");
@@ -255,6 +256,7 @@ const PettyCashPostModal = ({
 
   const balanced = () => {
     let totalDebit = 0.0;
+
     inputFields.forEach((field) => {
       let Vdebit = field.debit.replace(/,/g, "");
       totalDebit += parseFloat(Vdebit);
@@ -262,8 +264,10 @@ const PettyCashPostModal = ({
 
     if (totalDebit > lastBallance.balance) {
       setErrorDebit("Balance not enough");
+      setBtnPost(false);
     } else {
       setErrorDebit(null);
+      setBtnPost(true);
     }
   };
 
@@ -532,13 +536,15 @@ const PettyCashPostModal = ({
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={(e) => handleSave(e)}
-                className="btn btn-primary"
-              >
-                Save
-              </button>
+              {btnPost && (
+                <button
+                  type="button"
+                  onClick={(e) => handleSave(e)}
+                  className="btn btn-primary"
+                >
+                  Save
+                </button>
+              )}
             </div>
           </div>
         </div>

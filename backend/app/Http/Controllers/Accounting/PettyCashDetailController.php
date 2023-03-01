@@ -47,8 +47,6 @@ class PettyCashDetailController extends Controller
             'total'        => $pettyCash->total()
         ];
 
-
-
         return response()->json([
             'data'           => $pettyCash->items(),
             'departmentData' => $departmentData,
@@ -97,7 +95,6 @@ class PettyCashDetailController extends Controller
             $set_number = "JPD" . $month;
             $get_number = PettyCashDetailModel::get_number($set_number);
 
-
             if ($get_number) {
                 $number_n     = $get_number->number_journal;
                 $number_n2    = substr($number_n, -2);
@@ -130,8 +127,6 @@ class PettyCashDetailController extends Controller
                 $attach_petty->created_by            = $created_by;
                 $attach_petty->save();
             }
-
-
 
             foreach ($data_debit as $key => $value) {
                 $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
@@ -173,6 +168,7 @@ class PettyCashDetailController extends Controller
                 ];
                 PettyCashDetailModel::insert($datas);
             }
+
             return response()->json([
                 'status'  => true,
                 'message' => 'Save data petty cash success',
@@ -186,11 +182,34 @@ class PettyCashDetailController extends Controller
         if ($request->isMethod('post')) {
             $data = $request->input();
 
+            PettyCashDetailModel::where('number_journal', $data['numberJournal'])->update([
+                'trashed'    => 1,
+                'updated_by' => $data['updated_by'],
+                'updated_at' => date("y-m-d H:i:s"),
+            ]);
+
+            // ballance awal
+            $firstBallance = $data['balanceL'];
+
+            // get data terbaru
+            $petty = PettyCashDetailModel::where([
+                'number_refill' => $data['numberRefill'],
+                'trashed' => 0
+            ])->get();
+
+            // update balance
+            foreach ($petty as &$p) {
+                $p->balance = $firstBallance;
+                $firstBallance = ($firstBallance - $p->debit);
+
+                $a = PettyCashDetailModel::find($p->id);
+                $a->balance = $firstBallance;
+                $a->save();
+            }
             return response()->json([
                 'status'  => true,
-                'message' => $data,
-                // 'message' => 'Delete attachment success',
-                200
+                'message' => "Delete petty cash success",
+                201
             ]);
         }
     }

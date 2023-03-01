@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import {
   getAttachment,
   deleteAttach,
@@ -18,6 +18,7 @@ import { confirmAlert } from "react-confirm-alert";
 // import "react-data-table-component/dist/react-data-table-component.css";
 
 const PettyCash = () => {
+  let user = JSON.parse(localStorage.getItem("user"));
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [perPage] = useState(15);
@@ -61,23 +62,47 @@ const PettyCash = () => {
     setSort({ column: column.path, direction: column.direction });
   };
 
+  let ballance = pettyCash;
+  let lastBallance = ballance[ballance.length - 1];
+  let firstBallance = ballance[0];
+  // if (firstBallance) {
+  //   console.log(firstBallance.balance);
+  // }
+
   const { mutate: deleteBackend } = useMutation(
-    (numberJournal) => deletePettyDetail(numberJournal),
+    (dataDelete) => deletePettyDetail(dataDelete),
     {
       onSuccess(data) {
         console.log(data);
+        let result = data;
+        if (result["message"] == "Delete petty cash success") {
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       },
     }
   );
 
-  const handleDelete = (numberJournal) => {
+  const handleDelete = (numberJournal, numberRefill) => {
+    let updated_by = user.user.name;
+    let balanceL = firstBallance.balance;
+    let dataDelete = { numberJournal, updated_by, balanceL, numberRefill };
     confirmAlert({
       title: "Confirm to delete",
       message: "Are you sure to do this.",
       buttons: [
         {
           label: "Yes",
-          onClick: () => deleteBackend(numberJournal),
+          onClick: () => deleteBackend(dataDelete),
         },
         {
           label: "No",
@@ -194,7 +219,7 @@ const PettyCash = () => {
           <button
             type="button"
             className="btn btn-danger btn-sm"
-            onClick={() => handleDelete(row.number_journal)}
+            onClick={() => handleDelete(row.number_journal, row.number_refill)}
           >
             <i className="fa-solid fa-trash-can"></i>
           </button>
@@ -221,11 +246,6 @@ const PettyCash = () => {
       },
     },
   ];
-
-  const ballance = pettyCash;
-  const lastBallance = ballance[ballance.length - 1];
-  // const ballanceSend = lastBallance.balance;
-  // console.log(lastBallance);
 
   return (
     <div className="container">
@@ -285,6 +305,7 @@ const PettyCash = () => {
         postPettyDetail={postPettyDetail}
         number={number}
         lastBallance={lastBallance}
+        user={user}
       />
 
       {/* modal edit */}
