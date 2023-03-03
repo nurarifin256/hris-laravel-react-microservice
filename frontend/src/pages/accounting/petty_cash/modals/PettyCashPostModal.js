@@ -90,9 +90,11 @@ const PettyCashPostModal = ({
     targetFilesObject.map((file) => {
       if (!file.name.match(/\.(jpg|jpeg|png|gif)$/)) {
         setErrorImage("Image type must be jpg/jpeg/png/gif");
+        setBtnPost(false);
         return false;
       } else {
         setErrorImage(null);
+        setBtnPost(true);
         return selectedFIles.push(URL.createObjectURL(file));
       }
     });
@@ -191,6 +193,7 @@ const PettyCashPostModal = ({
     (dataDetail) => postPettyDetail(dataDetail),
     {
       onSuccess: (data) => {
+        console.log(data);
         let result = data;
         if (result["message"] == "Save data petty cash success") {
           const btnClose = document.querySelector(".btn-tutup");
@@ -255,19 +258,20 @@ const PettyCashPostModal = ({
   };
 
   const balanced = () => {
-    let totalDebit = 0.0;
+    if (lastBallance) {
+      let totalDebit = 0.0;
+      inputFields.forEach((field) => {
+        let Vdebit = field.debit.replace(/,/g, "");
+        totalDebit += parseFloat(Vdebit);
+      });
 
-    inputFields.forEach((field) => {
-      let Vdebit = field.debit.replace(/,/g, "");
-      totalDebit += parseFloat(Vdebit);
-    });
-
-    if (totalDebit > lastBallance.balance) {
-      setErrorDebit("Balance not enough");
-      setBtnPost(false);
-    } else {
-      setErrorDebit(null);
-      setBtnPost(true);
+      if (totalDebit > lastBallance.balance) {
+        setErrorDebit("Balance not enough");
+        setBtnPost(false);
+      } else {
+        setErrorDebit(null);
+        setBtnPost(true);
+      }
     }
   };
 

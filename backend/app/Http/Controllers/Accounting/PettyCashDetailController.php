@@ -91,9 +91,12 @@ class PettyCashDetailController extends Controller
                 ]);
             }
 
-            $month      = date("ym");
-            $set_number = "JPD" . $month;
-            $get_number = PettyCashDetailModel::get_number($set_number);
+            $year            = date("y");
+            $set_number      = "JPD" . $year;
+            $set_number_save = "JPD" . $year . date("m");
+            $get_number      = PettyCashDetailModel::get_number($number_refill, $set_number);
+
+            $get_value_refill = PettyCashModel::where('number', $number_refill)->select('debit')->first();
 
             if ($get_number) {
                 $number_n     = $get_number->number_journal;
@@ -101,9 +104,7 @@ class PettyCashDetailController extends Controller
                 $number_n3    = $number_n2 + 01;
                 $number_final = sprintf("%02d", $number_n3);
             } else {
-                $number_final = sprintf("%02d", 1);
-
-                $get_value_refill = PettyCashModel::where('number', $number_refill)->select('debit')->first();
+                $number_final = sprintf("%02d", 01);
                 $data = [
                     'number_refill'  => $number_refill,
                     'number_journal' => "-",
@@ -122,20 +123,26 @@ class PettyCashDetailController extends Controller
                 $attach    = $image->store('images/attach_petty', 'public');
 
                 $attach_petty                        = new AttachPettyModel();
-                $attach_petty->number_journal_attach = $set_number . $number_final;
+                $attach_petty->number_journal_attach = $set_number_save . $number_final;
                 $attach_petty->file_attach           = $attach;
                 $attach_petty->created_by            = $created_by;
                 $attach_petty->save();
             }
 
+
             foreach ($data_debit as $key => $value) {
                 $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
                 $get_balance = PettyCashDetailModel::get_ballance($number_refill, $set_number);
-                $balance = $get_balance->balance - $debit_str;
+
+                if ($get_balance) {
+                    $balance = $get_balance->balance - $debit_str;
+                } else {
+                    $balance = $get_value_refill->debit - $debit_str;
+                }
 
                 $data = [
                     'number_refill'  => $number_refill,
-                    'number_journal' => $set_number . $number_final,
+                    'number_journal' => $set_number_save . $number_final,
                     'id_department'  => $data_debit[$key]['idDepartment'],
                     'id_coa'         => $data_debit[$key]['idCoa'],
                     'invoice_number' => $number_invoice,
@@ -155,7 +162,7 @@ class PettyCashDetailController extends Controller
                 $datas = [
                     [
                         'number_refill'  => $number_refill,
-                        'number_journal' => $set_number . $number_final,
+                        'number_journal' => $set_number_save . $number_final,
                         'id_department'  => $data_credit[$key]['idDepartmentC'],
                         'id_coa'         => $data_credit[$key]['idCoaC'],
                         'invoice_number' => $number_invoice,
@@ -188,6 +195,13 @@ class PettyCashDetailController extends Controller
                 'updated_at' => date("y-m-d H:i:s"),
             ]);
 
+            // hapus attachment
+            $attachment = AttachPettyModel::where("number_journal_attach", $data["numberJournal"])->get();
+            foreach ($attachment as $a) {
+                AttachPettyModel::where("id", $a->id)->delete();
+                unlink(public_path('storage/' . $a->file_attach));
+            }
+
             // ballance awal
             $firstBallance = $data['balanceL'];
 
@@ -210,6 +224,21 @@ class PettyCashDetailController extends Controller
                 'status'  => true,
                 'message' => "Delete petty cash success",
                 201
+            ]);
+        }
+    }
+
+    public function editPettyCashDetail(Request $request, $number_refill, $number_journal)
+    {
+        if ($request->isMethod('get')) {
+
+            $debit = PettyCashDetailModel::where(['trashed' => 0, 'number_refill' => $number_refill, 'number_journal' => $number_journal, 'credit' => 0.00])->select('id', 'id_coa', 'id_department', 'invoice_number', 'description', 'debit')->get();
+            $credit = PettyCashDetailModel::where(['trashed' => 0, 'number_refill' => $number_refill, 'number_journal' => $number_journal, 'debit' => 0.00])->select('id', 'id_coa', 'id_department', 'description', 'credit')->get();
+            return response()->json([
+                'status' => true,
+                'debit'  => $debit,
+                'credit' => $credit,
+                200
             ]);
         }
     }

@@ -9,13 +9,14 @@ import {
   getPettyDetail,
   postPettyDetail,
   deletePettyDetail,
+  editPettyDetail,
 } from "../../../config/hooks/accounting/pettCashDetailHook";
 import DataTable from "react-data-table-component";
 import moment from "moment";
 import PettyCashPostModal from "./modals/PettyCashPostModal";
 import PettyCashAttachModal from "./modals/PettyCashAttachModal";
 import { confirmAlert } from "react-confirm-alert";
-// import "react-data-table-component/dist/react-data-table-component.css";
+import PettyCashEditModal from "./modals/PettyCashEditModal";
 
 const PettyCash = () => {
   let user = JSON.parse(localStorage.getItem("user"));
@@ -65,15 +66,11 @@ const PettyCash = () => {
   let ballance = pettyCash;
   let lastBallance = ballance[ballance.length - 1];
   let firstBallance = ballance[0];
-  // if (firstBallance) {
-  //   console.log(firstBallance.balance);
-  // }
 
   const { mutate: deleteBackend } = useMutation(
     (dataDelete) => deletePettyDetail(dataDelete),
     {
       onSuccess(data) {
-        console.log(data);
         let result = data;
         if (result["message"] == "Delete petty cash success") {
           refetch();
@@ -158,7 +155,6 @@ const PettyCash = () => {
       wrap: true,
       width: "180px",
     },
-
     {
       name: "Description",
       selector: (row, i) => row.description,
@@ -228,7 +224,7 @@ const PettyCash = () => {
             className="btn btn-warning btn-sm ms-2"
             data-bs-toggle="modal"
             data-bs-target="#modal-edit"
-            // onClick={() => setNumber(row.number)}
+            onClick={() => setNumberJpd(row.number_journal)}
           >
             <i className="fa-solid fa-pen-to-square"></i>
           </button>
@@ -309,14 +305,15 @@ const PettyCash = () => {
       />
 
       {/* modal edit */}
-      {/* <RefillEditModal
+      <PettyCashEditModal
+        number={number}
+        numberJpd={numberJpd}
         coas={coa}
         department={department}
         refetch={refetch}
-        getRefill={getRefill}
-        number={number}
-        updateRefill={updateRefill}
-      /> */}
+        editPettyDetail={editPettyDetail}
+        lastBallance={lastBallance}
+      />
     </div>
   );
 };

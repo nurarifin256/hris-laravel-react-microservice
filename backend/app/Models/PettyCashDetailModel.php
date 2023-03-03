@@ -22,10 +22,12 @@ class PettyCashDetailModel extends Model
         return $this->belongsTo(CoaModel::class, 'id_coa');
     }
 
-    static function get_number($number)
+    static function get_number($number_refill, $number)
     {
         $get_number = DB::table('petty_cash_journal_details')
+            ->where('number_refill', $number_refill)
             ->where('number_journal', 'like', '%' . $number . '%')
+            ->where('trashed', 0)
             ->orderBy('id', 'desc')
             ->limit(1)
             ->select('number_journal')

@@ -13,6 +13,21 @@ export const getPettyDetail = async ({ queryKey }) => {
   return response;
 };
 
+export const editPettyDetail = async ({ queryKey }) => {
+  const number_refill = queryKey[1];
+  const number_journal = queryKey[2];
+  if (number_journal) {
+    let response = await fetch(
+      `http://localhost:8000/api/edit-petty-cash/${number_refill}/${number_journal}`,
+      {
+        method: "get",
+      }
+    );
+    response = await response.json();
+    return response;
+  }
+};
+
 export const deletePettyDetail = async (dataDelete) => {
   let result = await fetch("http://localhost:8000/api/delete-petty-cash", {
     method: "POST",
