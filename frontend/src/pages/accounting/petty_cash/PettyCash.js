@@ -10,6 +10,7 @@ import {
   postPettyDetail,
   deletePettyDetail,
   editPettyDetail,
+  updatePettyDetail,
 } from "../../../config/hooks/accounting/pettCashDetailHook";
 import DataTable from "react-data-table-component";
 import moment from "moment";
@@ -305,15 +306,20 @@ const PettyCash = () => {
       />
 
       {/* modal edit */}
-      <PettyCashEditModal
-        number={number}
-        numberJpd={numberJpd}
-        coas={coa}
-        department={department}
-        refetch={refetch}
-        editPettyDetail={editPettyDetail}
-        lastBallance={lastBallance}
-      />
+      {firstBallance && (
+        <PettyCashEditModal
+          number={number}
+          numberJpd={numberJpd}
+          coas={coa}
+          department={department}
+          refetch={refetch}
+          editPettyDetail={editPettyDetail}
+          lastBallance={lastBallance}
+          user={user}
+          updatePettyDetail={updatePettyDetail}
+          firstBallance={firstBallance.balance}
+        />
+      )}
     </div>
   );
 };

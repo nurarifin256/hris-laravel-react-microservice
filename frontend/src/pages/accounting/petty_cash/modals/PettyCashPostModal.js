@@ -193,7 +193,6 @@ const PettyCashPostModal = ({
     (dataDetail) => postPettyDetail(dataDetail),
     {
       onSuccess: (data) => {
-        console.log(data);
         let result = data;
         if (result["message"] == "Save data petty cash success") {
           const btnClose = document.querySelector(".btn-tutup");

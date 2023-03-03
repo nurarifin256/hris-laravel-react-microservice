@@ -70,6 +70,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
     Route::post('save-petty-cash', 'PettyCashDetailController@savePettyCashDetail');
     Route::post('delete-petty-cash', 'PettyCashDetailController@deletePettyCashDetail');
     Route::get('edit-petty-cash/{number_refill}/{number_journal}', 'PettyCashDetailController@editPettyCashDetail');
+    Route::patch('update-petty-cash', 'PettyCashDetailController@updatePettyCashDetail');
 });
 
 Route::get('images/identity/{images}', function ($image) {

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import CurrencyFormat from "react-currency-format";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import Select from "react-select";
+import { toast } from "react-toastify";
 
 const PettyCashEditModal = ({
   number,
@@ -11,14 +12,20 @@ const PettyCashEditModal = ({
   refetch,
   editPettyDetail,
   lastBallance,
+  user,
+  updatePettyDetail,
+  firstBallance,
 }) => {
   const [btnPostE, setBtnPostE] = useState(true);
 
   const [debitEdit, setDebitEdit] = useState([]);
   const [creditEdit, setCreditEdit] = useState([]);
 
+  const [invEdit, setInvEdit] = useState("");
+
   const [errInvEdit, setErrInvEdit] = useState("");
   const [errDebitEdit, setErrDebitEdit] = useState("");
+  const [errCreditEdit, setErrCreditEdit] = useState("");
 
   useQuery(["pettyCashEdit", number, numberJpd], editPettyDetail, {
     onSuccess(data) {
@@ -28,6 +35,49 @@ const PettyCashEditModal = ({
       }
     },
   });
+
+  const { mutate: editPetty } = useMutation(
+    (dataUpdate) => updatePettyDetail(dataUpdate),
+    {
+      onSuccess(data) {
+        console.log(data);
+        let result = data;
+        if (result["message"] == "Update petty cash sukses") {
+          const btnClose = document.querySelector(".btn-tutup-edit");
+          btnClose.click();
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else if (result["message"] == "Debit and Credit must be Ballance") {
+          setErrDebitEdit(result["message"]);
+          setErrCreditEdit(result["message"]);
+        }
+      },
+    }
+  );
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    let updated_by = user.user.name;
+    const dataUpdate = {
+      debitEdit,
+      creditEdit,
+      number,
+      numberJpd,
+      updated_by,
+      firstBallance,
+    };
+
+    editPetty(dataUpdate);
+  };
 
   const optionsCoaE = coas.map((item, index) => {
     return {
@@ -88,6 +138,7 @@ const PettyCashEditModal = ({
     if (flag === "d") {
       const values = [...debitEdit];
       values.push({
+        id: 0,
         id_coa: null,
         id_department: null,
         description: "",
@@ -97,6 +148,7 @@ const PettyCashEditModal = ({
     } else {
       const values = [...creditEdit];
       values.push({
+        id: 0,
         id_coa: null,
         id_department: null,
         description: "",
@@ -116,18 +168,14 @@ const PettyCashEditModal = ({
 
       if (totalDebit > lastBallance.balance) {
         setErrDebitEdit("Balance not enough");
+        setErrCreditEdit("Balance not enough");
         setBtnPostE(false);
       } else {
         setErrDebitEdit(null);
+        setErrCreditEdit(null);
         setBtnPostE(true);
       }
     }
-  };
-
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    console.log("debit", debitEdit);
-    console.log("credit", creditEdit);
   };
 
   return (
@@ -233,6 +281,7 @@ const PettyCashEditModal = ({
                             Debit {index + 1}
                           </label>
                           <CurrencyFormat
+                            placeholder="Enter debit"
                             className={`form-control ${
                               errDebitEdit ? "is-invalid" : null
                             }`}
@@ -325,21 +374,22 @@ const PettyCashEditModal = ({
                             Credit {index + 1}
                           </label>
                           <CurrencyFormat
+                            placeholder="Enter credit"
                             className={`form-control ${
-                              errDebitEdit ? "is-invalid" : null
+                              errCreditEdit ? "is-invalid" : null
                             }`}
                             thousandSeparator={true}
-                            name="debit"
+                            name="credit"
                             onChange={(event) => {
                               handleInputChangeE(event, index, "c");
                               balanced();
                             }}
                             value={dCredit.credit}
                           />
-                          {errDebitEdit && (
+                          {errCreditEdit && (
                             <span className="text-danger">
                               {" "}
-                              {errDebitEdit}{" "}
+                              {errCreditEdit}{" "}
                             </span>
                           )}
                         </div>
@@ -369,7 +419,7 @@ const PettyCashEditModal = ({
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary btn-tutup"
+                className="btn btn-secondary btn-tutup-edit"
                 data-bs-dismiss="modal"
               >
                 Close

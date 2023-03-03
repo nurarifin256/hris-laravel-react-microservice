@@ -34,7 +34,7 @@ class PettyCashDetailController extends Controller
                             $q->where("name", "like", "%$request->filter%");
                         });
                 }
-            });
+            })->orderBy('number_journal', 'ASC')->orderBy('credit', 'ASC');
 
         $meta      = [];
         $perPage   = $request->per_page ?? 15;
@@ -239,6 +239,143 @@ class PettyCashDetailController extends Controller
                 'debit'  => $debit,
                 'credit' => $credit,
                 200
+            ]);
+        }
+    }
+
+    public function updatePettyCashDetail(Request $request)
+    {
+        if ($request->isMethod('patch')) {
+            $data = $request->input();
+
+            $data_debit     = $data['debitEdit'];
+            $data_credit    = $data['creditEdit'];
+            $updated_by     = $data['updated_by'];
+            $number_refill  = $data['number'];
+            $number_journal = $data['numberJpd'];
+            $first_ballance = $data['firstBallance'];
+            $invoice_number = $data_debit[0]['invoice_number'];
+
+            $total_d = 0;
+            foreach ($data_debit as $key => $value) {
+                $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
+                $total_d += $debit_str;
+            }
+
+            $total_c = 0;
+            foreach ($data_credit as $key => $value) {
+                $credit_str = str_replace(',', '', $data_credit[$key]['credit']);
+                $total_c += $credit_str;
+            }
+
+            if ($total_d != $total_c) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "Debit and Credit must be Ballance",
+                    422
+                ]);
+            }
+
+            /* delete debit data */
+            // maping data id from front end
+            $ids = array_map(function ($data) {
+                return $data['id'];
+            }, $data_debit);
+
+            // get data for delete
+            $delete_data = PettyCashDetailModel::where(['trashed' => 0, 'number_refill' => $number_refill, 'number_journal' => $number_journal, 'credit' => 0.00])->whereNotIn('id', $ids)->select('id')->get();
+
+            // delete data
+            foreach ($delete_data as $d) {
+                PettyCashDetailModel::where('id', $d->id)->update([
+                    'trashed'    => 1,
+                    'updated_by' => $updated_by,
+                ]);
+            }
+            /* end hapus debit data*/
+
+            // debit
+            foreach ($data_debit as $key => $value) {
+                $debit_str = str_replace(',', '', $data_debit[$key]['debit']);
+
+                if ($data_debit[$key]['id'] != 0) {
+                    $data_update = [
+                        'id_department'  => $data_debit[$key]['id_department'],
+                        'id_coa'         => $data_debit[$key]['id_coa'],
+                        'invoice_number' => $data_debit[$key]['invoice_number'],
+                        'description'    => $data_debit[$key]['description'],
+                        'debit'          => $debit_str,
+                        'updated_by'     => $updated_by,
+                        'updated_at'     => date("y-m-d H:i:s"),
+                    ];
+                    PettyCashDetailModel::where('id', $data_debit[$key]['id'])->update($data_update);
+                } else {
+                    $data_new = [
+                        'id_department'  => $data_debit[$key]['id_department'],
+                        'id_coa'         => $data_debit[$key]['id_coa'],
+                        'number_refill'  => $number_refill,
+                        'number_journal' => $number_journal,
+                        'invoice_number' => $invoice_number,
+                        'description'    => $data_debit[$key]['description'],
+                        'debit'          => $debit_str,
+                        'created_by'     => $updated_by,
+                        'created_at'     => date("y-m-d H:i:s"),
+                    ];
+                    PettyCashDetailModel::insert($data_new);
+                }
+            }
+
+            // credit
+            foreach ($data_credit as $key => $value) {
+                $credit_str = str_replace(',', '', $data_credit[$key]['credit']);
+
+                if ($data_credit[$key]['id'] != 0) {
+                    $data_update = [
+                        'id_department'  => $data_credit[$key]['id_department'],
+                        'id_coa'         => $data_credit[$key]['id_coa'],
+                        'invoice_number' => $invoice_number,
+                        'description'    => $data_credit[$key]['description'],
+                        'credit'         => $credit_str,
+                        'updated_by'     => $updated_by,
+                        'updated_at'     => date("y-m-d H:i:s"),
+                    ];
+                    PettyCashDetailModel::where('id', $data_credit[$key]['id'])->update($data_update);
+                } else {
+                    $data_new = [
+                        'id_department'  => $data_credit[$key]['id_department'],
+                        'id_coa'         => $data_credit[$key]['id_coa'],
+                        'number_refill'  => $number_refill,
+                        'number_journal' => $number_journal,
+                        'invoice_number' => $invoice_number,
+                        'description'    => $data_credit[$key]['description'],
+                        'credit'         => $credit_str,
+                        'created_by'     => $updated_by,
+                        'created_at'     => date("y-m-d H:i:s"),
+                    ];
+                    PettyCashDetailModel::insert($data_new);
+                }
+            }
+
+            // get data terbaru
+            $petty = PettyCashDetailModel::where([
+                'number_refill' => $number_refill,
+                'trashed' => 0
+            ])->orderBy('number_journal', 'ASC')->orderBy('credit', 'ASC')->get();
+
+            // update balance
+            foreach ($petty as &$p) {
+                $p->balance = $first_ballance;
+                $first_ballance = ($first_ballance - $p->debit);
+
+                $a = PettyCashDetailModel::find($p->id);
+                $a->balance = $first_ballance;
+                $a->save();
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "Update petty cash sukses",
+                201
             ]);
         }
     }

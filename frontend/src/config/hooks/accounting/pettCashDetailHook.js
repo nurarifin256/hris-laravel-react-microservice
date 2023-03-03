@@ -41,6 +41,19 @@ export const deletePettyDetail = async (dataDelete) => {
   return result;
 };
 
+export const updatePettyDetail = async (dataUpdate) => {
+  let result = await fetch("http://localhost:8000/api/update-petty-cash", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(dataUpdate),
+  });
+
+  result = await result.json();
+  return result;
+};
+
 export const postPettyDetail = async (dataDetail) => {
   let result = await fetch("http://localhost:8000/api/save-petty-cash", {
     method: "POST",
