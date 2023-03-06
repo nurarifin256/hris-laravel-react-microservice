@@ -286,13 +286,35 @@ class PettyCashDetailController extends Controller
             $delete_data = PettyCashDetailModel::where(['trashed' => 0, 'number_refill' => $number_refill, 'number_journal' => $number_journal, 'credit' => 0.00])->whereNotIn('id', $ids)->select('id')->get();
 
             // delete data
-            foreach ($delete_data as $d) {
-                PettyCashDetailModel::where('id', $d->id)->update([
-                    'trashed'    => 1,
-                    'updated_by' => $updated_by,
-                ]);
+            if ($delete_data) {
+                foreach ($delete_data as $d) {
+                    PettyCashDetailModel::where('id', $d->id)->update([
+                        'trashed'    => 1,
+                        'updated_by' => $updated_by,
+                    ]);
+                }
             }
             /* end hapus debit data*/
+
+            /* delete credit data */
+            // maping data id from front end
+            $ids = array_map(function ($data) {
+                return $data['id'];
+            }, $data_credit);
+
+            // get data for delete
+            $delete_data_credit = PettyCashDetailModel::where(['trashed' => 0, 'number_refill' => $number_refill, 'number_journal' => $number_journal, 'debit' => 0.00])->whereNotIn('id', $ids)->select('id')->get();
+
+            // delete data
+            if ($delete_data_credit) {
+                foreach ($delete_data_credit as $d) {
+                    PettyCashDetailModel::where('id', $d->id)->update([
+                        'trashed'    => 1,
+                        'updated_by' => $updated_by,
+                    ]);
+                }
+            }
+            /* end hapus credit data*/
 
             // debit
             foreach ($data_debit as $key => $value) {

@@ -28,7 +28,8 @@ class PettyCashDetailModel extends Model
             ->where('number_refill', $number_refill)
             ->where('number_journal', 'like', '%' . $number . '%')
             ->where('trashed', 0)
-            ->orderBy('id', 'desc')
+            // ->orderBy('id', 'desc')
+            ->orderBy('number_journal', 'desc')
             ->limit(1)
             ->select('number_journal')
             ->first();
@@ -42,6 +43,7 @@ class PettyCashDetailModel extends Model
             ->where('number_refill', $number_refill)
             ->where('number_journal', 'like', '%' . $set_number . '%')
             ->where('trashed', 0)
+            ->orderBy('number_journal', 'desc')
             ->orderBy('id', 'desc')
             ->limit(1)
             ->select('balance', 'debit', 'credit')
