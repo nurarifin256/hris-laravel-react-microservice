@@ -209,7 +209,7 @@ class PettyCashDetailController extends Controller
             $petty = PettyCashDetailModel::where([
                 'number_refill' => $data['numberRefill'],
                 'trashed' => 0
-            ])->get();
+            ])->orderBy('number_journal', 'asc')->orderBy('credit', 'asc')->orderBy('id', 'asc')->get();
 
             // update balance
             foreach ($petty as &$p) {
