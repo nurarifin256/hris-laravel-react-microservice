@@ -11,6 +11,9 @@ import Login from "./auth/Login";
 import Register from "./auth/Register";
 import Logout from "./auth/Logout";
 
+import Gaji from "./hr/gaji/Gaji";
+import Attendance from "./hr/attendance/Attendance";
+
 import Dashboard from "./home/Dashboard";
 
 export {
@@ -25,4 +28,6 @@ export {
   Coa,
   Refill,
   PettyCash,
+  Gaji,
+  Attendance,
 };

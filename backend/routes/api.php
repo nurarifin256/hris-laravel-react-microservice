@@ -73,6 +73,10 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
     Route::patch('update-petty-cash', 'PettyCashDetailController@updatePettyCashDetail');
 });
 
+Route::namespace('App\Http\Controllers\Hr')->group(function () {
+    Route::get('get-payrolls', 'PayrollController@getPayrolls');
+});
+
 Route::get('images/identity/{images}', function ($image) {
     $path = storage_path('app/public/images/identity/' . $image);
 

@@ -16,6 +16,11 @@ class EmployeeModel extends Model
         return $this->belongsTo(DepartmentModel::class, 'id_department');
     }
 
+    public function payrolls()
+    {
+        return $this->hasMany(PayrollModel::class, 'id_employee');
+    }
+
     // public function positions()
     // {
     //     return $this->belongsToMany(PositionModel::class, 'id_position');

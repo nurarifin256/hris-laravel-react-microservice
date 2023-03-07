@@ -13,6 +13,8 @@ import {
   Coa,
   Refill,
   PettyCash,
+  Gaji,
+  Attendance,
 } from "../../pages";
 
 const Routess = () => {
@@ -33,6 +35,9 @@ const Routess = () => {
           path="/employee/department"
           element={<Departement />}
         ></Route>
+
+        <Route exact path="/hr/gaji" element={<Gaji />}></Route>
+        <Route exact path="/hr/attendance" element={<Attendance />}></Route>
 
         <Route exact path="/acounting/coa" element={<Coa />}></Route>
         <Route exact path="/acounting/refill" element={<Refill />}></Route>

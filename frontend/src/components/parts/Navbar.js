@@ -65,6 +65,30 @@ const Navbar = () => {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
+                Human Resources
+              </Link>
+              <ul className="dropdown-menu">
+                <li>
+                  <Link className="dropdown-item" to="hr/gaji">
+                    Payroll
+                  </Link>
+                </li>
+
+                <li>
+                  <Link className="dropdown-item" to="hr/attendance">
+                    Attendance
+                  </Link>
+                </li>
+              </ul>
+            </li>
+
+            <li className="nav-item dropdown">
+              <Link
+                className="nav-link dropdown-toggle"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 Accounting
               </Link>
 
