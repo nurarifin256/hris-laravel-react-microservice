@@ -21,6 +21,11 @@ class EmployeeModel extends Model
         return $this->hasMany(PayrollModel::class, 'id_employee');
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(AttendanceModel::class, 'id_employee');
+    }
+
     // public function positions()
     // {
     //     return $this->belongsToMany(PositionModel::class, 'id_position');

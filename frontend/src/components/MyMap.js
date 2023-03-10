@@ -1,26 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import "./style.css";
 
 function MyMap(props) {
-  const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
-
-  useEffect(() => {
-    // ambil posisi
-    navigator.geolocation.getCurrentPosition(function (position) {
-      setLatitude(position.coords.latitude);
-      setLongitude(position.coords.longitude);
-    });
-  });
-
+  const { latitude, longitude } = props;
   return (
     <div className="map" id="map">
       {latitude ? (
         <>
           <MapContainer
             center={[latitude, longitude]}
-            zoom={13}
+            zoom={16}
             scrollWheelZoom={false}
           >
             <TileLayer
@@ -32,6 +21,13 @@ function MyMap(props) {
                 A pretty CSS3 popup. <br /> Easily customizable.
               </Popup>
             </Marker>
+
+            <Circle
+              // center={[-6.1840221, 106.6981393]}
+              center={[-6.184893, 106.696048]}
+              fillColor="blue"
+              radius={50}
+            />
           </MapContainer>
           <p>
             Latitude: {latitude}, Longitude: {longitude}
