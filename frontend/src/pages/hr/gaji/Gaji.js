@@ -83,29 +83,6 @@ const Gaji = () => {
               Generate
             </button>
           </div>
-          {/* <button
-            type="button"
-            className="btn btn-danger btn-sm ms-2"
-            // onClick={() => handleHapus(row.number)}
-          >
-            <i className="fa-solid fa-trash-can"></i> Generate
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger btn-sm"
-            // onClick={() => handleHapus(row.number)}
-          >
-            <i className="fa-solid fa-trash-can"></i> Delete
-          </button>
-          <button
-            type="button"
-            className="btn btn-warning btn-sm ms-2"
-            data-bs-toggle="modal"
-            data-bs-target="#modal-edit"
-            // onClick={() => setNumber(row.number)}
-          >
-            <i className="fa-solid fa-pen-to-square"></i> Edit
-          </button> */}
         </div>
       ),
     },
