@@ -33,7 +33,7 @@ function MyMap(props) {
           </p>
         </>
       ) : (
-        "Loading.."
+        "Loading..."
       )}
     </div>
   );

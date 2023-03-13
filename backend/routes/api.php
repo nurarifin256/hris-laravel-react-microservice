@@ -145,3 +145,19 @@ Route::get('images/attach_petty/{images}', function ($image) {
 
     return $response;
 });
+
+Route::get('images/absent/{images}', function ($image) {
+    $path = storage_path('app/public/images/absent/' . $image);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});

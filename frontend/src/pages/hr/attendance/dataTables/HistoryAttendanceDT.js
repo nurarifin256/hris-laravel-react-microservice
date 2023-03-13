@@ -14,6 +14,7 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
   const [historyAttendance, setHistoryAttendance] = useState([]);
   const [latitudeM, setLatitudeM] = useState(null);
   const [longitudeM, setLongitudeM] = useState(null);
+  const [image, setImage] = useState(null);
 
   const { refetch } = useQuery(
     ["absenceHistory", currentPage, filter, perPage, idEmployee],
@@ -55,7 +56,7 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
       sortable: true,
     },
     {
-      name: "Location",
+      name: "Location & Photo",
       sortable: true,
       ignoreRowClick: true,
       allowOverflow: true,
@@ -69,6 +70,7 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
           onClick={() => {
             setLatitudeM(row.latitude);
             setLongitudeM(row.longitude);
+            setImage(row.photo);
           }}
         >
           View
@@ -141,6 +143,7 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
         latitudeM={latitudeM}
         longitudeM={longitudeM}
         MyMap={MyMap}
+        image={image}
       />
     </>
   );

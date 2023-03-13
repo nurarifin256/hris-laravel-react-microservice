@@ -8,7 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Webcam from "react-webcam";
 import MyMap from "../../../components/MyMap";
 import HistoryAttendanceDT from "./dataTables/HistoryAttendanceDT";
-import "./style.css";
+// import "./style.css";
 import "react-toastify/dist/ReactToastify.css";
 
 const videoConstraints = {
