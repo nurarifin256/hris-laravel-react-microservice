@@ -19,7 +19,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <Routess />;
+        <Routess />
       </Provider>
       <ReactQueryDevtools
         initialIsOpen={false}

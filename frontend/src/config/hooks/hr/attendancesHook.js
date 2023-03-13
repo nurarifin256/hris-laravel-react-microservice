@@ -7,3 +7,18 @@ export const postAttendance = async (dataDetail) => {
   result = await result.json();
   return result;
 };
+
+export const getAttendace = async ({ queryKey }) => {
+  const currentPage = queryKey[1];
+  const filter = queryKey[2];
+  const perPage = queryKey[3];
+  const idEmployee = queryKey[4];
+  let response = await fetch(
+    `http://localhost:8000/api/get-attendance/${idEmployee}?page=${currentPage}&filter=${filter}&per_page=${perPage}`,
+    {
+      method: "get",
+    }
+  );
+  response = await response.json();
+  return response;
+};

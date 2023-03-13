@@ -23,13 +23,12 @@ function MyMap(props) {
             </Marker>
 
             <Circle
-              // center={[-6.1840221, 106.6981393]}
-              center={[-6.184893, 106.696048]}
+              center={[-6.1840221, 106.6981393]}
               fillColor="blue"
-              radius={50}
+              radius={40}
             />
           </MapContainer>
-          <p>
+          <p className="text-center">
             Latitude: {latitude}, Longitude: {longitude}
           </p>
         </>

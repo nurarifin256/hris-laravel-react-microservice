@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "react-query";
-import { postAttendance } from "../../../config/hooks/hr/attendancesHook";
+import {
+  postAttendance,
+  getAttendace,
+} from "../../../config/hooks/hr/attendancesHook";
 import { toast, ToastContainer } from "react-toastify";
 import Webcam from "react-webcam";
 import MyMap from "../../../components/MyMap";
+import HistoryAttendanceDT from "./dataTables/HistoryAttendanceDT";
 import "./style.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -71,7 +75,7 @@ const Attendance = () => {
             theme: "light",
           });
         } else {
-          setCamera(false);
+          setSnapshot(false);
           toast.success(result["message"], {
             position: "top-right",
             autoClose: 5000,
@@ -191,6 +195,12 @@ const Attendance = () => {
           </div>
         )}
       </div>
+
+      <HistoryAttendanceDT
+        idEmployee={user.user.id_employee}
+        getAttendace={getAttendace}
+        MyMap={MyMap}
+      />
 
       <ToastContainer />
     </div>

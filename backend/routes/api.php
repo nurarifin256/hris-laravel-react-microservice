@@ -79,6 +79,7 @@ Route::namespace('App\Http\Controllers\Hr')->group(function () {
 
     // route attendance
     Route::post('save-attendance', 'AttendanceController@saveAttendance');
+    Route::get('get-attendance/{id_employee}', 'AttendanceController@getAttendance');
 });
 
 Route::get('images/identity/{images}', function ($image) {
