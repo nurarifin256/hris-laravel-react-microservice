@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "react-query";
 import { postAttendance } from "../../../config/hooks/hr/attendancesHook";
+import { toast, ToastContainer } from "react-toastify";
 import Webcam from "react-webcam";
 import MyMap from "../../../components/MyMap";
+import "./style.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const videoConstraints = {
   width: 300,
@@ -17,6 +20,9 @@ const Attendance = () => {
   const [camera, setCamera] = useState(false);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
+  const [type, setType] = useState(null);
+
+  const [errorType, setErrorType] = useState(null);
 
   useEffect(() => {
     // ambil posisi
@@ -39,15 +45,44 @@ const Attendance = () => {
   };
 
   const handleCapture = () => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    setSnapshot(imageSrc);
+    if (type === null) {
+      setErrorType("Absent type must be selected");
+    } else {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setSnapshot(imageSrc);
+    }
   };
 
   const { mutate: addAttendace } = useMutation(
     (formData) => postAttendance(formData),
     {
       onSuccess: (data) => {
-        console.log(data);
+        let result = data;
+        console.log(result);
+        if (result["message"] == "your location is outside the office area") {
+          toast.error(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else {
+          setCamera(false);
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       },
     }
   );
@@ -55,12 +90,13 @@ const Attendance = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let created_by = user.user.name;
-    let id_employee = user.user.id;
+    let id_employee = user.user.id_employee;
 
     const formData = new FormData();
 
     formData.append("created_by", created_by);
     formData.append("id_employee", id_employee);
+    formData.append("type", type);
     formData.append("latitude", latitude);
     formData.append("longitude", longitude);
     formData.append("image", dataURItoBlob(snapshot), "image.jpg");
@@ -91,7 +127,7 @@ const Attendance = () => {
                   className="btn btn-primary mt-2"
                   onClick={(e) => handleSubmit(e)}
                 >
-                  <i class="fa-solid fa-check"></i> Absent
+                  <i className="fa-solid fa-check"></i> Submit
                 </button>
                 <button
                   className="btn btn-success mt-2 ms-2"
@@ -105,14 +141,27 @@ const Attendance = () => {
         ) : (
           <div className="col-md-4">
             <div className="text-center">
-              <button
-                className="btn btn-primary my-2"
-                onClick={() => setCamera(true)}
-              >
-                <i className="fa-solid fa-camera"></i> Absent IN
-              </button>
-              {camera && (
+              {camera ? (
                 <>
+                  <select
+                    required
+                    className={`form-select my-2 ${
+                      errorType ? "is-invalid" : null
+                    }`}
+                    aria-label="Default select example"
+                    id="select-type"
+                    onChange={(e) => setType(e.target.value)}
+                  >
+                    <option>Choose Absent Type</option>
+                    <option value="1">in</option>
+                    <option value="2">out</option>
+                    <option value="3">in over time</option>
+                    <option value="4">out over time</option>
+                  </select>
+                  {errorType && (
+                    <span className="text-danger mb-2"> {errorType} </span>
+                  )}
+
                   <div>
                     <Webcam
                       audio={false}
@@ -130,11 +179,20 @@ const Attendance = () => {
                     </button>
                   </div>
                 </>
+              ) : (
+                <button
+                  className="btn btn-primary my-2"
+                  onClick={() => setCamera(true)}
+                >
+                  <i className="fa-solid fa-camera"></i> Absent
+                </button>
               )}
             </div>
           </div>
         )}
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

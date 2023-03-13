@@ -1,5 +1,5 @@
 export const postAttendance = async (dataDetail) => {
-  let result = await fetch("http://localhost:8000/api/save-petty-cash", {
+  let result = await fetch("http://localhost:8000/api/save-attendance", {
     method: "POST",
     body: dataDetail,
   });

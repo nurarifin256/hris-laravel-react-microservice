@@ -68,7 +68,7 @@ class AuthController extends Controller
                 return response()->json($validator->errors(), 422);
             }
 
-            $getUser = User::where('email', $data['email'])->select('id', 'name', 'email', 'password')->first();
+            $getUser = User::where('email', $data['email'])->select('id', 'name', 'email', 'password', 'id_employee')->first();
             if ($getUser != null) {
                 if (password_verify($data['password'], $getUser->password)) {
 
