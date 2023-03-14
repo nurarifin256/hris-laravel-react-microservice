@@ -97,4 +97,33 @@ class AttendanceController extends Controller
             ]);
         }
     }
+
+    public function getAttendances(Request $request, $start, $end)
+    {
+        if ($request->isMethod('get')) {
+            $meta = [];
+            $histories = AttendanceModel::where('trashed', 0)->whereBetween('created_at', [$start, $end])->where(function ($query) use ($request) {
+                if ($request->has('filter')) {
+                    $query->where("created_at", "like", "%$request->filter%");
+                }
+            });
+
+            $perPage   = $request->per_page ?? 15;
+            $histories = $histories->paginate($perPage);
+
+            $meta = [
+                'current_page' => $histories->currentPage(),
+                'last_page'    => $histories->lastPage(),
+                'per_page'     => $histories->perPage(),
+                'total'        => $histories->total()
+            ];
+
+            return response()->json([
+                'data'    => $histories->items(),
+                'meta'    => $meta,
+                'request' => $request->per_page,
+                'tanggal' => $start
+            ]);
+        }
+    }
 }

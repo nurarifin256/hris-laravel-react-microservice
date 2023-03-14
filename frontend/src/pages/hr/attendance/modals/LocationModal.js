@@ -24,12 +24,9 @@ const LocationModal = ({ latitudeM, longitudeM, MyMap, image }) => {
             <div className="modal-body">
               <div className="text-center">
                 <MyMap latitude={latitudeM} longitude={longitudeM} />
-              </div>
-
-              <div className="text-center">
                 <img
                   src={"http://127.0.0.1:8000/api/" + image}
-                  className="img-thumbnail"
+                  className="img-thumbnail mt-3"
                   alt="img-attendance"
                 />
               </div>
