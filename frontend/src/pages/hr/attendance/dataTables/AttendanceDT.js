@@ -2,6 +2,7 @@ import moment from "moment";
 import { useState } from "react";
 import DataTable from "react-data-table-component";
 import { useQuery } from "react-query";
+import MyMaps from "../../../../components/MyMaps";
 
 const AttendanceDT = ({ getAttendances }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -9,6 +10,9 @@ const AttendanceDT = ({ getAttendances }) => {
   const [perPage] = useState(15);
   const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
+
+  const [attendances, setAttendances] = useState([]);
+  const [showMap, setShowMap] = useState(false);
 
   const [startDate, setStartDate] = useState(
     moment(new Date()).format("YYYY-MM-DD 00:00:00")
@@ -22,7 +26,8 @@ const AttendanceDT = ({ getAttendances }) => {
     getAttendances,
     {
       onSuccess: (data) => {
-        console.log(data);
+        setAttendances(data.data);
+        setTotalPages(data.meta.last_page);
       },
     }
   );
@@ -39,6 +44,66 @@ const AttendanceDT = ({ getAttendances }) => {
     setSort({ column: column.path, direction: column.direction });
   };
 
+  const columns = [
+    {
+      name: "No",
+      selector: (row, i) => i + 1,
+      sortable: true,
+    },
+    {
+      name: "Name",
+      selector: (row, i) => row.employees.name,
+      sortable: true,
+    },
+    {
+      name: "IN",
+      selector: (row, i) => (row.type === 1 ? "IN" : "OUT"),
+      sortable: true,
+    },
+    {
+      name: "Time In",
+      selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY hh:mm"),
+      sortable: true,
+    },
+    {
+      name: "OUT",
+      selector: (row, i) => (row.type === 1 ? "IN" : "OUT"),
+      sortable: true,
+    },
+    {
+      name: "Time Out",
+      selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY hh:mm"),
+      sortable: true,
+    },
+    {
+      name: "Action",
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      cell: (row, i) => (
+        <div>
+          <button
+            type="button"
+            className="btn btn-danger btn-sm"
+            // onClick={() => handleHapus(row.id)}
+          >
+            <i className="fa-solid fa-trash-can"></i>
+          </button>
+          <button
+            type="button"
+            className="btn btn-warning btn-sm ms-2"
+            // onClick={() => {
+            //   setShowModal(true);
+            //   setIdEdit(row.id);
+            // }}
+          >
+            <i className="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   const handleDate = () => {
     refetch();
   };
@@ -46,12 +111,19 @@ const AttendanceDT = ({ getAttendances }) => {
   return (
     <>
       <div className="row">
+        <div className="col-md-12">
+          <div className="text-center mb-3">
+            <MyMaps koordinat={attendances} />
+          </div>
+        </div>
+      </div>
+      <div className="row mb-3">
         <div className="col-md-1">
           <label htmlFor="" className="col-form-label">
             Start Date
           </label>
         </div>
-        <div className="col-md-2">
+        <div className="col-md-3">
           <input
             type="date"
             className="form-control"
@@ -63,21 +135,12 @@ const AttendanceDT = ({ getAttendances }) => {
             End Date
           </label>
         </div>
-        <div className="col-md-2">
+        <div className="col-md-3">
           <input
             type="date"
             className="form-control"
             onChange={(e) => setEndDate(e.target.value + " 23:59:00")}
           />
-        </div>
-        <div className="col-md-2">
-          <button
-            className="btn btn-primary btn-md"
-            type="button"
-            onClick={() => handleDate()}
-          >
-            <i className="fa-solid fa-magnifying-glass"></i> Find
-          </button>
         </div>
         <div className="col-md-4">
           <input
@@ -92,8 +155,8 @@ const AttendanceDT = ({ getAttendances }) => {
         <div className="col-md-12">
           <div className="table-responsive">
             <DataTable
-              //   data={historyAttendance}
-              //   columns={columns}
+              data={attendances}
+              columns={columns}
               pagination
               paginationServer
               paginationTotalRows={totalPages * perPage}

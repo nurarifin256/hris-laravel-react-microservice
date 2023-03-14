@@ -102,7 +102,7 @@ class AttendanceController extends Controller
     {
         if ($request->isMethod('get')) {
             $meta = [];
-            $histories = AttendanceModel::where('trashed', 0)->whereBetween('created_at', [$start, $end])->where(function ($query) use ($request) {
+            $histories = AttendanceModel::with('employees')->where('trashed', 0)->whereBetween('created_at', [$start, $end])->where(function ($query) use ($request) {
                 if ($request->has('filter')) {
                     $query->where("created_at", "like", "%$request->filter%");
                 }
