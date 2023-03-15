@@ -10,6 +10,7 @@ import { AttendanceDT, HistoryAttendanceDT } from "./dataTables";
 import { toast, ToastContainer } from "react-toastify";
 import Webcam from "react-webcam";
 import MyMap from "../../../components/MyMap";
+import InOutMap from "../../../components/InOutMap";
 import "./style.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -68,9 +69,23 @@ const Attendance = () => {
     (formData) => postAttendance(formData),
     {
       onSuccess: (data) => {
+        console.log(data);
         let result = data;
         if (result["message"] == "your location is outside the office area") {
           toast.error(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else if (result["message"] == "Today you are absent") {
+          setSnapshot(false);
+          setCamera(false);
+          toast.warning(result["message"], {
             position: "top-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -267,7 +282,7 @@ const Attendance = () => {
           <HistoryAttendanceDT
             idEmployee={id_employee}
             getAttendace={getAttendace}
-            MyMap={MyMap}
+            InOutMap={InOutMap}
             handleAbsentOut={handleAbsentOut}
           />
         </>

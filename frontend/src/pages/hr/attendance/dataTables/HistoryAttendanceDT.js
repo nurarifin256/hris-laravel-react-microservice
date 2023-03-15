@@ -7,7 +7,7 @@ import LocationModal from "../modals/LocationModal";
 const HistoryAttendanceDT = ({
   idEmployee,
   getAttendace,
-  MyMap,
+  InOutMap,
   handleAbsentOut,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,7 +19,10 @@ const HistoryAttendanceDT = ({
   const [historyAttendance, setHistoryAttendance] = useState([]);
   const [latitudeM, setLatitudeM] = useState(null);
   const [longitudeM, setLongitudeM] = useState(null);
+  const [latitudeO, setLatitudeO] = useState(null);
+  const [longitudeO, setLongitudeO] = useState(null);
   const [image, setImage] = useState(null);
+  const [imageO, setImageO] = useState(null);
 
   useQuery(
     ["absenceHistory", currentPage, filter, perPage, idEmployee],
@@ -108,7 +111,10 @@ const HistoryAttendanceDT = ({
           onClick={() => {
             setLatitudeM(row.latitude);
             setLongitudeM(row.longitude);
+            setLatitudeO(row.latitude_out);
+            setLongitudeO(row.longitude_out);
             setImage(row.photo);
+            setImageO(row.photo_out);
           }}
         >
           <i className="fa-solid fa-eye"></i> View
@@ -153,8 +159,11 @@ const HistoryAttendanceDT = ({
       <LocationModal
         latitudeM={latitudeM}
         longitudeM={longitudeM}
-        MyMap={MyMap}
+        latitudeO={latitudeO}
+        longitudeO={longitudeO}
+        InOutMap={InOutMap}
         image={image}
+        imageO={imageO}
       />
     </>
   );

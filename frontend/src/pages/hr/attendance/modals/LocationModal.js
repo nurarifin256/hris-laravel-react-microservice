@@ -1,4 +1,12 @@
-const LocationModal = ({ latitudeM, longitudeM, MyMap, image }) => {
+const LocationModal = ({
+  latitudeM,
+  longitudeM,
+  latitudeO,
+  longitudeO,
+  InOutMap,
+  image,
+  imageO,
+}) => {
   return (
     <div>
       <div
@@ -23,12 +31,33 @@ const LocationModal = ({ latitudeM, longitudeM, MyMap, image }) => {
             </div>
             <div className="modal-body">
               <div className="text-center">
-                <MyMap latitude={latitudeM} longitude={longitudeM} />
-                <img
-                  src={"http://127.0.0.1:8000/api/" + image}
-                  className="img-thumbnail mt-3"
-                  alt="img-attendance"
-                />
+                <div className="row">
+                  <InOutMap
+                    latitude={latitudeM}
+                    longitude={longitudeM}
+                    latitudeO={latitudeO}
+                    longitudeO={longitudeO}
+                  />
+                </div>
+
+                {image && (
+                  <div className="row">
+                    <div className="col-md-12">
+                      <p className="mt-3">Photo In</p>
+                      <img
+                        src={"http://127.0.0.1:8000/api/" + image}
+                        className="img-thumbnail"
+                        alt="img-attendance"
+                      />
+                      <p className="mt-3">Photo Out</p>
+                      <img
+                        src={"http://127.0.0.1:8000/api/" + imageO}
+                        className="img-thumbnail"
+                        alt="img-attendance"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="modal-footer">
