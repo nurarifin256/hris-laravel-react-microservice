@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 
-const MyMaps = ({ koordinat }) => {
+const MultipleMaps = ({ koordinat }) => {
   return (
     <div className="map" id="map">
       <>
@@ -8,6 +8,7 @@ const MyMaps = ({ koordinat }) => {
           center={[-6.1839964, 106.6981386]}
           zoom={16}
           scrollWheelZoom={false}
+          style={{ height: "300px", width: "100%" }}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -34,4 +35,4 @@ const MyMaps = ({ koordinat }) => {
   );
 };
 
-export default MyMaps;
+export default MultipleMaps;

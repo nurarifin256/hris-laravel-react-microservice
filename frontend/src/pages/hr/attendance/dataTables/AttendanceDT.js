@@ -1,8 +1,8 @@
-import moment from "moment";
 import { useState } from "react";
-import DataTable from "react-data-table-component";
 import { useQuery } from "react-query";
-import MyMaps from "../../../../components/MyMaps";
+import moment from "moment";
+import DataTable from "react-data-table-component";
+import MultipleMaps from "../../../../components/MultipleMaps";
 
 const AttendanceDT = ({ getAttendances }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,29 +50,33 @@ const AttendanceDT = ({ getAttendances }) => {
       sortable: true,
     },
     {
+      name: "Date",
+      selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY"),
+      sortable: true,
+    },
+    {
+      name: "Type",
+      selector: (row, i) => (row.type === 1 ? "Intra" : "Over Time"),
+      sortable: true,
+    },
+    {
       name: "Name",
       selector: (row, i) => row.employees.name,
       sortable: true,
     },
     {
-      name: "IN",
-      selector: (row, i) => (row.type === 1 ? "IN" : "OUT"),
-      sortable: true,
-    },
-    {
       name: "Time In",
-      selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY hh:mm"),
-      sortable: true,
-    },
-    {
-      name: "OUT",
-      selector: (row, i) => (row.type === 1 ? "IN" : "OUT"),
+      selector: (row, i) => moment(row.time_in).format("hh:mm"),
       sortable: true,
     },
     {
       name: "Time Out",
-      selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY hh:mm"),
+      selector: (row, i) =>
+        row.time_out
+          ? moment(row.time_out).format("hh:mm")
+          : "Haven't been absent yet",
       sortable: true,
+      width: "200px",
     },
     {
       name: "Action",
@@ -108,7 +112,7 @@ const AttendanceDT = ({ getAttendances }) => {
       <div className="row">
         <div className="col-md-12">
           <div className="text-center mb-3">
-            <MyMaps koordinat={attendances} />
+            <MultipleMaps koordinat={attendances} />
           </div>
         </div>
       </div>

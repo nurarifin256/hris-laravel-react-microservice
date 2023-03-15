@@ -22,7 +22,6 @@ function InOutMap(props) {
             center={[latitude, longitude]}
             zoom={19}
             scrollWheelZoom={false}
-            style={{ height: "300px", width: "100wh" }}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
