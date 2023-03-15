@@ -4,6 +4,7 @@ import {
   postAttendance,
   getAttendace,
   getAttendances,
+  attendanceOut,
 } from "../../../config/hooks/hr/attendancesHook";
 import { AttendanceDT, HistoryAttendanceDT } from "./dataTables";
 import { toast, ToastContainer } from "react-toastify";
@@ -28,6 +29,9 @@ const Attendance = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const [type, setType] = useState(null);
+  const [idAttendance, setIdAttendance] = useState(null);
+  const [select, setSelect] = useState(false);
+  const [out, setOut] = useState(false);
 
   const [errorType, setErrorType] = useState(null);
 
@@ -65,7 +69,6 @@ const Attendance = () => {
     {
       onSuccess: (data) => {
         let result = data;
-        console.log(result);
         if (result["message"] == "your location is outside the office area") {
           toast.error(result["message"], {
             position: "top-right",
@@ -78,7 +81,45 @@ const Attendance = () => {
             theme: "light",
           });
         } else {
+          window.location.reload(true);
           setSnapshot(false);
+          setCamera(false);
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const { mutate: outAttendace } = useMutation(
+    (formData) => attendanceOut(formData),
+    {
+      onSuccess: (data) => {
+        let result = data;
+        if (result["message"] == "your location is outside the office area") {
+          toast.error(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        } else {
+          window.location.reload(true);
+          setSnapshot(false);
+          setCamera(false);
+          setOut(false);
           toast.success(result["message"], {
             position: "top-right",
             autoClose: 5000,
@@ -100,14 +141,30 @@ const Attendance = () => {
 
     const formData = new FormData();
 
-    formData.append("created_by", created_by);
-    formData.append("id_employee", id_employee);
-    formData.append("type", type);
     formData.append("latitude", latitude);
     formData.append("longitude", longitude);
     formData.append("image", dataURItoBlob(snapshot), "image.jpg");
 
-    addAttendace(formData);
+    if (out) {
+      formData.append("updated_by", created_by);
+      formData.append("id", idAttendance);
+
+      outAttendace(formData);
+    } else {
+      formData.append("created_by", created_by);
+      formData.append("id_employee", id_employee);
+      formData.append("type", type);
+
+      addAttendace(formData);
+    }
+  };
+
+  const handleAbsentOut = (id) => {
+    setType(0);
+    setSelect(false);
+    setCamera(true);
+    setOut(true);
+    setIdAttendance(id);
   };
 
   return (
@@ -153,24 +210,26 @@ const Attendance = () => {
                 <div className="text-center">
                   {camera ? (
                     <>
-                      <select
-                        required
-                        className={`form-select my-2 ${
-                          errorType ? "is-invalid" : null
-                        }`}
-                        aria-label="Default select example"
-                        id="select-type"
-                        onChange={(e) => setType(e.target.value)}
-                      >
-                        <option>Choose Absent Type</option>
-                        <option value="1">in</option>
-                        <option value="2">out</option>
-                        <option value="3">in over time</option>
-                        <option value="4">out over time</option>
-                      </select>
-                      {errorType && (
-                        <span className="text-danger mb-2"> {errorType} </span>
-                      )}
+                      {select ? (
+                        <>
+                          <select
+                            required
+                            className={`form-select my-2 ${
+                              errorType ? "is-invalid" : null
+                            }`}
+                            aria-label="Default select example"
+                            id="select-type"
+                            onChange={(e) => setType(e.target.value)}
+                          >
+                            <option>Choose Absent Type</option>
+                            <option value="1">Intra</option>
+                            <option value="2">Over Time</option>
+                          </select>
+                          {errorType && (
+                            <span className="text-danger"> {errorType} </span>
+                          )}
+                        </>
+                      ) : null}
 
                       <div>
                         <Webcam
@@ -192,9 +251,12 @@ const Attendance = () => {
                   ) : (
                     <button
                       className="btn btn-primary my-2"
-                      onClick={() => setCamera(true)}
+                      onClick={() => {
+                        setCamera(true);
+                        setSelect(true);
+                      }}
                     >
-                      <i className="fa-solid fa-camera"></i> Absent
+                      <i className="fa-solid fa-camera"></i> Absent In
                     </button>
                   )}
                 </div>
@@ -203,9 +265,10 @@ const Attendance = () => {
           </div>
 
           <HistoryAttendanceDT
-            idEmployee={user.user.id_employee}
+            idEmployee={id_employee}
             getAttendace={getAttendace}
             MyMap={MyMap}
+            handleAbsentOut={handleAbsentOut}
           />
         </>
       )}

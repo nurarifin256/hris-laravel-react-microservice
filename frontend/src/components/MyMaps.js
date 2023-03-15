@@ -1,5 +1,4 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
-// import "./style2.css";
 
 const MyMaps = ({ koordinat }) => {
   return (

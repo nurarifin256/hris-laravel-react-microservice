@@ -12,7 +12,6 @@ const AttendanceDT = ({ getAttendances }) => {
   const [filter, setFilter] = useState("");
 
   const [attendances, setAttendances] = useState([]);
-  const [showMap, setShowMap] = useState(false);
 
   const [startDate, setStartDate] = useState(
     moment(new Date()).format("YYYY-MM-DD 00:00:00")
@@ -21,7 +20,7 @@ const AttendanceDT = ({ getAttendances }) => {
     moment(new Date()).format("YYYY-MM-DD 23:59:00")
   );
 
-  const { refetch } = useQuery(
+  useQuery(
     ["attendances", currentPage, filter, perPage, startDate, endDate],
     getAttendances,
     {
@@ -103,10 +102,6 @@ const AttendanceDT = ({ getAttendances }) => {
       ),
     },
   ];
-
-  const handleDate = () => {
-    refetch();
-  };
 
   return (
     <>

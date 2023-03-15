@@ -79,6 +79,7 @@ Route::namespace('App\Http\Controllers\Hr')->group(function () {
 
     // route attendance
     Route::post('save-attendance', 'AttendanceController@saveAttendance');
+    Route::post('attendance-out', 'AttendanceController@outAttendance');
     Route::get('get-attendance/{id_employee}', 'AttendanceController@getAttendance');
     Route::get('get-attendances/{start}/{end}', 'AttendanceController@getAttendances');
 });

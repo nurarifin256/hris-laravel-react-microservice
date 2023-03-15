@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Hr;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceModel;
+use Date;
 use Illuminate\Http\Request;
 
 class AttendanceController extends Controller
@@ -56,6 +57,7 @@ class AttendanceController extends Controller
                     $attendance->type        = $data['type'];
                     $attendance->latitude    = $latitude;
                     $attendance->longitude   = $longitude;
+                    $attendance->time_in     = Date("Y-m-d H:i:s");
                     $attendance->photo       = $photo2;
                     $attendance->created_by  = $data['created_by'];
                     $attendance->save();
@@ -70,11 +72,57 @@ class AttendanceController extends Controller
         }
     }
 
+    public function outAttendance(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $photo = $request->file('image');
+            $data = $request->input();
+
+            $latitude = $data['latitude'];
+            $longitude = $data['longitude'];
+
+            // koordinat
+            // Latitude: -6.1840238, Longitude: 106.6981289
+
+            if (-6.183876 < $latitude && -6.184196 > $latitude) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => "your location is outside the office area",
+                    422
+                ]);
+            } else {
+                if ($longitude < 106.6979857 && $longitude > 106.6983397) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => "your location is outside the office area",
+                        422
+                    ]);
+                } else {
+                    $photo2 = $photo->store('images/absent', 'public');
+
+                    $attendance                = AttendanceModel::find($data['id']);
+                    $attendance->latitude_out  = $latitude;
+                    $attendance->longitude_out = $longitude;
+                    $attendance->time_out      = Date("Y-m-d H:i:s");
+                    $attendance->photo_out     = $photo2;
+                    $attendance->updated_by    = $data['updated_by'];
+                    $attendance->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => "Absent Out Success",
+                        201
+                    ]);
+                }
+            }
+        }
+    }
+
     public function getAttendance(Request $request, $id_employee)
     {
         if ($request->isMethod('get')) {
             $meta = [];
-            $histories = AttendanceModel::where(['trashed' => 0, 'id_employee' => $id_employee])->where(function ($query) use ($request) {
+            $histories = AttendanceModel::with('employees')->where(['trashed' => 0, 'id_employee' => $id_employee])->where(function ($query) use ($request) {
                 if ($request->has('filter')) {
                     $query->where("created_at", "like", "%$request->filter%");
                 }

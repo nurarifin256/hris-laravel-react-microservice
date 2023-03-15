@@ -8,6 +8,16 @@ export const postAttendance = async (dataDetail) => {
   return result;
 };
 
+export const attendanceOut = async (dataDetail) => {
+  let result = await fetch("http://localhost:8000/api/attendance-out", {
+    method: "POST",
+    body: dataDetail,
+  });
+
+  result = await result.json();
+  return result;
+};
+
 export const getAttendances = async ({ queryKey }) => {
   const currentPage = queryKey[1];
   const filter = queryKey[2];

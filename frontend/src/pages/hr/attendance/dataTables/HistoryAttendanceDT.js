@@ -4,7 +4,12 @@ import DataTable from "react-data-table-component";
 import { useQuery } from "react-query";
 import LocationModal from "../modals/LocationModal";
 
-const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
+const HistoryAttendanceDT = ({
+  idEmployee,
+  getAttendace,
+  MyMap,
+  handleAbsentOut,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [perPage] = useState(15);
@@ -16,7 +21,7 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
   const [longitudeM, setLongitudeM] = useState(null);
   const [image, setImage] = useState(null);
 
-  const { refetch } = useQuery(
+  useQuery(
     ["absenceHistory", currentPage, filter, perPage, idEmployee],
     getAttendace,
     {
@@ -44,16 +49,48 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
       name: "No",
       selector: (row, i) => i + 1,
       sortable: true,
+      width: "80px",
     },
     {
       name: "Date",
-      selector: (row, i) => moment(row.created_at).format("DD/MM/YYYY hh:mm"),
+      selector: (row, i) => moment(row.created_at).format("DD-MM-YYYY"),
       sortable: true,
+      width: "120px",
     },
     {
       name: "Type",
-      selector: (row, i) => (row.type === 1 ? "IN" : "OUT"),
+      selector: (row, i) => (row.type === 1 ? "Intra" : "Over Time"),
       sortable: true,
+      width: "120px",
+    },
+    {
+      name: "Name",
+      selector: (row, i) => row.employees.name,
+      sortable: true,
+      width: "250px",
+    },
+    {
+      name: "Time In",
+      sortable: true,
+      selector: (row, i) => moment(row.time_in).format("HH:MM"),
+      width: "120px",
+    },
+    {
+      name: "Time Out",
+      sortable: true,
+      width: "140px",
+      selector: (row, i) =>
+        row.time_out ? (
+          moment(row.time_out).format("HH:MM")
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => handleAbsentOut(row.id)}
+          >
+            <i className="fa-solid fa-camera"></i> Absent Out
+          </button>
+        ),
     },
     {
       name: "Location & Photo",
@@ -61,9 +98,10 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+      width: "180px",
       cell: (row, i) => (
         <button
-          className="btn badge text-bg-primary"
+          className="btn btn-sm btn-info"
           type="button"
           data-bs-toggle="modal"
           data-bs-target="#modal-location"
@@ -73,35 +111,8 @@ const HistoryAttendanceDT = ({ idEmployee, getAttendace, MyMap }) => {
             setImage(row.photo);
           }}
         >
-          View
+          <i className="fa-solid fa-eye"></i> View
         </button>
-      ),
-    },
-    {
-      name: "Action",
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-      cell: (row, i) => (
-        <div>
-          <button
-            type="button"
-            className="btn btn-danger btn-sm"
-            // onClick={() => handleHapus(row.id)}
-          >
-            <i className="fa-solid fa-trash-can"></i>
-          </button>
-          <button
-            type="button"
-            className="btn btn-warning btn-sm ms-2"
-            // onClick={() => {
-            //   setShowModal(true);
-            //   setIdEdit(row.id);
-            // }}
-          >
-            <i className="fa-solid fa-pen-to-square"></i>
-          </button>
-        </div>
       ),
     },
   ];
