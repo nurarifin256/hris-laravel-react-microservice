@@ -76,6 +76,7 @@ Route::namespace('App\Http\Controllers\Accounting')->group(function () {
 Route::namespace('App\Http\Controllers\Hr')->group(function () {
     // route payroll
     Route::get('get-payrolls', 'PayrollController@getPayrolls');
+    Route::post('save-payroll', 'PayrollController@savePayroll');
 
     // route attendance
     Route::post('save-attendance', 'AttendanceController@saveAttendance');

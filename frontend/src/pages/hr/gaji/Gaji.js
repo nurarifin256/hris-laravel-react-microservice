@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
-import { getPayrolls } from "../../../config/hooks/hr/payrollsHook";
+import {
+  getPayrolls,
+  postPayroll,
+} from "../../../config/hooks/hr/payrollsHook";
 import DataTable from "react-data-table-component";
 import CurrencyFormat from "react-currency-format";
 import moment from "moment";
@@ -136,6 +139,7 @@ const Gaji = () => {
           employees={employees}
           Select={Select}
           CurrencyFormat={CurrencyFormat}
+          postPayroll={postPayroll}
         />
       </div>
     </>

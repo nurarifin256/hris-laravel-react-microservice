@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+import { useMutation } from "react-query";
 
-const GajiPostModal = ({ employees, Select, CurrencyFormat }) => {
+const GajiPostModal = ({ employees, Select, CurrencyFormat, postPayroll }) => {
   const [errors, setErrors] = useState({
     employee: null,
     salary: null,
     transport: null,
     positional: null,
-    periode: null,
   });
 
   const initialState = {
@@ -14,14 +14,18 @@ const GajiPostModal = ({ employees, Select, CurrencyFormat }) => {
     salary: "",
     transport: "",
     positional: "",
-    periode: "",
   };
 
   const [formData, setFormData] = useState(initialState);
 
   const optionsEmployee = employees.map((item) => {
     return {
-      label: item.name,
+      label:
+        item.name +
+        " - " +
+        item.departmens.name +
+        " - " +
+        item.departmens.positions.name,
       value: item.id,
       name: "idEmployee",
     };
@@ -34,10 +38,33 @@ const GajiPostModal = ({ employees, Select, CurrencyFormat }) => {
     });
   };
 
+  const { mutate: addPayroll } = useMutation(
+    (formData) => postPayroll(formData),
+    {
+      onSuccess: (data) => {
+        let result = data;
+        if (
+          result["idEmployee"] == "Employee is required" ||
+          result["salary"] == "Salary is required" ||
+          result["transport"] == "Transport allowance is required" ||
+          result["positional"] == "Positional allowance is required"
+        ) {
+          setErrors({
+            ...errors,
+            employee: result["idEmployee"],
+            salary: result["salary"],
+            transport: result["transport"],
+            positional: result["positional"],
+          });
+        }
+      },
+    }
+  );
+
   const handleSave = () => {
-    console.log(formData);
+    addPayroll(formData);
   };
-  //   console.log(formData);
+
   return (
     <div>
       <div
@@ -120,21 +147,6 @@ const GajiPostModal = ({ employees, Select, CurrencyFormat }) => {
                 />
                 {errors.positional && (
                   <span className="text-danger"> {errors.positional} </span>
-                )}
-              </div>
-
-              <div className="mb-3">
-                <div className="form-label">Periode</div>
-                <input
-                  type="date"
-                  className={`form-control ${
-                    errors.periode ? "is-invalid" : null
-                  }`}
-                  name="periode"
-                  onChange={(e) => handleChange(e, "i")}
-                />
-                {errors.periode && (
-                  <span className="text-danger"> {errors.periode} </span>
                 )}
               </div>
             </div>

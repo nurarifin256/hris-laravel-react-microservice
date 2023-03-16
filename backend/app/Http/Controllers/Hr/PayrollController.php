@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmployeeModel;
 use App\Models\PayrollModel;
 use Illuminate\Http\Request;
+use Validator;
 
 class PayrollController extends Controller
 {
@@ -47,5 +48,37 @@ class PayrollController extends Controller
             'meta'         => $meta,
             'request'      => $request->per_page
         ]);
+    }
+
+    public function savePayroll(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data = $request->input();
+
+            $rules = [
+                "idEmployee" => "required",
+                "salary"     => "required",
+                "transport"  => "required",
+                "positional" => "required",
+            ];
+
+            $customMesagges = [
+                "idEmployee.required" => "Employee is required",
+                "salary.required"     => "Salary is required",
+                "transport.required"  => "Transport allowance is required",
+                "positional.required" => "Positional allowance is required",
+            ];
+
+            $validator = Validator::make($data, $rules, $customMesagges);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => $data,
+                201
+            ]);
+        }
     }
 }
