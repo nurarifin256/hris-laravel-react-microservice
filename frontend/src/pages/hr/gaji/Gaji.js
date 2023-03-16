@@ -1,8 +1,11 @@
-import moment from "moment";
 import { useState } from "react";
-import DataTable from "react-data-table-component";
 import { useQuery } from "react-query";
 import { getPayrolls } from "../../../config/hooks/hr/payrollsHook";
+import DataTable from "react-data-table-component";
+import CurrencyFormat from "react-currency-format";
+import moment from "moment";
+import Select from "react-select";
+import GajiPostModal from "./modals/GajiPostModal";
 
 const Gaji = () => {
   const numberFormat = (value) =>
@@ -25,9 +28,9 @@ const Gaji = () => {
     getPayrolls,
     {
       onSuccess: (data) => {
-        console.log(data);
         setPayrolls(data.data);
         setEmployees(data.employeeData);
+        setTotalPages(data.meta.last_page);
       },
     }
   );
@@ -89,44 +92,53 @@ const Gaji = () => {
   ];
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-md-3 mb-3">
-          <button
-            type="button"
-            className="btn btn-primary btn-md"
-            data-bs-toggle="modal"
-            data-bs-target="#modal-add"
-          >
-            <i className="fa-solid fa-plus"></i> Add
-          </button>
-        </div>
-        <div className="col-md-3 offset-md-6 mb-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search"
-            onChange={handleFilter}
-          />
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="col-md-12">
-          <div className="table-responsive">
-            <DataTable
-              data={payrolls}
-              columns={columns}
-              pagination
-              paginationServer
-              paginationTotalRows={totalPages * perPage}
-              onChangePage={handlePageChange}
-              onSort={handleSort}
+    <>
+      <div className="container">
+        <div className="row">
+          <div className="col-md-3 mb-3">
+            <button
+              type="button"
+              className="btn btn-primary btn-md"
+              data-bs-toggle="modal"
+              data-bs-target="#modal-add"
+            >
+              <i className="fa-solid fa-plus"></i> Add
+            </button>
+          </div>
+          <div className="col-md-3 offset-md-6 mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search"
+              onChange={handleFilter}
             />
           </div>
         </div>
+
+        <div className="row">
+          <div className="col-md-12">
+            <div className="table-responsive">
+              <DataTable
+                data={payrolls}
+                columns={columns}
+                pagination
+                paginationServer
+                paginationTotalRows={totalPages * perPage}
+                onChangePage={handlePageChange}
+                onSort={handleSort}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* modal add */}
+        <GajiPostModal
+          employees={employees}
+          Select={Select}
+          CurrencyFormat={CurrencyFormat}
+        />
       </div>
-    </div>
+    </>
   );
 };
 

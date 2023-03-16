@@ -31,9 +31,11 @@ function InOutMap(props) {
               <Popup>In.</Popup>
             </Marker>
 
-            <Marker position={[latitudeO, longitudeO]} icon={greenIcon}>
-              <Popup>Out.</Popup>
-            </Marker>
+            {latitudeO && (
+              <Marker position={[latitudeO, longitudeO]} icon={greenIcon}>
+                <Popup>Out.</Popup>
+              </Marker>
+            )}
           </MapContainer>
         </>
       ) : (
