@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
+import { toast, ToastContainer } from "react-toastify";
 import {
   getPayrolls,
   postPayroll,
@@ -133,6 +134,7 @@ const Gaji = () => {
             </div>
           </div>
         </div>
+        <ToastContainer />
 
         {/* modal add */}
         <GajiPostModal
@@ -140,6 +142,8 @@ const Gaji = () => {
           Select={Select}
           CurrencyFormat={CurrencyFormat}
           postPayroll={postPayroll}
+          refetch={refetch}
+          toast={toast}
         />
       </div>
     </>

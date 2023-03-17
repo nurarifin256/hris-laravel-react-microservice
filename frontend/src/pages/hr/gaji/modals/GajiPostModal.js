@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { useMutation } from "react-query";
 
-const GajiPostModal = ({ employees, Select, CurrencyFormat, postPayroll }) => {
+const GajiPostModal = ({
+  employees,
+  Select,
+  CurrencyFormat,
+  postPayroll,
+  refetch,
+  toast,
+}) => {
   const [errors, setErrors] = useState({
     employee: null,
     salary: null,
@@ -42,6 +49,7 @@ const GajiPostModal = ({ employees, Select, CurrencyFormat, postPayroll }) => {
     (formData) => postPayroll(formData),
     {
       onSuccess: (data) => {
+        console.log(data);
         let result = data;
         if (
           result["idEmployee"] == "Employee is required" ||
@@ -55,6 +63,20 @@ const GajiPostModal = ({ employees, Select, CurrencyFormat, postPayroll }) => {
             salary: result["salary"],
             transport: result["transport"],
             positional: result["positional"],
+          });
+        } else {
+          const btnClose = document.querySelector(".btn-tutup");
+          btnClose.click();
+          refetch();
+          toast.success(result["message"], {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
           });
         }
       },

@@ -74,9 +74,26 @@ class PayrollController extends Controller
                 return response()->json($validator->errors(), 422);
             }
 
+            $salary     = str_replace(',', '', $data['salary']);
+            $positional = str_replace(',', '', $data['positional']);
+            $transport  = str_replace(',', '', $data['transport']);
+
+            $bpjs_kes = (1 / 100) * $salary;
+            $bpjs_ket = (3 / 100) * $salary;
+
+            $payroll                           = new PayrollModel();
+            $payroll->id_employee              = $data['idEmployee'];
+            $payroll->basic_salary             = $salary;
+            $payroll->transportation_allowance = $transport;
+            $payroll->positional_allowance     = $positional;
+            $payroll->health_bpjs              = $bpjs_kes;
+            $payroll->employment_bpjs          = $bpjs_ket;
+            $payroll->created_by               = $data['created_by'];
+            $payroll->save();
+
             return response()->json([
                 'status' => true,
-                'message' => $data,
+                'message' => "Add payroll success",
                 201
             ]);
         }
