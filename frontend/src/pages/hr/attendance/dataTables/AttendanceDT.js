@@ -66,14 +66,14 @@ const AttendanceDT = ({ getAttendances }) => {
     },
     {
       name: "Time In",
-      selector: (row, i) => moment(row.time_in).format("hh:mm"),
+      selector: (row, i) => moment(row.time_in).format("HH:MM"),
       sortable: true,
     },
     {
       name: "Time Out",
       selector: (row, i) =>
         row.time_out
-          ? moment(row.time_out).format("hh:mm")
+          ? moment(row.time_out).format("HH:MM")
           : "Haven't been absent yet",
       sortable: true,
       width: "200px",

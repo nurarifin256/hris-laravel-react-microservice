@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useMutation } from "react-query";
 
 const GajiPostModal = ({
   employees,
@@ -8,6 +7,7 @@ const GajiPostModal = ({
   postPayroll,
   refetch,
   toast,
+  useMutation,
 }) => {
   const [errors, setErrors] = useState({
     employee: null,

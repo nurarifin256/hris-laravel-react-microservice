@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { toast, ToastContainer } from "react-toastify";
 import {
   getPayrolls,
   postPayroll,
+  generatePayroll,
 } from "../../../config/hooks/hr/payrollsHook";
 import DataTable from "react-data-table-component";
 import CurrencyFormat from "react-currency-format";
 import moment from "moment";
 import Select from "react-select";
 import GajiPostModal from "./modals/GajiPostModal";
+import GenerateGajiModal from "./modals/GenerateGajiModal";
 
 const Gaji = () => {
   const numberFormat = (value) =>
@@ -26,6 +28,16 @@ const Gaji = () => {
 
   const [employees, setEmployees] = useState([]);
   const [payrolls, setPayrolls] = useState([]);
+
+  // cara mutliple kirim parameter
+  // const initialState = {
+  //   idEmployee: "",
+  //   id: "",
+  //   salary: "",
+  // };
+  // const [formData, setFormData] = useState(initialState);
+
+  const [id, setId] = useState(null);
 
   const { refetch } = useQuery(
     ["payrolls", currentPage, filter, perPage],
@@ -56,14 +68,24 @@ const Gaji = () => {
       name: "No",
       selector: (row, i) => i + 1,
       sortable: true,
+      width: "80px",
     },
     {
       name: "Name",
       selector: (row, i) => row.employees.name,
       sortable: true,
+      width: "150px",
     },
     {
-      name: "Sallary",
+      name: "Department & Position",
+      selector: (row, i) =>
+        row.employees.departmens.name +
+        " - " +
+        row.employees.departmens.positions.name,
+      sortable: true,
+    },
+    {
+      name: "Basic Sallary",
       selector: (row, i) => numberFormat(row.basic_salary),
       sortable: true,
     },
@@ -86,7 +108,22 @@ const Gaji = () => {
             <button type="button" className="btn btn-warning">
               Edit
             </button>
-            <button type="button" className="btn btn-success">
+            <button
+              type="button"
+              className="btn btn-success"
+              data-bs-toggle="modal"
+              data-bs-target="#modal-generate"
+              // cara isi initialState
+              // onClick={() =>
+              //   setFormData({
+              //     idEmployee: row.id_employee,
+              //     id: row.id,
+              //     salary: row.basic_salary,
+              //   })
+              // }
+
+              onClick={() => setId(row.id)}
+            >
               Generate
             </button>
           </div>
@@ -119,6 +156,7 @@ const Gaji = () => {
           </div>
         </div>
 
+        {/* tabel master gaji */}
         <div className="row">
           <div className="col-md-12">
             <div className="table-responsive">
@@ -134,7 +172,8 @@ const Gaji = () => {
             </div>
           </div>
         </div>
-        <ToastContainer />
+
+        {/* tabel history gaji */}
 
         {/* modal add */}
         <GajiPostModal
@@ -144,7 +183,17 @@ const Gaji = () => {
           postPayroll={postPayroll}
           refetch={refetch}
           toast={toast}
+          useMutation={useMutation}
         />
+
+        {/* modal generate */}
+        <GenerateGajiModal
+          id={id}
+          useQuery={useQuery}
+          generatePayroll={generatePayroll}
+        />
+
+        <ToastContainer />
       </div>
     </>
   );

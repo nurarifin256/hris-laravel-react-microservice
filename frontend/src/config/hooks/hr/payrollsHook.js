@@ -14,6 +14,19 @@ export const getPayrolls = async ({ queryKey }) => {
   return response;
 };
 
+export const generatePayroll = async ({ queryKey }) => {
+  let id = queryKey[1];
+  let response = await fetch("http://localhost:8000/api/generate-payroll", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(id),
+  });
+  response = await response.json();
+  return response;
+};
+
 export const postPayroll = async (formData) => {
   let created_by = user.user.name;
   let data = { ...formData, created_by };
