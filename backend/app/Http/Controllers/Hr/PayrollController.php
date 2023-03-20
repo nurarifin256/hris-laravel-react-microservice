@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceModel;
 use App\Models\EmployeeModel;
 use App\Models\PayrollModel;
+use Carbon\Carbon;
 use Date;
 // use Date;
 use DateTime;
@@ -163,10 +164,12 @@ class PayrollController extends Controller
                 $daySalary = ceil($gaji / $hariKerja);
 
                 // get absen
-                $awalBulan     = Date("Y-m-16", strtotime('-1 month'));
-                $bulanSekarang = Date("Y-m-15");
+                $awalBulan       = Date("Y-m-16", strtotime('-1 month'));
+                $bulanSekarang   = Date("Y-m-15");
+                $countAttendance = AttendanceModel::where(["trashed" => 0, "id_employee" => $id_employee, "type" => 1])->whereBetween("time_in", ["$awalBulan 00:00:00", "$bulanSekarang 23:59:00"])->whereNotNull("time_out")->count();
 
-                $countAttendance = AttendanceModel::where(["trashed" => 0, "id_employee" => $id_employee, "type" => 1])->whereBetween("created_at", ["$awalBulan 00:00:00", "$bulanSekarang 23:59:00"])->whereNotNull("time_out")->count();
+                // get over time
+                $countOverTime = AttendanceModel::where(["trashed" => 0, "id_employee" => $id_employee, "type" => 2])->whereBetween("time_in", ["$awalBulan 00:00:00", "$bulanSekarang 23:59:00"])->whereNotNull("time_out")->get();
 
                 // hitung gaji perbulan
                 $payroll = $countAttendance * $daySalary;
@@ -174,29 +177,63 @@ class PayrollController extends Controller
                 // potongan absen
                 $potongan_absen = $gaji - $payroll;
 
-                // get over time
-                // $countOverTime = AttendanceModel::where(['trashed' => 0, 'id_employee' => $id_employee, 'type' => 2])->where("time_in", "like", "%" . Date('Y-m') . "%")->whereNotNull('time_out')->get();
-
+                // hitung lembur
                 $jam1 = 0;
                 $jam2 = 0;
-                // foreach ($countOverTime as $ot) {
-                // hitung waktu lembur
-                //     $time_in = Date("H:i", strtotime($ot->time_in));
-                //     $time_out = Date("H:i", strtotime($ot->time_out));
-                //     $bobot = $time_out - $time_in;
-                // }
+                if ($countOverTime) {
+                    foreach ($countOverTime as $ot) {
+                        // assign original times
+                        $time_in  = $ot->time_in;
+                        $time_out = $ot->time_out;
 
+                        // create Carbon instances for original times
+                        $time_in_rounded  = Carbon::parse($time_in);
+                        $time_out_rounded = Carbon::parse($time_out);
+
+                        // round up time in to the nearest 30 minutes
+                        $minutes         = $time_in_rounded->format('i');
+                        $rounded_minutes = ceil($minutes / 30) * 30;
+                        $time_in_rounded->setTime($time_in_rounded->format('H'), $rounded_minutes, 0);
+                        $time_in_rounded->format('Y-m-d H:i:s');
+
+                        // round down time out to the nearest 30 minutes
+                        $minutes_out         = $time_out_rounded->format('i');
+                        $rounded_minutes_out = floor($minutes_out / 30) * 30;
+                        $time_out_rounded->setTime($time_out_rounded->format('H'), $rounded_minutes_out, 0);
+                        $time_out_rounded->format('Y-m-d H:i:s');
+
+                        // output the result
+                        $diff_in_minutes = $time_in_rounded->diffInMinutes($time_out_rounded);
+
+                        // convert ke jam
+                        $hours = $diff_in_minutes / 60;
+                        $bobot1 = 1;
+                        $bobot2 = $hours - $bobot1;
+
+                        $jam1 += $bobot1;
+                        $jam2 += $bobot2;
+                    }
+                }
+
+                $dataLembur = [
+                    'value1' => $jam1 * 23000,
+                    'value2' => $jam2 * 30000,
+                ];
+
+                $dataPayrollSettle = [
+                    'potongan_absen' => $potongan_absen,
+                    'net_sallary'    => $payroll,
+                ];
 
                 $datas = [
-                    // 'data_payroll'   => $dataPayroll,
-                    'payroll' => $payroll,
-                    'potongan_absen' => $potongan_absen,
+                    'data_payroll'        => $dataPayroll,
+                    'data_lembur'         => $dataLembur,
+                    'data_payroll_settle' => $dataPayrollSettle,
                 ];
 
                 return response()->json([
                     'status' => true,
                     'data'   => $datas,
-                    // 'data'   => $bobot,
                     200
                 ]);
             } else {
@@ -208,9 +245,3 @@ class PayrollController extends Controller
         }
     }
 }
-
-// 1: data : Array(2)
-//         0 : {date: '2023-01-01'}
-//         1 : {date: '2023-01-22'}
-// 2 : data : Array(1)
-//         0 : {date: '2023-02-18'}
