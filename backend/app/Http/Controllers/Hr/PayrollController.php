@@ -7,6 +7,8 @@ use App\Models\AttendanceModel;
 use App\Models\EmployeeModel;
 use App\Models\PayrollModel;
 use Date;
+// use Date;
+use DateTime;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -103,22 +105,43 @@ class PayrollController extends Controller
 
     public function hariLibur()
     {
-        $url = 'https://kalenderindonesia.com/api/YZ35u6a7sFWN/libur/masehi/' . date('Y/m');
-        $kalender = file_get_contents($url);
-        $kalender = json_decode($kalender, true);
-        $hari_libur = $kalender['data']['holiday']['count'];
+        $url        = 'https://kalenderindonesia.com/api/YZ35u6a7sFWN/libur/masehi/' . date('Y');
+        $kalender   = file_get_contents($url);
+        $kalender   = json_decode($kalender, true);
+        $tanggal_libur = $kalender['data']['holiday'];
 
-        return $hari_libur;
+        $tanggal_array = array();
+
+        foreach ($tanggal_libur as $bulan) {
+            if (is_array($bulan['data'])) {
+                foreach ($bulan['data'] as $tanggal) {
+                    array_push($tanggal_array, $tanggal['date']);
+                }
+            }
+        }
+        return $tanggal_array;
     }
 
-    public function jumlahHari()
+    public function hariKerja()
     {
-        $kalenders = CAL_GREGORIAN;
-        $bulan    = date('m');
-        $tahun    = date('y');
-        $hari     = cal_days_in_month($kalenders, $bulan, $tahun);
+        $waktuawal  = strtotime(date('Y-m-16', strtotime('-1 month')));
+        $waktuakhir = strtotime(date('Y-m-16'));
 
-        return $hari;
+        $selisihDetik = $waktuakhir - $waktuawal;
+        $selisihHari  = $selisihDetik / 86400;
+
+        $libur = $this->hariLibur();
+
+        $jumlahLibur = 0;
+        for ($i = $waktuawal; $i <= $waktuakhir; $i += 86400) {
+            $tanggal = date('Y-m-d', $i);
+            if (in_array($tanggal, $libur)) {
+                $jumlahLibur++;
+            }
+        }
+
+        $hariKerja = $selisihHari - $jumlahLibur;
+        return $hariKerja;
     }
 
     public function generatePayroll(Request $request)
@@ -130,23 +153,20 @@ class PayrollController extends Controller
             $dataPayroll = PayrollModel::find($id)->first();
 
             if ($dataPayroll) {
-                $gaji = $dataPayroll->basic_salary;
+                $gaji        = $dataPayroll->basic_salary;
                 $id_employee = $dataPayroll->id_employee;
 
-                // get jumlah hari perbulan
-                $hari = $this->jumlahHari();
-
-                // get hari libur
-                $hari_libur = $this->hariLibur();
-
-                // hari kerja
-                $hari_kerja = $hari - $hari_libur;
+                // get jumlah hari kerja dari tanggal 16 sampai 15
+                $hariKerja = $this->hariKerja();
 
                 // hitung gaji perhari
-                $daySalary = ceil($gaji / $hari_kerja);
+                $daySalary = ceil($gaji / $hariKerja);
 
                 // get absen
-                $countAttendance = AttendanceModel::where(['trashed' => 0, 'id_employee' => $id_employee, 'type' => 1])->where("time_in", "like", "%" . Date('Y-m') . "%")->whereNotNull('time_out')->count();
+                $awalBulan     = Date("Y-m-16", strtotime('-1 month'));
+                $bulanSekarang = Date("Y-m-15");
+
+                $countAttendance = AttendanceModel::where(["trashed" => 0, "id_employee" => $id_employee, "type" => 1])->whereBetween("created_at", ["$awalBulan 00:00:00", "$bulanSekarang 23:59:00"])->whereNotNull("time_out")->count();
 
                 // hitung gaji perbulan
                 $payroll = $countAttendance * $daySalary;
@@ -155,31 +175,28 @@ class PayrollController extends Controller
                 $potongan_absen = $gaji - $payroll;
 
                 // get over time
-                $countOverTime = AttendanceModel::where(['trashed' => 0, 'id_employee' => $id_employee, 'type' => 2])->where("time_in", "like", "%" . Date('Y-m') . "%")->whereNotNull('time_out')->get();
+                // $countOverTime = AttendanceModel::where(['trashed' => 0, 'id_employee' => $id_employee, 'type' => 2])->where("time_in", "like", "%" . Date('Y-m') . "%")->whereNotNull('time_out')->get();
 
                 $jam1 = 0;
                 $jam2 = 0;
-                foreach ($countOverTime as $ot) {
-                    // hitung waktu lembur
-                    $time_in = Date("H:i", strtotime($ot->time_in));
-                    $time_out = Date("H:i", strtotime($ot->time_out));
-                    $bobot = $time_out - $time_in;
-                }
+                // foreach ($countOverTime as $ot) {
+                // hitung waktu lembur
+                //     $time_in = Date("H:i", strtotime($ot->time_in));
+                //     $time_out = Date("H:i", strtotime($ot->time_out));
+                //     $bobot = $time_out - $time_in;
+                // }
 
-                $jam_masuk = "2023-03-15 15:15:05";
-                $jam_keluar = "2023-03-15 18:15:05";
-
-                $jam_i = Date("H:i", strtotime($jam_masuk));
 
                 $datas = [
-                    'data_payroll'   => $dataPayroll,
+                    // 'data_payroll'   => $dataPayroll,
+                    'payroll' => $payroll,
                     'potongan_absen' => $potongan_absen,
                 ];
 
                 return response()->json([
                     'status' => true,
-                    // 'data'   => $datas,
-                    'data'   => $bobot,
+                    'data'   => $datas,
+                    // 'data'   => $bobot,
                     200
                 ]);
             } else {
@@ -191,3 +208,9 @@ class PayrollController extends Controller
         }
     }
 }
+
+// 1: data : Array(2)
+//         0 : {date: '2023-01-01'}
+//         1 : {date: '2023-01-22'}
+// 2 : data : Array(1)
+//         0 : {date: '2023-02-18'}
