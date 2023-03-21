@@ -6,6 +6,7 @@ import {
   postPayroll,
   generatePayroll,
   postGeneratePayroll,
+  getHistoriesPayrolls,
 } from "../../../config/hooks/hr/payrollsHook";
 import DataTable from "react-data-table-component";
 import CurrencyFormat from "react-currency-format";
@@ -24,8 +25,14 @@ const Gaji = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [perPage] = useState(15);
-  const [sort, setSort] = useState({ column: "", direction: "" });
   const [filter, setFilter] = useState("");
+
+  const [currentPageH, setCurrentPageH] = useState(1);
+  const [totalPagesH, setTotalPagesH] = useState(0);
+  const [perPageH] = useState(15);
+  const [filterH, setFilterH] = useState("");
+
+  const [sort, setSort] = useState({ column: "", direction: "" });
 
   const [employees, setEmployees] = useState([]);
   const [payrolls, setPayrolls] = useState([]);
@@ -52,12 +59,31 @@ const Gaji = () => {
     }
   );
 
-  const handleFilter = (e) => {
-    setFilter(e.target.value);
+  const { refetch: reload } = useQuery(
+    ["payrollHistories", currentPageH, filterH, perPageH],
+    getHistoriesPayrolls,
+    {
+      onSuccess: (data) => {
+        console.log(data);
+        setTotalPagesH(data.meta.last_page);
+      },
+    }
+  );
+
+  const handleFilter = (e, flag) => {
+    if (flag === "P") {
+      setFilter(e.target.value);
+    } else {
+      setFilterH(e.target.value);
+    }
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handlePageChange = (e, flag, page) => {
+    if (flag === "P") {
+      setCurrentPage(page);
+    } else {
+      setCurrentPageH(page);
+    }
   };
 
   const handleSort = (column) => {
@@ -152,7 +178,7 @@ const Gaji = () => {
               type="text"
               className="form-control"
               placeholder="Search"
-              onChange={handleFilter}
+              onChange={(e) => handleFilter(e, "P")}
             />
           </div>
         </div>
@@ -167,7 +193,7 @@ const Gaji = () => {
                 pagination
                 paginationServer
                 paginationTotalRows={totalPages * perPage}
-                onChangePage={handlePageChange}
+                onChangePage={(e) => handlePageChange(e, "P")}
                 onSort={handleSort}
               />
             </div>
@@ -175,6 +201,35 @@ const Gaji = () => {
         </div>
 
         {/* tabel history gaji */}
+        <div className="row">
+          <div className="col-md-3 mb-3">
+            <h4 className="mb-3">Payroll Histories</h4>
+          </div>
+          <div className="col-md-3 offset-md-6 mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search"
+              onChange={(e) => handleFilter(e, "H")}
+            />
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-12">
+            <div className="table-responsive">
+              <DataTable
+                // data={payrolls}
+                // columns={columns}
+                pagination
+                paginationServer
+                paginationTotalRows={totalPagesH * perPageH}
+                onChangePage={(e) => handlePageChange(e, "H")}
+                onSort={handleSort}
+              />
+            </div>
+          </div>
+        </div>
 
         {/* modal add */}
         <GajiPostModal
