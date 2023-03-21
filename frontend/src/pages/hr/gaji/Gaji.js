@@ -189,8 +189,8 @@ const Gaji = () => {
         {/* modal generate */}
         <GenerateGajiModal
           id={id}
-          useQuery={useQuery}
           generatePayroll={generatePayroll}
+          numberFormat={numberFormat}
         />
 
         <ToastContainer />

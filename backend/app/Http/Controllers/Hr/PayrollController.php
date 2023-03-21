@@ -151,11 +151,13 @@ class PayrollController extends Controller
             $id = $request->input();
 
             // get data payroll
-            $dataPayroll = PayrollModel::find($id)->first();
+            $dataPayroll = PayrollModel::with('employees')->where('id', $id)->first();
 
             if ($dataPayroll) {
                 $gaji        = $dataPayroll->basic_salary;
                 $id_employee = $dataPayroll->id_employee;
+                $transport   = $dataPayroll->transportation_allowance;
+                $positional  = $dataPayroll->positional_allowance;
 
                 // get jumlah hari kerja dari tanggal 16 sampai 15
                 $hariKerja = $this->hariKerja();
@@ -218,11 +220,13 @@ class PayrollController extends Controller
                 $dataLembur = [
                     'value1' => $jam1 * 23000,
                     'value2' => $jam2 * 30000,
+                    'total'  => ($jam1 * 23000) + ($jam2 * 30000)
                 ];
 
                 $dataPayrollSettle = [
                     'potongan_absen' => $potongan_absen,
-                    'net_sallary'    => $payroll,
+                    'bruto_sallary'  => $gaji + $dataLembur['total'] + $transport + $positional,
+                    'net_sallary'    => ($gaji + $dataLembur['total'] + $transport + $positional) - ($potongan_absen),
                 ];
 
                 $datas = [
@@ -232,13 +236,15 @@ class PayrollController extends Controller
                 ];
 
                 return response()->json([
-                    'status' => true,
-                    'data'   => $datas,
+                    'status'  => true,
+                    'data'    => $datas,
+                    'message' => "content",
                     200
                 ]);
             } else {
                 return response()->json([
-                    'status' => false,
+                    'status'  => false,
+                    'message' => "empty",
                     404
                 ]);
             }
