@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 
-const GenerateGajiModal = ({ id, generatePayroll, numberFormat }) => {
+const GenerateGajiModal = ({
+  id,
+  generatePayroll,
+  numberFormat,
+  postGeneratePayroll,
+  toast,
+}) => {
   const [dataPayroll, setDataPayroll] = useState([null]);
   const [dataOt, setDataOt] = useState([null]);
   const [dataSettle, setDataSettle] = useState([null]);
+  const [periode, setPeriode] = useState(null);
 
   useQuery(["dataPayroll", id], generatePayroll, {
     onSuccess: (data) => {
@@ -15,6 +22,34 @@ const GenerateGajiModal = ({ id, generatePayroll, numberFormat }) => {
       }
     },
   });
+
+  const { mutate: addGenerate } = useMutation(
+    (dataGenerate) => postGeneratePayroll(dataGenerate),
+    {
+      onSuccess: (data) => {
+        if (data.message === "Generate payroll success") {
+          const btnClose = document.querySelector(".btn-tutup-generate");
+          btnClose.click();
+          toast.success(data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const handleSave = () => {
+    let idPayroll = id;
+    let dataGenerate = { ...dataOt, idPayroll, periode, dataSettle };
+    addGenerate(dataGenerate);
+  };
 
   return (
     <div>
@@ -95,19 +130,31 @@ const GenerateGajiModal = ({ id, generatePayroll, numberFormat }) => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>Absent</td>
+                        <td>- absent</td>
                         <td align="right">
                           {numberFormat(dataSettle.potongan_absen)}
                         </td>
                       </tr>
                       <tr>
-                        <td>Debt</td>
+                        <td>- health bpjs</td>
+                        <td align="right">
+                          {numberFormat(dataPayroll.health_bpjs)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>- employment bpjs</td>
+                        <td align="right">
+                          {numberFormat(dataPayroll.employment_bpjs)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>- debt</td>
                         <td align="right">{numberFormat(0)}</td>
                       </tr>
                       <tr>
                         <th>Total Expenditure</th>
                         <td align="right">
-                          {numberFormat(dataSettle.potongan_absen)}
+                          {numberFormat(dataSettle.total_potongan)}
                         </td>
                       </tr>
                     </tbody>
@@ -121,27 +168,37 @@ const GenerateGajiModal = ({ id, generatePayroll, numberFormat }) => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>Net Salary</td>
+                        <td>- net salary</td>
                         <td align="right">
                           {numberFormat(dataSettle.net_sallary)}
                         </td>
                       </tr>
                     </tbody>
                   </table>
+
+                  <div className="mb-3">
+                    <label className="form-label">Periode</label>
+                    <input
+                      required
+                      type="date"
+                      className="form-control"
+                      onChange={(e) => setPeriode(e.target.value)}
+                    />
+                  </div>
                 </>
               )}
             </div>
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary btn-tutup"
+                className="btn btn-secondary btn-tutup-generate"
                 data-bs-dismiss="modal"
               >
                 Close
               </button>
               <button
                 type="button"
-                // onClick={() => handleSave()}
+                onClick={() => handleSave()}
                 className="btn btn-primary"
               >
                 Generate

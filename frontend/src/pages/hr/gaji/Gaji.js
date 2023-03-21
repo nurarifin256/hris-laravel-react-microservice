@@ -5,6 +5,7 @@ import {
   getPayrolls,
   postPayroll,
   generatePayroll,
+  postGeneratePayroll,
 } from "../../../config/hooks/hr/payrollsHook";
 import DataTable from "react-data-table-component";
 import CurrencyFormat from "react-currency-format";
@@ -191,6 +192,8 @@ const Gaji = () => {
           id={id}
           generatePayroll={generatePayroll}
           numberFormat={numberFormat}
+          postGeneratePayroll={postGeneratePayroll}
+          toast={toast}
         />
 
         <ToastContainer />

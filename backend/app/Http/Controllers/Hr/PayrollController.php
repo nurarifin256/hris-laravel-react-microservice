@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hr;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceModel;
 use App\Models\EmployeeModel;
+use App\Models\HistoryPayrollModel;
 use App\Models\PayrollModel;
 use Carbon\Carbon;
 use Date;
@@ -158,6 +159,8 @@ class PayrollController extends Controller
                 $id_employee = $dataPayroll->id_employee;
                 $transport   = $dataPayroll->transportation_allowance;
                 $positional  = $dataPayroll->positional_allowance;
+                $bps_ket     = $dataPayroll->employment_bpjs;
+                $bps_kes     = $dataPayroll->health_bpjs;
 
                 // get jumlah hari kerja dari tanggal 16 sampai 15
                 $hariKerja = $this->hariKerja();
@@ -225,8 +228,9 @@ class PayrollController extends Controller
 
                 $dataPayrollSettle = [
                     'potongan_absen' => $potongan_absen,
+                    'total_potongan' => $potongan_absen + $bps_kes + $bps_ket,
                     'bruto_sallary'  => $gaji + $dataLembur['total'] + $transport + $positional,
-                    'net_sallary'    => ($gaji + $dataLembur['total'] + $transport + $positional) - ($potongan_absen),
+                    'net_sallary'    => ($gaji + $dataLembur['total'] + $transport + $positional) - ($potongan_absen + $bps_kes + $bps_ket),
                 ];
 
                 $datas = [
@@ -248,6 +252,33 @@ class PayrollController extends Controller
                     404
                 ]);
             }
+        }
+    }
+
+    public function saveGeneratePayroll(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $data       = $request->input();
+            $dataSettle = $data['dataSettle'];
+
+            $historyPayroll                  = new HistoryPayrollModel();
+            $historyPayroll->id_payroll      = $data['idPayroll'];
+            $historyPayroll->weight_ot1      = $data['value1'];
+            $historyPayroll->weight_ot2      = $data['value2'];
+            $historyPayroll->total_ot        = $data['total'];
+            $historyPayroll->periode         = $data['periode'];
+            $historyPayroll->created_by      = $data['created_by'];
+            $historyPayroll->absent          = $dataSettle['potongan_absen'];
+            $historyPayroll->total_deduction = $dataSettle['total_potongan'];
+            $historyPayroll->bruto_salary    = $dataSettle['bruto_sallary'];
+            $historyPayroll->nett_salary     = $dataSettle['net_sallary'];
+            $historyPayroll->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => "Generate payroll success",
+                201
+            ]);
         }
     }
 }

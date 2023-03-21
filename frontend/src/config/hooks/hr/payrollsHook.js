@@ -40,3 +40,20 @@ export const postPayroll = async (formData) => {
   response = await response.json();
   return response;
 };
+
+export const postGeneratePayroll = async (dataGenerate) => {
+  let created_by = user.user.name;
+  let data = { ...dataGenerate, created_by };
+  let response = await fetch(
+    "http://localhost:8000/api/save-generate-payroll",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  response = await response.json();
+  return response;
+};

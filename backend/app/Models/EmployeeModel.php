@@ -18,7 +18,7 @@ class EmployeeModel extends Model
 
     public function payrolls()
     {
-        return $this->hasMany(PayrollModel::class, 'id_employee');
+        return $this->hasOne(PayrollModel::class, 'id_employee');
     }
 
     public function attendances()
