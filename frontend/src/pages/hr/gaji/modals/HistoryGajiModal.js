@@ -1,63 +1,26 @@
+import moment from "moment";
 import { useState } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useQuery } from "react-query";
 
-const GenerateGajiModal = ({
-  id,
-  generatePayroll,
+const HistoryGajiModal = ({
+  idPayrollHistory,
+  getDetailPayroll,
   numberFormat,
-  postGeneratePayroll,
-  toast,
-  reload,
 }) => {
-  const [dataPayroll, setDataPayroll] = useState([null]);
-  const [dataOt, setDataOt] = useState([null]);
-  const [dataSettle, setDataSettle] = useState([null]);
-  const [periode, setPeriode] = useState(null);
-
-  useQuery(["dataPayroll", id], generatePayroll, {
+  const [dataHistroy, setDataHistory] = useState();
+  useQuery(["dataPayrollHistory", idPayrollHistory], getDetailPayroll, {
     onSuccess: (data) => {
-      if (data.message !== "empty") {
-        setDataPayroll(data.data.data_payroll);
-        setDataOt(data.data.data_lembur);
-        setDataSettle(data.data.data_payroll_settle);
+      if (data.data !== null) {
+        setDataHistory(data.data);
+        console.log(data.data);
       }
     },
   });
-
-  const { mutate: addGenerate } = useMutation(
-    (dataGenerate) => postGeneratePayroll(dataGenerate),
-    {
-      onSuccess: (data) => {
-        if (data.message === "Generate payroll success") {
-          reload();
-          const btnClose = document.querySelector(".btn-tutup-generate");
-          btnClose.click();
-          toast.success(data.message, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }
-      },
-    }
-  );
-
-  const handleSave = () => {
-    let idPayroll = id;
-    let dataGenerate = { ...dataOt, idPayroll, periode, dataSettle };
-    addGenerate(dataGenerate);
-  };
-
   return (
     <div>
       <div
         className="modal fade"
-        id="modal-generate"
+        id="modal-detail"
         tabIndex="-1"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
@@ -66,8 +29,9 @@ const GenerateGajiModal = ({
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Generate Payroll{" "}
-                {dataPayroll[0] !== null ? dataPayroll.employees.name : null}
+                {dataHistroy && (
+                  <p>Salary Detail {dataHistroy.payrolls.employees.name}</p>
+                )}
               </h1>
               <button
                 type="button"
@@ -77,8 +41,14 @@ const GenerateGajiModal = ({
               ></button>
             </div>
             <div className="modal-body">
-              {dataPayroll[0] !== null && (
+              {dataHistroy && (
                 <>
+                  <div className="mb-2">
+                    <label className="form-label">Periode </label>
+                    <label className="form-label ms-2">
+                      {moment(dataHistroy.periode).format("MM - YYYY")}
+                    </label>
+                  </div>
                   <table className="table table-borderless">
                     <thead>
                       <tr>
@@ -89,19 +59,23 @@ const GenerateGajiModal = ({
                       <tr>
                         <td>- basic salary</td>
                         <td align="right">
-                          {numberFormat(dataPayroll.basic_salary)}
+                          {numberFormat(dataHistroy.payrolls.basic_salary)}
                         </td>
                       </tr>
                       <tr>
                         <td>- transport allowance</td>
                         <td align="right">
-                          {numberFormat(dataPayroll.transportation_allowance)}
+                          {numberFormat(
+                            dataHistroy.payrolls.transportation_allowance
+                          )}
                         </td>
                       </tr>
                       <tr>
                         <td>- positional allowance</td>
                         <td align="right">
-                          {numberFormat(dataPayroll.positional_allowance)}
+                          {numberFormat(
+                            dataHistroy.payrolls.positional_allowance
+                          )}
                         </td>
                       </tr>
                       <tr>
@@ -109,16 +83,20 @@ const GenerateGajiModal = ({
                       </tr>
                       <tr>
                         <td>- weight 1</td>
-                        <td align="right">{numberFormat(dataOt.value1)}</td>
+                        <td align="right">
+                          {numberFormat(dataHistroy.weight_ot1)}
+                        </td>
                       </tr>
                       <tr>
                         <td>- weight 2</td>
-                        <td align="right">{numberFormat(dataOt.value2)}</td>
+                        <td align="right">
+                          {numberFormat(dataHistroy.weight_ot2)}
+                        </td>
                       </tr>
                       <tr>
                         <th>Total Income</th>
                         <td align="right">
-                          {numberFormat(dataSettle.bruto_sallary)}
+                          {numberFormat(dataHistroy.bruto_salary)}
                         </td>
                       </tr>
                     </tbody>
@@ -134,19 +112,19 @@ const GenerateGajiModal = ({
                       <tr>
                         <td>- absent</td>
                         <td align="right">
-                          {numberFormat(dataSettle.potongan_absen)}
+                          {numberFormat(dataHistroy.absent)}
                         </td>
                       </tr>
                       <tr>
                         <td>- health bpjs</td>
                         <td align="right">
-                          {numberFormat(dataPayroll.health_bpjs)}
+                          {numberFormat(dataHistroy.payrolls.health_bpjs)}
                         </td>
                       </tr>
                       <tr>
                         <td>- employment bpjs</td>
                         <td align="right">
-                          {numberFormat(dataPayroll.employment_bpjs)}
+                          {numberFormat(dataHistroy.payrolls.employment_bpjs)}
                         </td>
                       </tr>
                       <tr>
@@ -156,7 +134,7 @@ const GenerateGajiModal = ({
                       <tr>
                         <th>Total Expenditure</th>
                         <td align="right">
-                          {numberFormat(dataSettle.total_potongan)}
+                          {numberFormat(dataHistroy.total_deduction)}
                         </td>
                       </tr>
                     </tbody>
@@ -172,21 +150,11 @@ const GenerateGajiModal = ({
                       <tr>
                         <td>- net salary</td>
                         <td align="right">
-                          {numberFormat(dataSettle.net_sallary)}
+                          {numberFormat(dataHistroy.nett_salary)}
                         </td>
                       </tr>
                     </tbody>
                   </table>
-
-                  <div className="mb-3">
-                    <label className="form-label">Periode</label>
-                    <input
-                      required
-                      type="date"
-                      className="form-control"
-                      onChange={(e) => setPeriode(e.target.value)}
-                    />
-                  </div>
                 </>
               )}
             </div>
@@ -198,13 +166,13 @@ const GenerateGajiModal = ({
               >
                 Close
               </button>
-              <button
+              {/* <button
                 type="button"
                 onClick={() => handleSave()}
                 className="btn btn-primary"
               >
                 Generate
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -213,4 +181,4 @@ const GenerateGajiModal = ({
   );
 };
 
-export default GenerateGajiModal;
+export default HistoryGajiModal;

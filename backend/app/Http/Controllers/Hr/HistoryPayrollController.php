@@ -48,4 +48,18 @@ class HistoryPayrollController extends Controller
             ]);
         }
     }
+
+    public function getDetailHistoryPayrolls(Request $request, $id)
+    {
+        if ($request->isMethod('get')) {
+
+            $salaryDetail = HistoryPayrollModel::with('payrolls.employees.departmens.positions')->where('id', $id)->first();
+
+            return response()->json([
+                'status' => true,
+                'data'   => $salaryDetail,
+                200
+            ]);
+        }
+    }
 }

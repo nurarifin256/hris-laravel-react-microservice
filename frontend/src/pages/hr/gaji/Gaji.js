@@ -7,6 +7,7 @@ import {
   generatePayroll,
   postGeneratePayroll,
   getHistoriesPayrolls,
+  getDetailPayroll,
 } from "../../../config/hooks/hr/payrollsHook";
 import DataTable from "react-data-table-component";
 import CurrencyFormat from "react-currency-format";
@@ -14,6 +15,7 @@ import moment from "moment";
 import Select from "react-select";
 import GajiPostModal from "./modals/GajiPostModal";
 import GenerateGajiModal from "./modals/GenerateGajiModal";
+import HistoryGajiModal from "./modals/HistoryGajiModal";
 
 const Gaji = () => {
   const numberFormat = (value) =>
@@ -36,6 +38,9 @@ const Gaji = () => {
 
   const [employees, setEmployees] = useState([]);
   const [payrolls, setPayrolls] = useState([]);
+  const [payrollHistories, setPayrollHistories] = useState([]);
+
+  const [idPayrollHistory, setIdPayrollHistory] = useState(null);
 
   // cara mutliple kirim parameter
   // const initialState = {
@@ -64,7 +69,7 @@ const Gaji = () => {
     getHistoriesPayrolls,
     {
       onSuccess: (data) => {
-        console.log(data);
+        setPayrollHistories(data.data);
         setTotalPagesH(data.meta.last_page);
       },
     }
@@ -159,6 +164,58 @@ const Gaji = () => {
     },
   ];
 
+  const columnsHistories = [
+    {
+      name: "No",
+      selector: (row, i) => i + 1,
+      sortable: true,
+      width: "80px",
+    },
+    {
+      name: "Name",
+      selector: (row, i) => row.payrolls.employees.name,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Department & Position",
+      selector: (row, i) =>
+        row.payrolls.employees.departmens.name +
+        " - " +
+        row.payrolls.employees.departmens.positions.name,
+      sortable: true,
+    },
+    {
+      name: "Periode",
+      selector: (row, i) => moment(row.periode).format("MM - YYYY"),
+      sortable: true,
+    },
+    {
+      name: "Net Salary",
+      sortable: true,
+      selector: (row, i) => numberFormat(row.nett_salary),
+    },
+    {
+      name: "Action",
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      cell: (row, i) => (
+        <div>
+          <button
+            type="button"
+            className="btn btn-info btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-detail"
+            onClick={() => setIdPayrollHistory(row.id)}
+          >
+            <i className="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <>
       <div className="container">
@@ -219,8 +276,8 @@ const Gaji = () => {
           <div className="col-md-12">
             <div className="table-responsive">
               <DataTable
-                // data={payrolls}
-                // columns={columns}
+                data={payrollHistories}
+                columns={columnsHistories}
                 pagination
                 paginationServer
                 paginationTotalRows={totalPagesH * perPageH}
@@ -249,6 +306,14 @@ const Gaji = () => {
           numberFormat={numberFormat}
           postGeneratePayroll={postGeneratePayroll}
           toast={toast}
+          reload={reload}
+        />
+
+        {/* modal detail gaji */}
+        <HistoryGajiModal
+          idPayrollHistory={idPayrollHistory}
+          getDetailPayroll={getDetailPayroll}
+          numberFormat={numberFormat}
         />
 
         <ToastContainer />

@@ -41,6 +41,21 @@ export const generatePayroll = async ({ queryKey }) => {
   return response;
 };
 
+export const getDetailPayroll = async ({ queryKey }) => {
+  let id = queryKey[1];
+  let response = await fetch(
+    `http://localhost:8000/api/detail-payroll-history/${id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  response = await response.json();
+  return response;
+};
+
 export const postPayroll = async (formData) => {
   let created_by = user.user.name;
   let data = { ...formData, created_by };
