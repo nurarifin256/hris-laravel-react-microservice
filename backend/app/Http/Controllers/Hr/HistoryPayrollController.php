@@ -62,4 +62,20 @@ class HistoryPayrollController extends Controller
             ]);
         }
     }
+
+    public function deleteHistoryPayrolls(Request $request)
+    {
+        if ($request->isMethod('delete')) {
+            $data = $request->input();
+
+            $payrollHistory = HistoryPayrollModel::find($data['id']);
+            $payrollHistory->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => "History payroll success deleted",
+                204
+            ]);
+        }
+    }
 }

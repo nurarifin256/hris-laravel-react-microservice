@@ -70,6 +70,23 @@ export const postPayroll = async (formData) => {
   return response;
 };
 
+export const deleteDetailPayroll = async (id) => {
+  let updated_by = user.user.name;
+  let data = { id, updated_by };
+  let response = await fetch(
+    "http://localhost:8000/api/delete-payroll-history",
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  response = await response.json();
+  return response;
+};
+
 export const postGeneratePayroll = async (dataGenerate) => {
   let created_by = user.user.name;
   let data = { ...dataGenerate, created_by };

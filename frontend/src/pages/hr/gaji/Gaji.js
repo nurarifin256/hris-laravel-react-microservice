@@ -8,6 +8,7 @@ import {
   postGeneratePayroll,
   getHistoriesPayrolls,
   getDetailPayroll,
+  deleteDetailPayroll,
 } from "../../../config/hooks/hr/payrollsHook";
 import DataTable from "react-data-table-component";
 import CurrencyFormat from "react-currency-format";
@@ -16,6 +17,7 @@ import Select from "react-select";
 import GajiPostModal from "./modals/GajiPostModal";
 import GenerateGajiModal from "./modals/GenerateGajiModal";
 import HistoryGajiModal from "./modals/HistoryGajiModal";
+import { confirmAlert } from "react-confirm-alert";
 
 const Gaji = () => {
   const numberFormat = (value) =>
@@ -93,6 +95,43 @@ const Gaji = () => {
 
   const handleSort = (column) => {
     setSort({ column: column.path, direction: column.direction });
+  };
+
+  const { mutate: deleteBackend } = useMutation(
+    (id) => deleteDetailPayroll(id),
+    {
+      onSuccess(data) {
+        if (data.message === "History payroll success deleted") {
+          reload();
+          toast.success(data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
+      },
+    }
+  );
+
+  const handleDelete = (id) => {
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are you sure to do this.",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => deleteBackend(id),
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
   };
 
   const columns = [
@@ -204,7 +243,14 @@ const Gaji = () => {
         <div>
           <button
             type="button"
-            className="btn btn-info btn-sm"
+            className="btn btn-danger btn-sm"
+            onClick={() => handleDelete(row.id)}
+          >
+            <i className="fa-solid fa-trash-can"></i>
+          </button>
+          <button
+            type="button"
+            className="btn btn-info btn-sm ms-2"
             data-bs-toggle="modal"
             data-bs-target="#modal-detail"
             onClick={() => setIdPayrollHistory(row.id)}

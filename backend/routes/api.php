@@ -83,6 +83,7 @@ Route::namespace('App\Http\Controllers\Hr')->group(function () {
     // route history payroll
     Route::get('get-history-payrolls', 'HistoryPayrollController@getHistoryPayrolls');
     Route::get('detail-payroll-history/{id}', 'HistoryPayrollController@getDetailHistoryPayrolls');
+    Route::delete('delete-payroll-history', 'HistoryPayrollController@deleteHistoryPayrolls');
 
     // route attendance
     Route::post('save-attendance', 'AttendanceController@saveAttendance');
